@@ -4,6 +4,7 @@ const express = require('express');
 const Sequelize = require('sequelize');
 const ListingModel = require('./models/listing');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 // Constants
 const PORT = 8080;
@@ -13,6 +14,7 @@ const HOST = '0.0.0.0';
 const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('listing-api.phowma.com\n');
@@ -22,6 +24,16 @@ app.get('/listings', (req, res) => {
     const sequelize = new Sequelize(process.env.DATABASE_URL);
     const Listing = ListingModel(sequelize, Sequelize);
     Listing.findAll().then(listings => res.json(listings))
+});
+
+app.get('/listing/:id', (req,res) => {
+    const sequelize = new Sequelize(process.env.DATABASE_URL);
+    const Listing = ListingModel(sequelize, Sequelize);
+    Listing.findOne({
+        where: {
+            id: req.params.id
+        }
+    }).then(listing => res.json(listing));
 });
 
 app.post('/listing', (req, res) => {
