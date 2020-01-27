@@ -6,6 +6,8 @@ const ListingModel = require('./models/listing');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const image = require('./image');
+const multer = require('multer');
+const upload = multer({dest: 'uploads/'})
 
 // Constants
 const PORT = 8080;
@@ -21,14 +23,18 @@ app.get('/', (req, res) => {
   res.send('listing-api.phowma.com\n');
 });
 
-app.get('/upload', (req, res) => {
- //(path,fileName,table,tableIndex,imageIndex)
+app.post('/upload', upload.single('image'), function(req, res, next) {
+  console.log('req.body.type: '+req.body.type);
+  res.send(req.file);
+
+  /*
   var uploadPromise = image.uploadFile('/usr/app/','image1.jpg','listing','1','1');
   uploadPromise.then(function(result){
       res.json(result);
   }).catch(function(err){
       res.send(err);
   });
+  */
 });
 
 app.get('/listings', (req, res) => {
