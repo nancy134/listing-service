@@ -5,7 +5,15 @@ module.exports = (sequelize, DataTypes) => {
     city: DataTypes.STRING,
     state: DataTypes.STRING,
     email: DataTypes.STRING,
-    tenant: DataTypes.STRING
+    tenant: DataTypes.STRING,
+    shortDescription: DataTypes.STRING,
+    yearBuilt: DataTypes.INTEGER,
+    totalBuildingSize: DataTypes.INTEGER,
+    lotSize:  DataTypes.FLOAT,
+    totalAvailableSpace: DataTypes.INTEGER,
+    zone: DataTypes.INTEGER,
+    parking:  DataTypes.INTEGER
+
   }, {});
   Listing.associate = function(models) {
     // associations can be defined here

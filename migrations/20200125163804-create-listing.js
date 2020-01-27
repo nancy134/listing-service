@@ -23,6 +23,27 @@ module.exports = {
       tenant: {
         type: Sequelize.STRING
       },
+      shortDescription: {
+        type: Sequelize.STRING
+      },
+      yearBuilt: {
+        type: Sequelize.INTEGER
+      },
+      totalBuildingSize: {
+        type: Sequelize.INTEGER
+      },
+      lotSize: {
+        type: Sequelize.FLOAT
+      },
+      totalAvailableSpace: {
+        type: Sequelize.INTEGER
+      },
+      zone: {
+        type: Sequelize.STRING
+      },
+      parking: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
