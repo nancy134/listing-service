@@ -13,7 +13,7 @@ module.exports = {
       },
       ListingId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'Listings',
           key: 'id'
