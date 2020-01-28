@@ -1,29 +1,33 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Images', {
+    return queryInterface.createTable('Spaces', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      description: {
+      unit: {
+        type: Sequelize.STRING
+      },
+      size: {
+        type: Sequelize.INTEGER
+      },
+      price: {
+        type: Sequelize.FLOAT
+      },
+      type: {
+        type: Sequelize.STRING
+      },
+      use: {
         type: Sequelize.STRING
       },
       ListingId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
+       type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Listings',
-          key: 'id'
-        }
-      },
-      SpaceId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Spaces',
           key: 'id'
         }
       },
@@ -38,6 +42,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Images');
+    return queryInterface.dropTable('Spaces');
   }
 };

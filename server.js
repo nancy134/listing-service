@@ -59,7 +59,18 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
 });
 
 app.get('/listings', (req, res) => {
-    models.Listing.findAll({include: {model: models.Image, as: 'images'} }).then(listings => res.json(listings))
+    models.Listing.findAll({
+        include: [
+        {
+            model: models.Image, 
+            as: 'images'
+        },
+        {
+            model: models.Space,
+            as: 'spaces'
+        }
+        ]
+    }).then(listings => res.json(listings))
 });
 
 app.get('/images', (req, res) => {

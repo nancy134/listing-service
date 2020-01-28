@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING
   }, {});
   Image.associate = function(models) {
-     Image.belongsTo(models.Listing)
+     Image.belongsTo(models.Listing);
+     Image.belongsTo(models.Space);
   };
   return Image;
 };
