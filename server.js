@@ -7,7 +7,7 @@ const models = require("./models");
 //const ImageModel = require('./models/image');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const image = require('./image');
+const imageService = require('./image');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 
@@ -26,7 +26,27 @@ app.get('/', (req, res) => {
 });
 
 app.post('/upload', upload.single('image'), function(req, res, next) {
-  res.send(req.file);
+
+  models.Image.create({
+      description: req.file.originalname,
+      ListingId: req.body.listing_id
+  }).then(image => {
+      console.log("image.id: "+image.id);
+      var uploadPromise = imageService.uploadFile(
+          req.file.path,
+          req.file.originalname,
+          'listing',
+          req.body.listing_id,
+          image.id);
+      uploadPromise.then(function(result){
+          res.json(result);
+      }).catch(function(err){
+          res.send(err);
+      });
+
+  }).catch(err => {
+      res.send(err);
+  });
 
   /*
   var uploadPromise = image.uploadFile('/usr/app/','image1.jpg','listing','1','1');

@@ -8,8 +8,14 @@ const s3 = new AWS.S3({
 
 
 exports.uploadFile = (path,fileName,table,tableIndex,imageIndex) => {
+    console.log("path: "+path);
+    console.log("fileName: "+fileName);
+    console.log("table: "+table);
+    console.log("tableIndex: "+tableIndex);
+    console.log("imageIndex: "+imageIndex);
     return new Promise(function(resolve, reject){
-        var filePath = path + fileName;
+        var filePath = "./"+path;
+        console.log("filePath: "+filePath);
         fs.readFile(filePath, (err, data) => {
             if (err){
                 reject(err);
@@ -17,12 +23,13 @@ exports.uploadFile = (path,fileName,table,tableIndex,imageIndex) => {
             var key = 
                 table + "/" +
                 tableIndex + "/" +
+                'image' + "/" +
                 imageIndex + "/" +
                 fileName;
                  
             const params = {
                 Bucket: 'sabre-images', 
-                Key: 'listing/1/image/1/image1.jpg', 
+                Key: key, 
                 Body: JSON.stringify(data, null, 2)
             };
             s3.upload(params, function(s3Err, data) {
