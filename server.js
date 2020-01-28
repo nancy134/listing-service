@@ -3,6 +3,7 @@
 const express = require('express');
 const Sequelize = require('sequelize');
 const ListingModel = require('./models/listing');
+const ImageModel = require('./models/image');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const image = require('./image');
@@ -41,6 +42,12 @@ app.get('/listings', (req, res) => {
     const sequelize = new Sequelize(process.env.DATABASE_URL);
     const Listing = ListingModel(sequelize, Sequelize);
     Listing.findAll().then(listings => res.json(listings))
+});
+
+app.get('/images', (req, res) => {
+    const sequelize = new Sequelize(process.env.DATABASE_URL);
+    const Image = ImageModel(sequelize, Sequelize);
+    Image.findAll().then(images => res.json(images));
 });
 
 app.get('/listing/:id', (req,res) => {
