@@ -2,13 +2,14 @@
 
 const express = require('express');
 const Sequelize = require('sequelize');
-const ListingModel = require('./models/listing');
-const ImageModel = require('./models/image');
+const models = require("./models");
+//const ListingModel = require('./models/listing');
+//const ImageModel = require('./models/image');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const image = require('./image');
 const multer = require('multer');
-const upload = multer({dest: 'uploads/'})
+const upload = multer({dest: 'uploads/'});
 
 // Constants
 const PORT = 8080;
@@ -25,7 +26,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/upload', upload.single('image'), function(req, res, next) {
-  console.log('req.body.type: '+req.body.type);
   res.send(req.file);
 
   /*
@@ -39,43 +39,61 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
 });
 
 app.get('/listings', (req, res) => {
-    const sequelize = new Sequelize(process.env.DATABASE_URL);
-    const Listing = ListingModel(sequelize, Sequelize);
-    Listing.findAll().then(listings => res.json(listings))
+    models.Listing.findAll({include: {model: models.Image, as: 'images'} }).then(listings => res.json(listings))
 });
 
 app.get('/images', (req, res) => {
-    const sequelize = new Sequelize(process.env.DATABASE_URL);
-    const Image = ImageModel(sequelize, Sequelize);
-    Image.findAll().then(images => res.json(images));
+    models.Image.findAll().then(images => res.json(images));
 });
 
-app.get('/listing/:id', (req,res) => {
-    const sequelize = new Sequelize(process.env.DATABASE_URL);
-    const Listing = ListingModel(sequelize, Sequelize);
-    Listing.findOne({
+app.get('/image/:id', (req,res) => {
+    models.Image.findOne({
         where: {
             id: req.params.id
         }
-    }).then(listing => res.json(listing));
+    }).then(image => {
+        res.json(image);
+    }).catch(err => {
+        res.json(err);
+    });
+
 });
 
+app.get('/listing/:id', (req,res) => {
+    models.Listing.findOne({
+        where: {
+            id: req.params.id
+        }
+    }).then(listing => {
+        res.json(listing);
+    });
+});
+
+app.post('/image', (req, res) => {
+   var description = req.body.description;
+   var ListingId = req.body.listingId;
+   models.Image.create({
+       description: description,
+       ListingId: ListingId
+   }).then(image => {
+       res.json(image);
+   }).catch(err => {
+       res.json(err);
+   });
+});
 app.post('/listing', (req, res) => {
    var tenant = req.body.tenant;
    var email = req.body.email;
    var address = req.body.address;
    var city = req.body.city;
    var state = req.body.state;
-   const sequelize = new Sequelize(process.env.DATABASE_URL);
-   const Listing = ListingModel(sequelize, Sequelize);
-   Listing.create({
+   models.Listing.create({
        tenant: tenant,
        email: email,
        address: address,
        city: city,
        state: state
    }).then(listing => {
-       console.log("listing.id: "+listing.id);
        res.json(listing);
    });
 });
