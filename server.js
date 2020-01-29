@@ -26,7 +26,6 @@ app.get('/', (req, res) => {
 app.post('/upload', upload.single('image'), function(req, res, next) {
 
   models.Image.create({
-      description: req.file.originalname,
       ListingId: req.body.listing_id
   }).then(image => {
       console.log("image.id: "+image.id);
@@ -37,7 +36,12 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
           req.body.listing_id,
           image.id);
       uploadPromise.then(function(result){
-          res.json(result);
+          image.url = result.Location;
+          image.save().then(image => {
+              res.json(image);
+          }).catch(err => {
+              res.json(err);
+          });
       }).catch(function(err){
           res.send(err);
       });
@@ -64,14 +68,17 @@ app.get('/listings', (req, res) => {
         distinct: true,
         limit: limit,
         offset: offset,
+        attributes: ['id','address', 'city','state','yearBuilt'],
         include: [
         {
             model: models.Image, 
-            as: 'images'
+            as: 'images',
+            attributes: ['id','url']
         },
         {
             model: models.Space,
-            as: 'spaces'
+            as: 'spaces',
+            attributes: ['price', 'size']
         }
         ]
     }).then(listings => {

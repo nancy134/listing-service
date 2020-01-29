@@ -30,7 +30,7 @@ exports.uploadFile = (path,fileName,table,tableIndex,imageIndex) => {
             const params = {
                 Bucket: 'sabre-images', 
                 Key: key, 
-                Body: JSON.stringify(data, null, 2)
+                Body: data
             };
             s3.upload(params, function(s3Err, data) {
                 if (s3Err) {
