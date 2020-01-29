@@ -3,8 +3,6 @@
 const express = require('express');
 const Sequelize = require('sequelize');
 const models = require("./models");
-//const ListingModel = require('./models/listing');
-//const ImageModel = require('./models/image');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const imageService = require('./image');
@@ -59,7 +57,13 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
 });
 
 app.get('/listings', (req, res) => {
-    models.Listing.findAll({
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    console.log("limit: "+limit+" offset: "+offset);
+    models.Listing.findAndCountAll({
+        distinct: true,
+        limit: limit,
+        offset: offset,
         include: [
         {
             model: models.Image, 
@@ -70,7 +74,15 @@ app.get('/listings', (req, res) => {
             as: 'spaces'
         }
         ]
-    }).then(listings => res.json(listings))
+    }).then(listings => {
+        res.json({
+            page: req.query.page,
+            perPage: req.query.perPage,
+            listings: listings
+        });
+    }).catch(err => { 
+        res.json(err);
+    });
 });
 
 app.get('/images', (req, res) => {
