@@ -113,7 +113,19 @@ app.get('/listing/:id', (req,res) => {
     models.Listing.findOne({
         where: {
             id: req.params.id
+        },
+        include: [
+        {
+            model: models.Image,
+            as: 'images',
+            attributes: ['id','url']
+        },
+        {
+            model: models.Space,
+            as: 'spaces',
+            attributes: ['unit','price', 'size','type','use']
         }
+        ]
     }).then(listing => {
         res.json(listing);
     });
