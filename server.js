@@ -143,6 +143,21 @@ app.post('/image', (req, res) => {
        res.json(err);
    });
 });
+
+app.put('/listing/:id', (req, res) => {
+    console.log("req.params.id: "+req.params.id);
+    console.log("req.body: "+req.body);
+    models.Listing.update(
+        req.body,
+        {where: {id: req.params.id}}
+    ).then(function(result){
+        console.log("updatedListing: "+JSON.stringify(result));
+        res.json(result)
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
 app.post('/listing', (req, res) => {
    var tenant = req.body.tenant;
    var email = req.body.email;
