@@ -134,6 +134,11 @@ app.get('/listing/:id', (req,res) => {
             model: models.Tenant,
             as: 'tenants',
             attributes: ['tenant', 'space', 'leaseEnds']
+        },
+        {
+            model: models.Portfolio,
+            as: 'portfolio',
+            attributes: ['tenant', 'buildingSize', 'lotSize', 'type']
         }
         ]
     }).then(listing => {
