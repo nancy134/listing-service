@@ -129,6 +129,11 @@ app.get('/listing/:id', (req,res) => {
             model: models.Unit,
             as: 'units',
             attribute: ['description', 'numUnits', 'space', 'income']
+        },
+        {
+            model: models.Tenant,
+            as: 'tenants',
+            attributes: ['tenant', 'space', 'leaseEnds']
         }
         ]
     }).then(listing => {
