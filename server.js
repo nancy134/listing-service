@@ -68,7 +68,7 @@ app.get('/listings', (req, res) => {
         distinct: true,
         limit: limit,
         offset: offset,
-        attributes: ['id','address', 'city','state','yearBuilt'],
+        attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt'],
         include: [
         {
             model: models.Image, 
@@ -124,6 +124,11 @@ app.get('/listing/:id', (req,res) => {
             model: models.Space,
             as: 'spaces',
             attributes: ['unit','price', 'size','type','use']
+        },
+        {
+            model: models.Unit,
+            as: 'units',
+            attribute: ['description', 'numUnits', 'space', 'income']
         }
         ]
     }).then(listing => {

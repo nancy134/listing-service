@@ -66,6 +66,7 @@ module.exports = (sequelize, DataTypes) => {
   Listing.associate = function(models) {
     Listing.hasMany(models.Image, {as: 'images'});
     Listing.hasMany(models.Space, {as: 'spaces'});
+    Listing.hasMany(models.Unit, {as: 'units'});
   };
   return Listing;
 };
