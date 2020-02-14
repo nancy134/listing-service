@@ -131,6 +131,11 @@ module.exports = {
       hoaFees: {
         type: Sequelize.DECIMAL(13,4)
       },
+
+      // Other
+      owner: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

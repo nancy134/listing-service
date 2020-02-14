@@ -13,6 +13,7 @@ module.exports = {
         lotSize: 0.48,
 	totalAvailableSpace: 30570,
         parking: 6,
+        owner: "paulp@sabrerealtygroup.com",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -25,6 +26,7 @@ module.exports = {
         yearBuilt: 1969,
 	totalAvailableSpace: 13000,
         zone: 'B',
+        owner: "fredr@sabrerealtygroup.com",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -35,6 +37,7 @@ module.exports = {
         listingType: 'For Lease',
         yearBuilt: 1948,
         totalBuildingSize: 22960,
+        owner: "fredr@sabrerealtygroup.com",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -47,6 +50,7 @@ module.exports = {
         totalBuildingSize: 25824,
 	totalAvailableSpace: 3948,
         zone: 'C',
+         owner: "fredr@sabrerealtygroup.com",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -64,6 +68,7 @@ module.exports = {
         yearBuilt: 1960,
         parking: 5,
         driveInDoors: 2,
+        owner: "paulp@sabrerealtygroup.com",
         createdAt: new Date(),
         updatedAt: new Date()
 

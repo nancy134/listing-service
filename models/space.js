@@ -5,7 +5,9 @@ module.exports = (sequelize, DataTypes) => {
     size: DataTypes.INTEGER,
     price: DataTypes.FLOAT,
     type: DataTypes.STRING,
-    use: DataTypes.STRING
+    use: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
   }, {});
   Space.associate = function(models) {
      Space.belongsTo(models.Listing);

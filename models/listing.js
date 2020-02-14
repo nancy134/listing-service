@@ -60,7 +60,12 @@ module.exports = (sequelize, DataTypes) => {
     utilities: DataTypes.DECIMAL(13,4),
     hvac: DataTypes.DECIMAL(13,4),
     security: DataTypes.DECIMAL(13,4),
-    hoaFees: DataTypes.DECIMAL(13,4)
+    hoaFees: DataTypes.DECIMAL(13,4),
+
+    // Other
+    owner: DataTypes.STRING,
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
 
   }, {});
   Listing.associate = function(models) {

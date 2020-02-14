@@ -63,12 +63,14 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
 app.get('/listings', (req, res) => {
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    console.log("limit: "+limit+" offset: "+offset);
+    var where = null;
+    if (req.query.owner) where = {owner: req.query.owner};
     models.Listing.findAndCountAll({
+        where: where,
         distinct: true,
         limit: limit,
         offset: offset,
-        attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt'],
+        attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner'],
         include: [
         {
             model: models.Image, 

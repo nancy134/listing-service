@@ -7,7 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     type: { 
         type: DataTypes.ENUM,
         values: ['Commercial', 'Vacant', 'Mixed Use']
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
   }, {});
   Portfolio.associate = function(models) {
      Portfolio.belongsTo(models.Listing);
