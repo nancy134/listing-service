@@ -176,19 +176,42 @@ app.put('/listing/:id', (req, res) => {
 });
 
 app.post('/listing', (req, res) => {
-   var tenant = req.body.tenant;
-   var email = req.body.email;
-   var address = req.body.address;
-   var city = req.body.city;
-   var state = req.body.state;
-   models.Listing.create({
-       tenant: tenant,
-       email: email,
-       address: address,
-       city: city,
-       state: state
-   }).then(listing => {
-       res.json(listing);
+   models.Listing.create(req.body).then(listing => {
+    models.Listing.findOne({
+        where: {
+            id: listing.id
+        },
+        include: [
+        {
+            model: models.Image,
+            as: 'images',
+            attributes: ['id','url']
+        },
+        {
+            model: models.Space,
+            as: 'spaces',
+            attributes: ['unit','price', 'size','type','use']
+        },
+        {
+            model: models.Unit,
+            as: 'units',
+            attribute: ['description', 'numUnits', 'space', 'income']
+        },
+        {
+            model: models.Tenant,
+            as: 'tenants',
+            attributes: ['tenant', 'space', 'leaseEnds']
+        },
+        {
+            model: models.Portfolio,
+            as: 'portfolio',
+            attributes: ['tenant', 'buildingSize', 'lotSize', 'type']
+        }
+        ]
+    }).then(listing => {
+        res.json(listing);
+    });
+
    });
 });
 app.listen(PORT, HOST);
