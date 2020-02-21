@@ -144,7 +144,15 @@ app.get('/listing/:id', (req,res) => {
         }
         ]
     }).then(listing => {
-        res.json(listing);
+        res.json({
+            listing: listing,
+            states: models.Listing.rawAttributes.state.values
+        });
+    });
+});
+app.get('/enums', (req, res) => {
+    res.json({
+        states: models.Listing.rawAttributes.state.values
     });
 });
 
@@ -209,7 +217,11 @@ app.post('/listing', (req, res) => {
         }
         ]
     }).then(listing => {
-        res.json(listing);
+        res.json({
+            listing: listing,
+            states: models.Listing.rawAttributes.state.values
+        });
+
     });
 
    });
