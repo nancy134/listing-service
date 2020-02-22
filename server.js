@@ -170,13 +170,52 @@ app.post('/image', (req, res) => {
 });
 
 app.put('/listing/:id', (req, res) => {
-    console.log("req.params.id: "+req.params.id);
     console.log("req.body: "+req.body);
+    console.log("req.params.id: "+req.params.id);
     models.Listing.update(
         req.body,
-        {where: {id: req.params.id}}
-    ).then(function(result){
-        console.log("updatedListing: "+JSON.stringify(result));
+        {returning: true, where: {id: req.params.id}}
+    ).then(function([rowsUpdated, [listing]]){
+        console.log("listing: "+listing);
+        models.Listing.findOne({
+            where: {
+                id: listing.id
+            },
+            include: [
+            {
+                model: models.Image,
+                as: 'images',
+                attributes: ['id','url']
+            },
+            {
+                model: models.Space,
+                as: 'spaces',
+                attributes: ['unit','price', 'size','type','use']
+            },
+            {
+                model: models.Unit,
+                as: 'units',
+                attribute: ['description', 'numUnits', 'space', 'income']
+            },
+            {
+                model: models.Tenant,
+                as: 'tenants',
+                attributes: ['tenant', 'space', 'leaseEnds']
+            },
+            {
+                model: models.Portfolio,
+                as: 'portfolio',
+                attributes: ['tenant', 'buildingSize', 'lotSize', 'type']
+            }
+            ]
+        }).then(listing => {
+            res.json({
+                listing: listing,
+                states: models.Listing.rawAttributes.state.values
+            });
+
+        });
+
         res.json(result)
     }).catch(function(err){
         console.log("err: "+err);
