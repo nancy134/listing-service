@@ -125,7 +125,7 @@ app.get('/listing/:id', (req,res) => {
         {
             model: models.Space,
             as: 'spaces',
-            attributes: ['unit','price', 'size','type','use']
+            attributes: ['id', 'unit','price', 'size','type','use']
         },
         {
             model: models.Unit,
@@ -146,13 +146,22 @@ app.get('/listing/:id', (req,res) => {
     }).then(listing => {
         res.json({
             listing: listing,
-            states: models.Listing.rawAttributes.state.values
+            states: models.Listing.rawAttributes.state.values,
+            listingTypes: models.Listing.rawAttributes.listingType.values,
+            propertyTypes: models.Listing.rawAttributes.propertyType.values,
+            spaceTypes: models.Space.rawAttributes.type.values,
+            spaceUse: models.Space.rawAttributes.use.values
         });
     });
 });
 app.get('/enums', (req, res) => {
     res.json({
-        states: models.Listing.rawAttributes.state.values
+        states: models.Listing.rawAttributes.state.values,
+        listingTypes: models.Listing.rawAttributes.listingType.values,
+        propertyTypes: models.Listing.rawAttributes.propertyType.values,
+        spaceTypes: models.Space.rawAttributes.type.values,
+        spaceUse: models.Space.rawAttributes.use.values
+
     });
 });
 
@@ -211,7 +220,12 @@ app.put('/listing/:id', (req, res) => {
         }).then(listing => {
             res.json({
                 listing: listing,
-                states: models.Listing.rawAttributes.state.values
+                states: models.Listing.rawAttributes.state.values,
+                listingTypes: models.Listing.rawAttributes.listingType.values,
+                propertyTypes: models.Listing.rawAttributes.propertyType.values,
+                spaceTypes: models.Space.rawAttributes.type.values,
+                spaceUse: models.Space.rawAttributes.use.values
+
             });
 
         });
@@ -258,9 +272,12 @@ app.post('/listing', (req, res) => {
     }).then(listing => {
         res.json({
             listing: listing,
-            states: models.Listing.rawAttributes.state.values
+            states: models.Listing.rawAttributes.state.values,
+            listingTypes: models.Listing.rawAttributes.listingType.values,
+            propertyTypes: models.Listing.rawAttributes.propertyType.values,
+            spaceTypes: models.Space.rawAttributes.type.values,
+            spaceUse: models.Space.rawAttributes.use.values
         });
-
     });
 
    });

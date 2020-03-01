@@ -18,10 +18,12 @@ module.exports = {
         type: Sequelize.FLOAT
       },
       type: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM,
+        values: ['Full Gross', 'Modified Gross', 'NNN']
       },
       use: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM,
+        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty']
       },
       ListingId: {
        type: Sequelize.INTEGER,

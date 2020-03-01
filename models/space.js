@@ -4,8 +4,14 @@ module.exports = (sequelize, DataTypes) => {
     unit: DataTypes.STRING,
     size: DataTypes.INTEGER,
     price: DataTypes.FLOAT,
-    type: DataTypes.STRING,
-    use: DataTypes.STRING,
+    type: {
+        type: DataTypes.ENUM,
+        values: ['Full Gross', 'Modified Gross', 'NNN']
+    },
+    use: {
+        type: DataTypes.ENUM,
+        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaturant', 'Specialty']
+    },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
   }, {});
