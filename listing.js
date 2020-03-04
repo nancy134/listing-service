@@ -1,4 +1,3 @@
-const rp = require('request-promise');
 const models = require("./models");
 var find = function(listing){
     return new Promise(function(resolve, reject){
