@@ -100,9 +100,9 @@ var index = function(page, limit, offset, where){
         });
     });
 }
-exports.getListings = function(limit, offset, where){
+exports.getListings = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
-        index(limit, offset, where).then(function(listings){
+        index(page, limit, offset, where).then(function(listings){
             resolve(listings);
         }).catch(function(err){
             reject(err);
