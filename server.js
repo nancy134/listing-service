@@ -10,6 +10,7 @@ const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 const listingService = require('./listing');
 const spaceService = require('./space');
+const unitService = require('./unit');
 
 // Constants
 const PORT = 8080;
@@ -128,6 +129,18 @@ app.get('/listing/:listing_id/spaces', (req, res) => {
         console.log("err: "+err);
     });  
 });
+app.get('/listing/:listing_id/units', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = {ListingId: req.params.listing_id};
+    var getUnitsPromise = unitService.getUnits(page, limit, offset, where);
+    getUnitsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
 
 app.get('/spaces', (req, res) => {
     var page = req.query.page;
@@ -141,6 +154,24 @@ app.get('/spaces', (req, res) => {
     console.log("where: "+where);
     var getSpacesPromise = spaceService.getSpaces(page, limit, offset, where);
     getSpacesPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
+
+app.get('/units', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null;;
+    console.log("page: "+page);
+    console.log("limit: "+limit);
+    console.log("offset: "+offset);
+    console.log("where: "+where);
+    var getUnitsPromise = unitService.getUnits(page, limit, offset, where);
+    getUnitsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
@@ -179,6 +210,20 @@ app.put('/space/:id', (req, res) => {
         console.log("err: "+err);
     });
 });
+
+app.put('/unit/:id', (req, res) => {
+    var updateData = {
+        id: req.params.id,
+        body: req.body
+    }
+    var updateUnitPromise = unitService.updateUnit(updateData);
+    updateUnitPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
 app.post('/listing', (req, res) => {
    var createListingPromise = listingService.createListing(req.body);
    createListingPromise.then(function(result){
@@ -195,4 +240,14 @@ app.post('/space', (req, res) => {
         console.log("err: "+err);
     });
 });
+
+app.post('/unit', (req, res) => {
+    var createUnitPromise = unitService.createUnit(req.body);
+    createUnitPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
 app.listen(PORT, HOST);
