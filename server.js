@@ -12,6 +12,7 @@ const listingService = require('./listing');
 const spaceService = require('./space');
 const unitService = require('./unit');
 const tenantService = require('./tenant');
+const portfolioService = require('./portfolio');
 
 // Constants
 const PORT = 8080;
@@ -149,7 +150,20 @@ app.get('/listing/:listing_id/tenants', (req, res) => {
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = {ListingId: req.params.listing_id};
     var getTenantsPromise = tenantService.getTenants(page, limit, offset, where);
-    getUnitsPromise.then(function(result){
+    getTenantsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
+app.get('/listing/:listing_id/portfolios', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = {ListingId: req.params.listing_id};
+    var getPortfoliosPromise = portfolioService.getTenants(page, limit, offset, where);
+    getPortfoliosPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
@@ -197,6 +211,18 @@ app.get('/tenants', (req, res) => {
     });
 });
 
+app.get('/portfolios', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null;;
+    var getPortfoliosPromise = portfolioService.getPortfolios(page, limit, offset, where);
+    getPortfoliosPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
 
 app.get('/listing/:id', (req, res) => {
     var getListingPromise = listingService.getListing(req.params.id);
@@ -257,6 +283,19 @@ app.put('/tenant/:id', (req, res) => {
     });
 });
 
+app.put('/portfolio/:id', (req, res) => {
+    var updateData = {
+        id: req.params.id,
+        body: req.body
+    }
+    var updatePortfolioPromise = portfolioService.updatePortfolio(updateData);
+    updatePortfolioPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
 app.post('/listing', (req, res) => {
    var createListingPromise = listingService.createListing(req.body);
    createListingPromise.then(function(result){
@@ -286,6 +325,15 @@ app.post('/unit', (req, res) => {
 app.post('/tenant', (req, res) => {
     var createTenantPromise = tenantService.createTenant(req.body);
     createTenantPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
+app.post('/portfolio', (req, res) => {
+    var createPortfolioPromise = portfolioService.createPortfolio(req.body);
+    createPortfolioPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
