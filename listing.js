@@ -19,17 +19,17 @@ var find = function(listing){
             {
                 model: models.Unit,
                 as: 'units',
-                attribute: ['description', 'numUnits', 'space', 'income']
+                attribute: ['id', 'description', 'numUnits', 'space', 'income']
             },
             {
                 model: models.Tenant,
                 as: 'tenants',
-                attributes: ['tenant', 'space', 'leaseEnds']
+                attributes: ['id', 'tenant', 'space', 'leaseEnds']
             },
             {
                 model: models.Portfolio,
                 as: 'portfolio',
-                attributes: ['tenant', 'buildingSize', 'lotSize', 'type']
+                attributes: ['id', 'tenant', 'buildingSize', 'lotSize', 'type']
             }
             ]
         }).then(function(listing){
