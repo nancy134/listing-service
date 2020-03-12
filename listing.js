@@ -28,7 +28,7 @@ var find = function(listing){
             },
             {
                 model: models.Portfolio,
-                as: 'portfolio',
+                as: 'portfolios',
                 attributes: ['id', 'tenant', 'buildingSize', 'lotSize', 'type']
             }
             ]
