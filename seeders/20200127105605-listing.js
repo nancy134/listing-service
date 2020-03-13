@@ -14,6 +14,7 @@ module.exports = {
 	totalAvailableSpace: 30570,
         parking: 6,
         owner: "paulp@sabrerealtygroup.com",
+        amenities: Sequelize.literal(`ARRAY['Fitness Center','Air Conditioning']::"enum_Listings_amenities"[]`),
         createdAt: new Date(),
         updatedAt: new Date()
       },

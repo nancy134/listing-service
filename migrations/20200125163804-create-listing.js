@@ -143,6 +143,13 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+
+      // Amenities
+      amenities: {
+        type: Sequelize.ARRAY(Sequelize.ENUM({ 
+        values: ['Fitness Center', 'Air Conditioning', 'Food Service', 'Shared Conference Room', 'Pylon Signage', 'Concierge Service', 'Lobby', 'Covered Parking', '24 Hour Access', 'Banking', 'Bus Line', 'Commuter Train', 'On-Site Propert Manager', 'Sky Lights', 'Fenced Lot']
+        }))
       }
     });
   },

@@ -86,7 +86,8 @@ app.get('/enums', (req, res) => {
         listingTypes: models.Listing.rawAttributes.listingType.values,
         propertyTypes: models.Listing.rawAttributes.propertyType.values,
         spaceTypes: models.Space.rawAttributes.type.values,
-        spaceUse: models.Space.rawAttributes.use.values
+        spaceUse: models.Space.rawAttributes.use.values,
+        amenities: models.Listing.rawAttributes.amenities.type.options.type.values
 
     });
 });
@@ -298,6 +299,7 @@ app.put('/portfolio/:id', (req, res) => {
 
 app.post('/listing', (req, res) => {
    var createListingPromise = listingService.createListing(req.body);
+   console.log("req.body.amenities: "+req.body.amenities);
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){

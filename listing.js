@@ -39,7 +39,8 @@ var find = function(listing){
                 listingTypes: models.Listing.rawAttributes.listingType.values,
                 propertyTypes: models.Listing.rawAttributes.propertyType.values,
                 spaceTypes: models.Space.rawAttributes.type.values,
-                spaceUse: models.Space.rawAttributes.use.values                
+                spaceUse: models.Space.rawAttributes.use.values,
+                amenities: models.Listing.rawAttributes.amenities.type.options.type.values
             };
             resolve(ret);
         }).catch(function(err){
