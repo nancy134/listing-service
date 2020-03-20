@@ -28,7 +28,7 @@ exports.uploadFile = (path,fileName,table,tableIndex,imageIndex) => {
                 fileName;
                  
             const params = {
-                Bucket: 'sabre-images', 
+                Bucket: process.env.S3_BUCKET, 
                 Key: key, 
                 Body: data
             };
