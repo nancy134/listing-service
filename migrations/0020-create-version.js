@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Listings', {
+    return queryInterface.createTable('ListingVersions', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -136,6 +136,12 @@ module.exports = {
       owner: {
         type: Sequelize.STRING
       },
+      // Amenities
+      amenities: {
+        type: Sequelize.ARRAY(Sequelize.ENUM({ 
+        values: ['Fitness Center', 'Air Conditioning', 'Food Service', 'Shared Conference Room', 'Pylon Signage', 'Concierge Service', 'Lobby', 'Covered Parking', '24 Hour Access', 'Banking', 'Bus Line', 'Commuter Train', 'On-Site Propert Manager', 'Sky Lights', 'Fenced Lot']
+        }))
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -144,16 +150,17 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-
-      // Amenities
-      amenities: {
-        type: Sequelize.ARRAY(Sequelize.ENUM({ 
-        values: ['Fitness Center', 'Air Conditioning', 'Food Service', 'Shared Conference Room', 'Pylon Signage', 'Concierge Service', 'Lobby', 'Covered Parking', '24 Hour Access', 'Banking', 'Bus Line', 'Commuter Train', 'On-Site Propert Manager', 'Sky Lights', 'Fenced Lot']
-        }))
-      }
+      ListingId: {
+       type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Listings',
+          key: 'id'
+        }
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Listings');
+    return queryInterface.dropTable('ListingVersions');
   }
 };

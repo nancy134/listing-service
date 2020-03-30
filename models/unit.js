@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: DataTypes.DATE
   }, {});
   Unit.associate = function(models) {
-     Unit.belongsTo(models.Listing);
+     Unit.belongsTo(models.ListingVersion);
   };
   return Unit;
 };

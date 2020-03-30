@@ -1,7 +1,7 @@
 const models = require("./models");
-var find = function(listing){
+var findListingVersion = function(listing){
     return new Promise(function(resolve, reject){
-        models.Listing.findOne({
+        models.ListingVersion.findOne({
             where: {
                 id: listing.id
             },
@@ -35,12 +35,12 @@ var find = function(listing){
         }).then(function(listing){
             ret = {
                 listing: listing,
-                states: models.Listing.rawAttributes.state.values,
-                listingTypes: models.Listing.rawAttributes.listingType.values,
-                propertyTypes: models.Listing.rawAttributes.propertyType.values,
+                states: models.ListingVersion.rawAttributes.state.values,
+                listingTypes: models.ListingVersion.rawAttributes.listingType.values,
+                propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
                 spaceTypes: models.Space.rawAttributes.type.values,
                 spaceUse: models.Space.rawAttributes.use.values,
-                amenities: models.Listing.rawAttributes.amenities.type.options.type.values
+                amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
             };
             resolve(ret);
         }).catch(function(err){
@@ -48,9 +48,9 @@ var find = function(listing){
         });
     });
 }
-var update = function(update){
+var updateListingVersion = function(update){
     return new Promise(function(resolve, reject){
-        models.Listing.update(
+        models.ListingVersion.update(
             update.body,
             {returning: true, where: {id: update.id}}
         ).then(function([rowsUpdate, [listing]]){
@@ -60,18 +60,18 @@ var update = function(update){
         });
     });
 }
-var create = function(body){
+var createListingVersion = function(body){
     return new Promise(function(resolve, reject){
-        models.Listing.create(body).then(function(listing){
+        models.ListingVersion.create(body).then(function(listing){
             resolve(listing);
         }).catch(function(err){
             reject(err);
         });
     });
 }
-var index = function(page, limit, offset, where){
+var indexListingVersion = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
-        models.Listing.findAndCountAll({
+        models.ListingVersion.findAndCountAll({
             where: where,
             distinct: true,
             limit: limit,
@@ -101,19 +101,19 @@ var index = function(page, limit, offset, where){
         });
     });
 }
-exports.getListings = function(page, limit, offset, where){
+exports.getListingsAPI = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
-        index(page, limit, offset, where).then(function(listings){
+        indexListingVersion(page, limit, offset, where).then(function(listings){
             resolve(listings);
         }).catch(function(err){
             reject(err);
         }); 
     });    
 }
-exports.getListing = function(id){
+exports.getListingAPI = function(id){
     var listing = {id: id};
     return new Promise(function(resolve, reject){
-        find(listing).then(function(listing){
+        findListingVersion(listing).then(function(listing){
             resolve(listing);
         }).catch(function(err){
             reject(err);
@@ -121,10 +121,10 @@ exports.getListing = function(id){
     });
 }
 
-exports.createListing = function(body){
+exports.createListingAPI = function(body){
     return new Promise(function(resolve, reject){
-        create(body)
-        .then(find)
+        createListingVersion(body)
+        .then(findListingVersion)
         .then(function(listing){
             resolve(listing);
         }).catch(function(err){
@@ -132,10 +132,10 @@ exports.createListing = function(body){
         });
     });
 }
-exports.updateListing = function(updateData){
+exports.updateListingAPI = function(updateData){
     return new Promise(function(resolve, reject){
-        update(updateData)
-        .then(find)
+        updateListingVersion(updateData)
+        .then(findListingVersion)
         .then(function(listing){
              resolve(listing);
          }).catch(function(err){

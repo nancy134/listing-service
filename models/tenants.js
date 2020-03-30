@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: DataTypes.DATE
   }, {});
   Tenant.associate = function(models) {
-     Tenant.belongsTo(models.Listing);
+     Tenant.belongsTo(models.ListingVersion);
   };
   return Tenant;
 };

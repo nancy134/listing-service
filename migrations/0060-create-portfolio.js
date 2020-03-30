@@ -2,24 +2,25 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-      return queryInterface.createTable('Units', { 
+      return queryInterface.createTable('Portfolios', {
           id: {
-              allowNull: false,
-              autoIncrement: true,
-              primaryKey: true,
-              type: Sequelize.INTEGER
+             allowNull: false,
+             autoIncrement: true,
+             primaryKey: true,
+             type: Sequelize.INTEGER 
           },
-          description: {
+          tenant: {
               type: Sequelize.STRING
           },
-          numUnits: {
+          buildingSize: {
               type: Sequelize.INTEGER
           },
-          space: {
-              type: Sequelize.INTEGER 
+          lotSize: {
+              type: Sequelize.INTEGER
           },
-          income: {
-              type: Sequelize.DECIMAL(13,4)
+          type: {
+              type: Sequelize.ENUM,
+              values: ['Commercial', 'Vacant', 'Mixed Use']
           },
           createdAt: {
               allowNull: false,
@@ -29,11 +30,11 @@ module.exports = {
               allowNull: false,
               type: Sequelize.DATE
           },
-          ListingId: {
+          ListingVersionId: {
               type: Sequelize.INTEGER,
               allowNull: false,
-              references: {
-                  model: 'Listings',
+              reference: {
+                  model: 'ListingVersions',
                   key: 'id'
               }
           }
@@ -41,6 +42,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.dropTable('Units');
+      return queryInterface.dropTable('Portfolios');
   }
 };

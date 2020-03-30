@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: DataTypes.DATE
   }, {});
   Portfolio.associate = function(models) {
-     Portfolio.belongsTo(models.Listing);
+     Portfolio.belongsTo(models.ListingVersion);
   };
   return Portfolio;
 };

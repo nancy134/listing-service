@@ -11,11 +11,11 @@ module.exports = {
       url: {
         type: Sequelize.STRING
       },
-      ListingId: {
+      ListingVersionId: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Listings',
+          model: 'ListingVersions',
           key: 'id'
         }
       },

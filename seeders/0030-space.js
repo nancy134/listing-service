@@ -9,7 +9,7 @@ module.exports = {
         price: 20.0,
         type: 'NNN',
         use: 'Restaurant',
-        ListingId: 1,
+        ListingVersionId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -19,7 +19,7 @@ module.exports = {
         price: 22.85,
         type: 'Modified Gross',
         use: 'Office',
-        ListingId: 2,
+        ListingVersionId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
  
@@ -30,7 +30,7 @@ module.exports = {
         price: 15.00,
         type: 'NNN',
         use: 'Specialty',
-        ListingId: 3,
+        ListingVersionId: 3,
         createdAt: new Date(),
         updatedAt: new Date()
 
@@ -41,7 +41,7 @@ module.exports = {
         price: 14.12,
         type: 'Modified Gross',
         use: 'Office',
-        ListingId: 4,
+        ListingVersionId: 4,
         createdAt: new Date(),
         updatedAt: new Date()
  
@@ -52,7 +52,7 @@ module.exports = {
         price: 20.0,
         type: 'Modified Gross',
         use: 'Office',
-        ListingId: 4,
+        ListingVersionId: 4,
         createdAt: new Date(),
         updatedAt: new Date()
 
@@ -63,7 +63,7 @@ module.exports = {
         price: 19.03,
         type: 'Modified Gross',
         use: 'Office',
-        ListingId: 4,
+        ListingVersionId: 4,
         createdAt: new Date(),
         updatedAt: new Date()
 
@@ -74,7 +74,7 @@ module.exports = {
         price: 19.03,
         type: 'Modified Gross',
         use: 'Office',
-        ListingId: 4,
+        ListingVersionId: 4,
         createdAt: new Date(),
         updatedAt: new Date()
 
@@ -85,7 +85,7 @@ module.exports = {
         price: 20.0,
         type: 'Modified Gross',
         use: 'Office',
-        ListingId: 4,
+        ListingVersionId: 4,
         createdAt: new Date(),
         updatedAt: new Date()
 

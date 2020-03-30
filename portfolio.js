@@ -46,7 +46,7 @@ var index = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'tenant', 'buildingSize', 'type', 'ListingId']
+            attributes: ['id', 'tenant', 'buildingSize', 'type', 'ListingVersionId']
         }).then(portfolios => {
             var ret = {
                 page: page,

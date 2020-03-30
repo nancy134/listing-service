@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 app.post('/upload', upload.single('image'), function(req, res, next) {
 
   models.Image.create({
-      ListingId: req.body.listing_id
+      ListingVersionId: req.body.listing_id
   }).then(image => {
       var uploadPromise = imageService.uploadFile(
           req.file.path,
@@ -82,22 +82,22 @@ app.get('/image/:id', (req,res) => {
 
 app.get('/enums', (req, res) => {
     res.json({
-        states: models.Listing.rawAttributes.state.values,
-        listingTypes: models.Listing.rawAttributes.listingType.values,
-        propertyTypes: models.Listing.rawAttributes.propertyType.values,
+        states: models.ListingVersion.rawAttributes.state.values,
+        listingTypes: models.ListingVersion.rawAttributes.listingType.values,
+        propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
         spaceTypes: models.Space.rawAttributes.type.values,
         spaceUse: models.Space.rawAttributes.use.values,
-        amenities: models.Listing.rawAttributes.amenities.type.options.type.values
+        amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
 
     });
 });
 
 app.post('/image', (req, res) => {
    var description = req.body.description;
-   var ListingId = req.body.listingId;
+   var ListingVersionId = req.body.listingId;
    models.Image.create({
        description: description,
-       ListingId: ListingId
+       ListingVersionId: ListingVersionId
    }).then(image => {
        res.json(image);
    }).catch(err => {
@@ -112,7 +112,7 @@ app.get('/listings', (req, res) => {
     var where = null;
     if (req.query.owner) where = {owner: req.query.owner};
 
-   var getListingsPromise = listingService.getListings(page, limit, offset, where);
+   var getListingsPromise = listingService.getListingsAPI(page, limit, offset, where);
    getListingsPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
@@ -124,7 +124,7 @@ app.get('/listing/:listing_id/spaces', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = {ListingId: req.params.listing_id};
+    var where = {ListingVersionId: req.params.listing_id};
     var getSpacesPromise = spaceService.getSpaces(page, limit, offset, where);
     getSpacesPromise.then(function(result){
         res.json(result);
@@ -136,7 +136,7 @@ app.get('/listing/:listing_id/units', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = {ListingId: req.params.listing_id};
+    var where = {ListingVersionId: req.params.listing_id};
     var getUnitsPromise = unitService.getUnits(page, limit, offset, where);
     getUnitsPromise.then(function(result){
         res.json(result);
@@ -149,7 +149,7 @@ app.get('/listing/:listing_id/tenants', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = {ListingId: req.params.listing_id};
+    var where = {ListingVersionId: req.params.listing_id};
     var getTenantsPromise = tenantService.getTenants(page, limit, offset, where);
     getTenantsPromise.then(function(result){
         res.json(result);
@@ -162,7 +162,7 @@ app.get('/listing/:listing_id/portfolios', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = {ListingId: req.params.listing_id};
+    var where = {ListingVersionId: req.params.listing_id};
     var getPortfoliosPromise = portfolioService.getTenants(page, limit, offset, where);
     getPortfoliosPromise.then(function(result){
         res.json(result);
@@ -226,7 +226,7 @@ app.get('/portfolios', (req, res) => {
 });
 
 app.get('/listing/:id', (req, res) => {
-    var getListingPromise = listingService.getListing(req.params.id);
+    var getListingPromise = listingService.getListingAPI(req.params.id);
     getListingPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -238,7 +238,7 @@ app.put('/listing/:id', (req, res) => {
         id: req.params.id,
         body: req.body 
     };
-    var updateListingPromise = listingService.updateListing(updateData);
+    var updateListingPromise = listingService.updateListingAPI(updateData);
     updateListingPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -298,8 +298,7 @@ app.put('/portfolio/:id', (req, res) => {
 });
 
 app.post('/listing', (req, res) => {
-   var createListingPromise = listingService.createListing(req.body);
-   console.log("req.body.amenities: "+req.body.amenities);
+   var createListingPromise = listingService.createListingAPI(req.body);
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){

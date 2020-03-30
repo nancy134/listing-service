@@ -25,11 +25,11 @@ module.exports = {
         type: Sequelize.ENUM,
         values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty']
       },
-      ListingId: {
+      ListingVersionId: {
        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Listings',
+          model: 'ListingVersions',
           key: 'id'
         }
       },

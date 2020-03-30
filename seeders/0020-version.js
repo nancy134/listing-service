@@ -2,8 +2,9 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-      return queryInterface.bulkInsert('Listings', [
+      return queryInterface.bulkInsert('ListingVersions', [
       {
+        ListingId: 1,
         address: '240-256 Moody St',
         city: 'Waltham',
         state: 'Massachusetts',
@@ -14,11 +15,12 @@ module.exports = {
 	totalAvailableSpace: 30570,
         parking: 6,
         owner: "nancy_piedra@yahoo.com",
-        amenities: Sequelize.literal(`ARRAY['Fitness Center','Air Conditioning']::"enum_Listings_amenities"[]`),
+        amenities: Sequelize.literal(`ARRAY['Fitness Center','Air Conditioning']::"enum_ListingVersions_amenities"[]`),
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
+        ListingId: 2,
         address: '440 Totten Pond Rd',
         city: 'Waltham',
         state: 'Massachusetts',
@@ -32,6 +34,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        ListingId: 3,
         address: '384 Main St',
         city: 'Waltham',
         state: 'Massachusetts',
@@ -43,6 +46,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        ListingId: 4,
         address: '24 Crescent St',
         city: 'Waltham',
         state: 'Massachusetts',
@@ -56,6 +60,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        ListingId: 5,
         address: '375 Main St',
         city: 'Waltham',
         state: 'Massachusetts',
@@ -78,6 +83,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.bulkDelete('Listings', null, {});
+      return queryInterface.bulkDelete('ListingVersions', null, {});
   }
 };

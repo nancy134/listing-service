@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     updatedAt: DataTypes.DATE
   }, {});
   Space.associate = function(models) {
-     Space.belongsTo(models.Listing);
+     Space.belongsTo(models.ListingVersion);
      Space.hasMany(models.Image, {as: 'images'});
   };
   return Space;

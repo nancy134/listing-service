@@ -2,21 +2,24 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-      return queryInterface.createTable('Tenants', { 
+      return queryInterface.createTable('Units', { 
           id: {
               allowNull: false,
               autoIncrement: true,
               primaryKey: true,
               type: Sequelize.INTEGER
           },
-          tenant: {
+          description: {
               type: Sequelize.STRING
           },
-          space: {
+          numUnits: {
               type: Sequelize.INTEGER
           },
-          leaseEnds: {
-              type: Sequelize.DATE
+          space: {
+              type: Sequelize.INTEGER 
+          },
+          income: {
+              type: Sequelize.DECIMAL(13,4)
           },
           createdAt: {
               allowNull: false,
@@ -26,18 +29,18 @@ module.exports = {
               allowNull: false,
               type: Sequelize.DATE
           },
-          ListingId: {
+          ListingVersionId: {
               type: Sequelize.INTEGER,
               allowNull: false,
               references: {
-                  model: 'Listings',
+                  model: 'ListingVersions',
                   key: 'id'
               }
-          } 
+          }
       });
   },
 
   down: (queryInterface, Sequelize) => {
-      return queryInterface.dropTable('Tenants');
+      return queryInterface.dropTable('Units');
   }
 };
