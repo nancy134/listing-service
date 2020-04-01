@@ -60,7 +60,25 @@ var updateListingVersion = function(update){
         });
     });
 }
+
+var updateListing = function(listingVersion){
+    var body = {
+        latestDraftId: listingVersion.id
+    };
+    return new Promise(function(resolve, reject){
+        models.Listing.update(
+            body,
+            {returning: true, where: {id: listingVersion.ListingId}}
+        ).then(function([rowsUpdate, [listing]]){
+            resolve(listingVersion);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 var createListingVersion = function(body){
+    body.publishStatus = "Draft";
     return new Promise(function(resolve, reject){
         models.ListingVersion.create(body).then(function(listing){
             resolve(listing);
@@ -69,6 +87,18 @@ var createListingVersion = function(body){
         });
     });
 }
+
+var createListing = function(body){
+    return new Promise(function(resolve, reject){
+        models.Listing.create(body).then(function(listing){
+            body.ListingId = listing.id;
+            resolve(body);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 var indexListingVersion = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
@@ -123,7 +153,9 @@ exports.getListingAPI = function(id){
 
 exports.createListingAPI = function(body){
     return new Promise(function(resolve, reject){
-        createListingVersion(body)
+        createListing(body)
+        .then(createListingVersion)
+        .then(updateListing) // New --------------
         .then(findListingVersion)
         .then(function(listing){
             resolve(listing);
@@ -132,6 +164,7 @@ exports.createListingAPI = function(body){
         });
     });
 }
+
 exports.updateListingAPI = function(updateData){
     return new Promise(function(resolve, reject){
         updateListingVersion(updateData)

@@ -136,6 +136,10 @@ module.exports = {
       owner: {
         type: Sequelize.STRING
       },
+      publishStatus: {
+        type: Sequelize.ENUM,
+        values: ['Draft', 'Under Moderation', 'On Market', 'Off Market']
+      },
       // Amenities
       amenities: {
         type: Sequelize.ARRAY(Sequelize.ENUM({ 
