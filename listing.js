@@ -1,9 +1,9 @@
 const models = require("./models");
-var findListingVersion = function(listing){
+var findListingVersion = function(listingStruct){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findOne({
             where: {
-                id: listing.id
+                id: listingStruct.listingVersionResult.id 
             },
             include: [
             {
@@ -44,15 +44,17 @@ var findListingVersion = function(listing){
             };
             resolve(ret);
         }).catch(function(err){
+            console.log("findListingVersion err: "+err);
             reject(err);
         });
     });
 }
-var updateListingVersion = function(update){
+var updateListingVersion = function(listingStruct){
+    console.log("listingStruct: "+JSON.stringify(listingStruct));
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
-            update.body,
-            {returning: true, where: {id: update.id}}
+            listingStruct.listingVersionBody,
+            {returning: true, where: {id: listingStruct.listingVersionResult.id}}
         ).then(function([rowsUpdate, [listing]]){
             resolve(listing);
         }).catch(function(err){
@@ -61,39 +63,43 @@ var updateListingVersion = function(update){
     });
 }
 
-var updateListing = function(listingVersion){
-    var body = {
-        latestDraftId: listingVersion.id
-    };
+var updateListing = function(listingStruct){
     return new Promise(function(resolve, reject){
         models.Listing.update(
-            body,
-            {returning: true, where: {id: listingVersion.ListingId}}
+            listingStruct.listingBody,
+            {returning: true, where: {id: listingStruct.listingResult.id}}
         ).then(function([rowsUpdate, [listing]]){
-            resolve(listingVersion);
+            listingStruct.listingBody = listing;
+            resolve(listingStruct);
         }).catch(function(err){
+            console.log("updateListing err: "+err);
             reject(err);
         });
     });
 }
 
-var createListingVersion = function(body){
-    body.publishStatus = "Draft";
+var createListingVersion = function(listingStruct){
+    listingStruct.listingVersionBody.publishStatus = "Draft";
     return new Promise(function(resolve, reject){
-        models.ListingVersion.create(body).then(function(listing){
-            resolve(listing);
+        models.ListingVersion.create(listingStruct.listingVersionBody).then(function(listing){
+            listingStruct.listingVersionResult = listing;
+            listingStruct.listingBody.latestDraftId = listing.id;
+            resolve(listingStruct);
         }).catch(function(err){
+            console.log("createListingVersion err: "+err);
             reject(err);
         });
     });
 }
 
-var createListing = function(body){
+var createListing = function(listingStruct){
     return new Promise(function(resolve, reject){
-        models.Listing.create(body).then(function(listing){
-            body.ListingId = listing.id;
-            resolve(body);
+        models.Listing.create(listingStruct.listingBody).then(function(listing){
+            listingStruct.listingResult = listing;
+            listingStruct.listingVersionBody.ListingId = listing.id;
+            resolve(listingStruct);
         }).catch(function(err){
+            console.log("createListing: err: "+err);
             reject(err);
         });
     });
@@ -151,12 +157,25 @@ exports.getListingAPI = function(id){
     });
 }
 
-exports.createListingAPI = function(body){
+exports.createListingAPI = function(listingStruct){
+    listingStruct.listingBody = {};
     return new Promise(function(resolve, reject){
-        createListing(body)
+        createListing(listingStruct)
         .then(createListingVersion)
-        .then(updateListing) // New --------------
+        .then(updateListing) 
         .then(findListingVersion)
+        .then(function(listing){
+            resolve(listing);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.publishListingAPI = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        updateListingVersion(listingStruct)
+         // update listingtable with latestdraft=null latestpublish=1
         .then(function(listing){
             resolve(listing);
         }).catch(function(err){

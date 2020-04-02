@@ -1,4 +1,4 @@
-'use strict';
+'ause strict';
 
 const express = require('express');
 const Sequelize = require('sequelize');
@@ -298,13 +298,31 @@ app.put('/portfolio/:id', (req, res) => {
 });
 
 app.post('/listing', (req, res) => {
-   var createListingPromise = listingService.createListingAPI(req.body);
+   var listingStruct = {
+       listingVersionBody: req.body
+   }
+   var createListingPromise = listingService.createListingAPI(listingStruct);
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
        console.log("err: "+err);
    });
 });
+
+app.post('/listing/:id/publish', (req, res) => {
+   var listingStruct = {
+        listingVersionBody: {publishStatus: "Under Moderation"},
+        listingVersionResult: {id: req.params.id}
+   };
+   var publishListingPromise = listingService.publishListingAPI(listingStruct);
+   publishListingPromise.then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       console.log("err: "+err);
+   });
+});
+
+
 app.post('/space', (req, res) => {
     var createSpacePromise = spaceService.createSpace(req.body);
     createSpacePromise.then(function(result){
