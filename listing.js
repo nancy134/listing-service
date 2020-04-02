@@ -175,9 +175,19 @@ exports.createListingAPI = function(listingStruct){
 exports.publishListingAPI = function(listingStruct){
     return new Promise(function(resolve, reject){
         updateListingVersion(listingStruct)
-         // update listingtable with latestdraft=null latestpublish=1
-        .then(function(listing){
-            resolve(listing);
+        .then(function(listingVersion){
+            listingStruct.listingBody = {
+                latestDraftId: null,
+                latestPublishId: listingVersion.id
+            };
+            listingStruct.listingResult = {
+                id: listingVersion.ListingId
+            };
+            updateListing(listingStruct).then(function(listing){
+                resolve(listingVersion);
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });
