@@ -322,6 +322,27 @@ app.post('/listing/:id/publish', (req, res) => {
    });
 });
 
+app.post('/listing/:id/approve', (req, res) => {
+   var listingStruct = {
+        listingVersionBody: {publishStatus: "On Market"},
+        listingVersionResult: {id: req.params.id}
+   };
+   var approveListingPromise = listingService.approveListingAPI(listingStruct);
+   approveListingPromise.then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       console.log("err: "+err);
+   });
+});
+
+app.post('/listing/:id/draft', (req, res) => {
+    var createNewDraftPromise = listingService.createNewDraftAPI(req.params.id);
+    createNewDraftPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
 
 app.post('/space', (req, res) => {
     var createSpacePromise = spaceService.createSpace(req.body);

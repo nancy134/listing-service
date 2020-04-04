@@ -50,7 +50,6 @@ var findListingVersion = function(listingStruct){
     });
 }
 var updateListingVersion = function(listingStruct){
-    console.log("listingStruct: "+JSON.stringify(listingStruct));
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
             listingStruct.listingVersionBody,
@@ -105,6 +104,38 @@ var createListing = function(listingStruct){
     });
 }
 
+var copyListingVersion = function(id){
+    return new Promise(function(resolve, reject){
+        var listingStruct = {
+            listingVersionResult: {id: id}
+        };
+        findListingVersion(listingStruct).then(function(listingVersion){
+            var body = listingVersion.listing.get({plain: true});
+            delete body["id"];
+            delete body["updatedAt"];
+            delete body["createdAt"];
+            delete body["images"];
+            delete body["spaces"]
+            delete body["units"];
+            delete body["tenants"];
+            delete body["portfolios"];
+            for (var propName in body) { 
+                if (body[propName] === null || body[propName] === undefined) {
+                    delete body[propName];
+                }
+            }
+            listingStruct.listingVersionBody = body;
+            listingStruct.listingBody = {};
+            createListingVersion(listingStruct).then(function(newListingVersion){
+                resolve(newListingVersion);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 var indexListingVersion = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
@@ -147,9 +178,11 @@ exports.getListingsAPI = function(page, limit, offset, where){
     });    
 }
 exports.getListingAPI = function(id){
-    var listing = {id: id};
+    var listingStruct = {
+        listingVersionResult: {id: id}
+    };
     return new Promise(function(resolve, reject){
-        findListingVersion(listing).then(function(listing){
+        findListingVersion(listingStruct).then(function(listing){
             resolve(listing);
         }).catch(function(err){
             reject(err);
@@ -188,6 +221,27 @@ exports.publishListingAPI = function(listingStruct){
             }).catch(function(err){
                 reject(err);
             });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.approveListingAPI = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        updateListingVersion(listingStruct)
+        .then(function(listingVersion){
+            resolve(listingVersion);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.createNewDraftAPI = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        copyListingVersion(listingStruct).then(function(listingVersion){
+            resolve(listingVersion);
         }).catch(function(err){
             reject(err);
         });
