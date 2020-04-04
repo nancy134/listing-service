@@ -209,6 +209,17 @@ exports.publishListingAPI = function(listingStruct){
     return new Promise(function(resolve, reject){
         updateListingVersion(listingStruct)
         .then(function(listingVersion){
+            resolve(listingVersion);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.approveListingAPI = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        updateListingVersion(listingStruct)
+        .then(function(listingVersion){
             listingStruct.listingBody = {
                 latestDraftId: null,
                 latestPublishId: listingVersion.id
@@ -221,17 +232,7 @@ exports.publishListingAPI = function(listingStruct){
             }).catch(function(err){
                 reject(err);
             });
-        }).catch(function(err){
-            reject(err);
-        });
-    });
-}
 
-exports.approveListingAPI = function(listingStruct){
-    return new Promise(function(resolve, reject){
-        updateListingVersion(listingStruct)
-        .then(function(listingVersion){
-            resolve(listingVersion);
         }).catch(function(err){
             reject(err);
         });
