@@ -1,4 +1,6 @@
 const models = require("./models");
+const spaceService = require("./space");
+
 var findListingVersion = function(listingStruct){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findOne({
@@ -111,14 +113,21 @@ var copyListingVersion = function(id){
         };
         findListingVersion(listingStruct).then(function(listingVersion){
             var body = listingVersion.listing.get({plain: true});
-            delete body["id"];
-            delete body["updatedAt"];
-            delete body["createdAt"];
+            delete body.id;
+            delete body.updatedAt;
+            delete body.createdAt;
+
             delete body["images"];
-            delete body["spaces"]
-            delete body["units"];
-            delete body["tenants"];
-            delete body["portfolios"];
+
+            var spaces = body.spaces
+            delete body.spaces;
+            var units = body.units;
+            delete body.units;
+            var tenants = body.tenants;
+            delete body.tenants;
+            var portfolios = body.portfolios;
+            delete body.portfolios;
+
             for (var propName in body) { 
                 if (body[propName] === null || body[propName] === undefined) {
                     delete body[propName];
@@ -126,8 +135,19 @@ var copyListingVersion = function(id){
             }
             listingStruct.listingVersionBody = body;
             listingStruct.listingBody = {};
-            createListingVersion(listingStruct).then(function(newListingVersion){
-                resolve(newListingVersion);
+            createListingVersion(listingStruct).then(function(newListingStruct){
+                var promises = [];
+                for (var index in spaces){
+                    var copyPromise = spaceService.copySpace(spaces[index].id, newListingStruct.listingVersionResult.id);
+                    promises.push(copyPromise);
+                    Promise.all(promises).then(function(values){
+                        resolve(values);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+
+                }
+                resolve(newListingStruct);
             }).catch(function(err){
                 reject(err);
             });
