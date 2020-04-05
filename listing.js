@@ -1,5 +1,8 @@
 const models = require("./models");
 const spaceService = require("./space");
+const unitService = require("./unit");
+const tenantService = require("./tenant");
+const portfolioService = require("./portfolio");
 
 var findListingVersion = function(listingStruct){
     return new Promise(function(resolve, reject){
@@ -138,15 +141,36 @@ var copyListingVersion = function(id){
             createListingVersion(listingStruct).then(function(newListingStruct){
                 var promises = [];
                 for (var index in spaces){
-                    var copyPromise = spaceService.copySpace(spaces[index].id, newListingStruct.listingVersionResult.id);
+                    var copyPromise = spaceService.copySpace(
+                        spaces[index].id, 
+                        newListingStruct.listingVersionResult.id);
                     promises.push(copyPromise);
-                    Promise.all(promises).then(function(values){
-                        resolve(values);
-                    }).catch(function(err){
-                        reject(err);
-                    });
-
                 }
+                for (var index in units){
+                    var copyPromise = unitService.copyUnit(
+                        units[index].id,
+                        newListingStruct.listingVersionResult.id);
+                    promises.push(copyPromise);
+                }
+                for (var index in tenants){
+                    var copyPromise = tenantService.copyTenant(
+                        tenants[index].id,
+                        newListingStruct.listingVersionResult.id);
+                    promises.push(copyPromise);
+                }
+                for (var index in portfolios){
+                    var copyPromise = portfolioService.copyPortfolio(
+                        portfolios[index].id,
+                        newListingStruct.listingVersionResult.id);
+                    promises.push(copyPromise);
+                }
+
+                Promise.all(promises).then(function(values){
+                    resolve(values);
+                }).catch(function(err){
+                     reject(err);
+                });
+
                 resolve(newListingStruct);
             }).catch(function(err){
                 reject(err);

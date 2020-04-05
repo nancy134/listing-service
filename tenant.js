@@ -93,3 +93,30 @@ exports.createTenant = function(body){
         });
     });
 }
+
+exports.copyTenant = function(id, ListingVersionId){
+    return new Promise(function(resolve, reject){
+        models.Tenant.findOne({
+           where: {
+               id: id
+           }
+        }).then(function(tenant){
+            var body = tenant.get({plain: true});
+            delete body["id"];
+            body.ListingVersionId = ListingVersionId;
+            for (var propName in body) {
+                if (body[propName] === null || body[propName] === undefined) {
+                    delete body[propName];
+                }
+            }
+            create(body).then(function(tenant){
+                resolve(tenant);
+            }).catch(function(err){
+                reject(err);
+            });
+            return null;
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}

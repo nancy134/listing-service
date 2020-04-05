@@ -93,3 +93,30 @@ exports.createUnit = function(body){
         });
     });
 }
+
+exports.copyUnit = function(id, ListingVersionId){
+    return new Promise(function(resolve, reject){
+        models.Unit.findOne({
+           where: {
+               id: id
+           }
+        }).then(function(unit){
+            var body = unit.get({plain: true});
+            delete body["id"];
+            body.ListingVersionId = ListingVersionId;
+            for (var propName in body) {
+                if (body[propName] === null || body[propName] === undefined) {
+                    delete body[propName];
+                }
+            }
+            create(body).then(function(unit){
+                resolve(unit);
+            }).catch(function(err){
+                reject(err);
+            });
+            return null;
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
