@@ -285,8 +285,15 @@ exports.approveListingAPI = function(listingStruct){
 
 exports.createNewDraftAPI = function(listingStruct){
     return new Promise(function(resolve, reject){
-        copyListingVersion(listingStruct).then(function(listingVersion){
-            resolve(listingVersion);
+        copyListingVersion(listingStruct).then(function(newListingStruct){
+            newListingStruct.listingResult = {
+                id: newListingStruct.listingVersionBody.ListingId
+            }
+            updateListing(newListingStruct).then(function(listing){
+                resolve(listing);
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });
