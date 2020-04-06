@@ -326,7 +326,15 @@ exports.approveListingAPI = function(listingStruct){
         findListingVersionDraft(listingStruct)
         .then(updateListingVersion)
         .then(function(listingVersion){
-            resolve(listingVersion);
+            listingStruct.listingBody = {
+                latestDraftId: null,
+                latestApprovedId: listingVersion.id
+            };
+            updateListing(listingStruct).then(function(listing){
+                resolve(listingVersion);
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });
