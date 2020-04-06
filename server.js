@@ -331,22 +331,23 @@ app.post('/listings', (req, res) => {
    });
 });
 
-app.post('/listing/:id/publish', (req, res) => {
+app.post('/listings/:id/moderations', (req, res) => {
    var listingStruct = {
         listingVersionBody: {publishStatus: "Under Moderation"},
-        listingVersionResult: {id: req.params.id}
+        listingResult: {id: req.params.id}
    };
-   var publishListingPromise = listingService.publishListingAPI(listingStruct);
-   publishListingPromise.then(function(result){
+   var moderateListingPromise = listingService.moderateListingAPI(listingStruct);
+   moderateListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
-       console.log("err: "+err);
+       console.log("POST/listings/:id/moderations error:"+err);
+       res.status(500).send(err);
    });
 });
 
-app.post('/listing/:id/approve', (req, res) => {
+app.post('/listings/:id/approvals', (req, res) => {
    var listingStruct = {
-        listingVersionBody: {publishStatus: "On Market"},
+        listingVersionBody: {publishStatus: "Approved"},
         listingVersionResult: {id: req.params.id}
    };
    var approveListingPromise = listingService.approveListingAPI(listingStruct);

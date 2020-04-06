@@ -54,6 +54,21 @@ var findListingVersion = function(listingStruct){
         });
     });
 }
+
+var findListingVersionDraft = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        models.Listing.findOne({
+            where: {
+                id: listingStruct.listingResult.id 
+            },
+        }).then(function(listing){
+            listingStruct.listingVersionResult = {id: listing.latestDraftId}
+            resolve(listingStruct);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 var updateListingVersion = function(listingStruct){
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
@@ -294,9 +309,10 @@ exports.createListingAPI = function(listingStruct){
     });
 }
 
-exports.publishListingAPI = function(listingStruct){
+exports.moderateListingAPI = function(listingStruct){
     return new Promise(function(resolve, reject){
-        updateListingVersion(listingStruct)
+        findListingVersionDraft(listingStruct)
+        .then(updateListingVersion)
         .then(function(listingVersion){
             resolve(listingVersion);
         }).catch(function(err){
