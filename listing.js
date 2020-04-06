@@ -323,21 +323,10 @@ exports.moderateListingAPI = function(listingStruct){
 
 exports.approveListingAPI = function(listingStruct){
     return new Promise(function(resolve, reject){
-        updateListingVersion(listingStruct)
+        findListingVersionDraft(listingStruct)
+        .then(updateListingVersion)
         .then(function(listingVersion){
-            listingStruct.listingBody = {
-                latestDraftId: null,
-                latestPublishId: listingVersion.id
-            };
-            listingStruct.listingResult = {
-                id: listingVersion.ListingId
-            };
-            updateListing(listingStruct).then(function(listing){
-                resolve(listingVersion);
-            }).catch(function(err){
-                reject(err);
-            });
-
+            resolve(listingVersion);
         }).catch(function(err){
             reject(err);
         });

@@ -348,13 +348,14 @@ app.post('/listings/:id/moderations', (req, res) => {
 app.post('/listings/:id/approvals', (req, res) => {
    var listingStruct = {
         listingVersionBody: {publishStatus: "Approved"},
-        listingVersionResult: {id: req.params.id}
+        listingResult: {id: req.params.id}
    };
    var approveListingPromise = listingService.approveListingAPI(listingStruct);
    approveListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
-       console.log("err: "+err);
+       console.log("/listings/:id/approvals error: "+err);
+       res.state(500).send(err);
    });
 });
 
