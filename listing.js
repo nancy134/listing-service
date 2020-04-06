@@ -227,7 +227,7 @@ var indexListingVersionsAdmin = function(page, limit, offset, where){
 var indexListing = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.Listing.findAll({
-            attributes: ['id', 'latestDraftId']
+            attributes: ['id', 'latestDraftId', 'latestApprovedId']
         }).then(listings => {
             resolve(listings);
         }).catch(err => {

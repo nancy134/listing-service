@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   Listing.associate = function(models){
       Listing.hasMany(models.ListingVersion, {as: 'versions'});
       Listing.belongsTo(models.ListingVersion, {as: 'latestDraftVersion', foreignKey: 'latestDraftId'});
+      Listing.belongsTo(models.ListingVersion, {as: 'latestApprovedVersion', foreignKey: 'latestApprovedId'});
   };
   return Listing;
 };
