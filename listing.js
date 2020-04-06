@@ -212,6 +212,51 @@ var indexListingVersion = function(page, limit, offset, where){
         });
     });
 }
+
+var indexListingVersionsAdmin = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.findAll({
+            attributes: ['id','publishStatus'],
+        }).then(listings => {
+            resolve(listings); 
+        }).catch(err => { 
+            reject(err);
+        });
+    });
+}
+var indexListing = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        models.Listing.findAll({
+            attributes: ['id', 'latestDraftId']
+        }).then(listings => {
+            resolve(listings);
+        }).catch(err => {
+            console.log("err: "+err);
+            reject(err);
+        });
+    });
+}
+
+exports.getListingVersionsAdmin = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+       indexListingVersionsAdmin(page, limit, offset, where).then(function(listings){
+           resolve(listings);
+       }).catch(function(err){
+           reject(err);
+       });
+    });
+}
+
+exports.getListingsAdmin = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+       indexListing(page, limit, offset, where).then(function(listings){
+           resolve(listings);
+       }).catch(function(err){
+           reject(err);
+       });
+    });
+}
+
 exports.getListingsAPI = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         indexListingVersion(page, limit, offset, where).then(function(listings){

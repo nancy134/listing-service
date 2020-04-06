@@ -27,6 +27,35 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('listing-api.phowma.com\n');
 });
+
+app.get('/admin/listings', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null;
+    var getListingsPromise = listingService.getListingsAdmin(page, limit, offset, where);
+    getListingsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("Error /admin/listings: "+err);
+        res.status(400).send(err);
+    });
+});
+
+app.get('/admin/listingVersions', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null;
+    var getListingVersionsPromise = listingService.getListingVersionsAdmin(page, limit, offset, where);
+    getListingVersionsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("Error /admin/listingVersions: "+err);
+        res.status(400).send(err);
+    });
+});
+
 app.post('/upload', upload.single('image'), function(req, res, next) {
 
   models.Image.create({
@@ -53,14 +82,6 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
       res.send(err);
   });
 
-  /*
-  var uploadPromise = image.uploadFile('/usr/app/','image1.jpg','listing','1','1');
-  uploadPromise.then(function(result){
-      res.json(result);
-  }).catch(function(err){
-      res.send(err);
-  });
-  */
 });
 
 app.get('/images', (req, res) => {
@@ -297,7 +318,7 @@ app.put('/portfolio/:id', (req, res) => {
     });
 });
 
-app.post('/listing', (req, res) => {
+app.post('/listings', (req, res) => {
    var listingStruct = {
        listingVersionBody: req.body
    }
@@ -305,7 +326,8 @@ app.post('/listing', (req, res) => {
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
-       console.log("err: "+err);
+       console.log("POST/listings error: "+err);
+       res.status(500).send(err);
    });
 });
 
