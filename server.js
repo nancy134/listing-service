@@ -359,6 +359,34 @@ app.post('/listings/:id/approvals', (req, res) => {
    });
 });
 
+app.post('/listings/:id/publications', (req, res) => {
+   var listingStruct = {
+        listingVersionBody: {publishStatus: "On Market"},
+        listingResult: {id: req.params.id}
+   };
+   var publishListingPromise = listingService.publishListingAPI(listingStruct);
+   publishListingPromise.then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       console.log("/listings/:id/publications error: "+err);
+       res.state(500).send(err);
+   });
+});
+
+app.delete('/listings/:id/publications', (req, res) => {
+   var listingStruct = {
+        listingVersionBody: {publishStatus: "Off Market"},
+        listingResult: {id: req.params.id}
+   };
+   var unpublishListingPromise = listingService.unpublishListingAPI(listingStruct);
+   unpublishListingPromise.then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       console.log("DELETE/listings/:id/publications error: "+err);
+       res.state(500).send(err);
+   });
+});
+
 app.post('/listing/:id/draft', (req, res) => {
     var createNewDraftPromise = listingService.createNewDraftAPI(req.params.id);
     createNewDraftPromise.then(function(result){

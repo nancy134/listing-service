@@ -69,6 +69,21 @@ var findListingVersionDraft = function(listingStruct){
         });
     });
 }
+
+var findListingVersionApproved = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        models.Listing.findOne({
+            where: {
+                id: listingStruct.listingResult.id 
+            },
+        }).then(function(listing){
+            listingStruct.listingVersionResult = {id: listing.latestApprovedId}
+            resolve(listingStruct);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 var updateListingVersion = function(listingStruct){
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
@@ -335,6 +350,30 @@ exports.approveListingAPI = function(listingStruct){
             }).catch(function(err){
                 reject(err);
             });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.publishListingAPI = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        findListingVersionApproved(listingStruct)
+        .then(updateListingVersion)
+        .then(function(listingVersion){
+            resolve(listingVersion);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.unpublishListingAPI = function(listingStruct){
+    return new Promise(function(resolve, reject){
+        findListingVersionApproved(listingStruct)
+        .then(updateListingVersion)
+        .then(function(listingVersion){
+            resolve(listingVersion);
         }).catch(function(err){
             reject(err);
         });
