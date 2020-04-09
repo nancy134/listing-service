@@ -13,6 +13,7 @@ const spaceService = require('./space');
 const unitService = require('./unit');
 const tenantService = require('./tenant');
 const portfolioService = require('./portfolio');
+const listingAPIService = require('./listingAPI');
 
 // Constants
 const PORT = 8080;
@@ -27,13 +28,12 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('listing-api.phowma.com\n');
 });
-
 app.get('/admin/listings', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
-    var getListingsPromise = listingService.getListingsAdmin(page, limit, offset, where);
+    var getListingsPromise = listingAPIService.getListingsAdmin(page, limit, offset, where);
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -41,13 +41,12 @@ app.get('/admin/listings', (req, res) => {
         res.status(400).send(err);
     });
 });
-
 app.get('/admin/listingVersions', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
-    var getListingVersionsPromise = listingService.getListingVersionsAdmin(page, limit, offset, where);
+    var getListingVersionsPromise = listingAPIService.getListingVersionsAdmin(page, limit, offset, where);
     getListingVersionsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -125,7 +124,7 @@ app.post('/image', (req, res) => {
        res.json(err);
    });
 });
-
+/*
 app.get('/listings', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -140,7 +139,7 @@ app.get('/listings', (req, res) => {
        console.log("err: "+err);
    });
 });
-
+*/
 app.get('/listing/:listing_id/spaces', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -245,7 +244,7 @@ app.get('/portfolios', (req, res) => {
         console.log("err: "+err);
     });
 });
-
+/*
 app.get('/listing/:id', (req, res) => {
     var getListingPromise = listingService.getListingAPI(req.params.id);
     getListingPromise.then(function(result){
@@ -254,18 +253,16 @@ app.get('/listing/:id', (req, res) => {
         console.log("err: "+err);
     });
 });
-app.put('/listing/:id', (req, res) => {
-    var updateData = {
-        id: req.params.id,
-        body: req.body 
-    };
-    var updateListingPromise = listingService.updateListingAPI(updateData);
+*/
+app.put('/listings/:id', (req, res) => {
+    var updateListingPromise = listingAPIService.updateListingAPI(req.params.id, req.body);
     updateListingPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
     });
 });
+
 app.put('/space/:id', (req, res) => {
     var updateData = {
         id: req.params.id,
@@ -319,10 +316,7 @@ app.put('/portfolio/:id', (req, res) => {
 });
 
 app.post('/listings', (req, res) => {
-   var listingStruct = {
-       listingVersionBody: req.body
-   }
-   var createListingPromise = listingService.createListingAPI(listingStruct);
+   var createListingPromise = listingAPIService.createListingAPI(req.body);
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
@@ -332,11 +326,7 @@ app.post('/listings', (req, res) => {
 });
 
 app.post('/listings/:id/moderations', (req, res) => {
-   var listingStruct = {
-        listingVersionBody: {publishStatus: "Under Moderation"},
-        listingResult: {id: req.params.id}
-   };
-   var moderateListingPromise = listingService.moderateListingAPI(listingStruct);
+   var moderateListingPromise = listingAPIService.moderateListingAPI(req.params.id);
    moderateListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
@@ -346,25 +336,17 @@ app.post('/listings/:id/moderations', (req, res) => {
 });
 
 app.post('/listings/:id/approvals', (req, res) => {
-   var listingStruct = {
-        listingVersionBody: {publishStatus: "Approved"},
-        listingResult: {id: req.params.id}
-   };
-   var approveListingPromise = listingService.approveListingAPI(listingStruct);
+   var approveListingPromise = listingAPIService.approveListingAPI(req.params.id);
    approveListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
        console.log("/listings/:id/approvals error: "+err);
-       res.state(500).send(err);
+       res.status(500).send(err);
    });
 });
 
 app.post('/listings/:id/publications', (req, res) => {
-   var listingStruct = {
-        listingVersionBody: {publishStatus: "On Market"},
-        listingResult: {id: req.params.id}
-   };
-   var publishListingPromise = listingService.publishListingAPI(listingStruct);
+   var publishListingPromise = listingAPIService.publishListingAPI(req.params.id);
    publishListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
@@ -374,11 +356,7 @@ app.post('/listings/:id/publications', (req, res) => {
 });
 
 app.delete('/listings/:id/publications', (req, res) => {
-   var listingStruct = {
-        listingVersionBody: {publishStatus: "Off Market"},
-        listingResult: {id: req.params.id}
-   };
-   var unpublishListingPromise = listingService.unpublishListingAPI(listingStruct);
+   var unpublishListingPromise = listingAPIService.unPublishListingAPI(req.params.id);
    unpublishListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
@@ -386,7 +364,7 @@ app.delete('/listings/:id/publications', (req, res) => {
        res.state(500).send(err);
    });
 });
-
+/*
 app.post('/listing/:id/draft', (req, res) => {
     var createNewDraftPromise = listingService.createNewDraftAPI(req.params.id);
     createNewDraftPromise.then(function(result){
@@ -395,7 +373,7 @@ app.post('/listing/:id/draft', (req, res) => {
         console.log("err: "+err);
     });
 });
-
+*/
 app.post('/space', (req, res) => {
     var createSpacePromise = spaceService.createSpace(req.body);
     createSpacePromise.then(function(result){
