@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
       return queryInterface.bulkInsert('ListingVersions', [
-      {
+      { 
         ListingId: 1,
         address: '240-256 Moody St',
         city: 'Waltham',
@@ -15,11 +15,29 @@ module.exports = {
 	totalAvailableSpace: 30570,
         parking: 6,
         owner: "nancy_piedra@yahoo.com",
+        publishStatus: "Approved",
         amenities: Sequelize.literal(`ARRAY['Fitness Center','Air Conditioning']::"enum_ListingVersions_amenities"[]`),
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
+        ListingId: 1,
+        address: '240-256 Moody St',
+        city: 'Waltham',
+        state: 'Massachusetts',
+        listingType: 'For Lease',
+        shortDescription: 'Single-story downtown block with two restaurants and tea shop. Updated version',
+        yearBuilt: 1920,
+        lotSize: 0.48,
+	totalAvailableSpace: 33000,
+        parking: 6,
+        owner: "nancy_piedra@yahoo.com",
+        publishStatus: "Draft",
+        amenities: Sequelize.literal(`ARRAY['Fitness Center','Air Conditioning']::"enum_ListingVersions_amenities"[]`),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      { 
         ListingId: 2,
         address: '440 Totten Pond Rd',
         city: 'Waltham',
@@ -30,6 +48,22 @@ module.exports = {
 	totalAvailableSpace: 13000,
         zone: 'B',
         owner: "nancy_piedra@hotmail.com",
+        publishStatus: "Approved",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        ListingId: 2,
+        address: '440 Totten Pond Rd',
+        city: 'Waltham',
+        state: 'Massachusetts',
+        listingType: 'For Lease',
+        shortDescription: '4 story professional office building with ample parking and on-site management. Provides easy access to RTE 128/95. Updated version',
+        yearBuilt: 1969,
+	totalAvailableSpace: 15000,
+        zone: 'B',
+        owner: "nancy_piedra@hotmail.com",
+        publishStatus: "Draft",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -42,6 +76,7 @@ module.exports = {
         yearBuilt: 1948,
         totalBuildingSize: 22960,
         owner: "nancy_piedra@yahoo.com",
+        publishStatus: "Draft",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -56,10 +91,11 @@ module.exports = {
 	totalAvailableSpace: 3948,
         zone: 'C',
         owner: "nancy_piedra@hotmail.com",
+        publishStatus: "Draft",
         createdAt: new Date(),
         updatedAt: new Date()
       },
-      {
+      { 
         ListingId: 5,
         address: '375 Main St',
         city: 'Waltham',
@@ -75,6 +111,7 @@ module.exports = {
         parking: 5,
         driveInDoors: 2,
         owner: "nancy_piedra@yahoo.com",
+        publishStatus: "Draft",
         createdAt: new Date(),
         updatedAt: new Date()
 
