@@ -89,7 +89,6 @@ exports.approveListingAPI = function(id){
 exports.updateListingAPI = function(id, body){
     return new Promise(function(resolve, reject){
         listingService.find(id).then(function(listing){
-            console.log("listing: "+JSON.stringify(listing));
             if (listing.latestDraftId){
                 listingVersionService.update(listing.latestDraftId,body).then(function(listingVersion){
                     listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
@@ -101,11 +100,17 @@ exports.updateListingAPI = function(id, body){
                     reject(err);
                 });
             } else {
-                console.log("listing.latestApprovedId: "+listing.latestApprovedId);
                 listingVersionService.copy(listing.latestApprovedId).then(function(listingVersion){
                     listingVersionService.update(listingVersion.id, body).then(function(newListingVersion){
-                        listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
-                            resolve(finalListingVersion);
+                        var listingBody = {
+                            latestDraftId: listingVersion.id
+                        };
+                        listingService.update(listingVersion.ListingId, listingBody).then(function(newListing){
+                            listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                                resolve(finalListingVersion);
+                            }).catch(function(err){
+                                reject(err);
+                            });
                         }).catch(function(err){
                             reject(err);
                         });

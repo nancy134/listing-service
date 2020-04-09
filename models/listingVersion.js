@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
     owner: DataTypes.STRING,
     publishStatus: {
         type: DataTypes.ENUM,
-        values: ['Draft', 'Under Moderation', 'Approved', 'On Market', 'Off Market']
+        values: ['Draft', 'Under Moderation', 'Approved', 'On Market', 'Off Market', 'Archived']
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
