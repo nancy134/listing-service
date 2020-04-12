@@ -76,7 +76,7 @@ module.exports = {
         yearBuilt: 1948,
         totalBuildingSize: 22960,
         owner: "nancy_piedra@yahoo.com",
-        publishStatus: "Draft",
+        publishStatus: "Under Review",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -91,7 +91,7 @@ module.exports = {
 	totalAvailableSpace: 3948,
         zone: 'C',
         owner: "nancy_piedra@hotmail.com",
-        publishStatus: "Draft",
+        publishStatus: "Off Market",
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -111,11 +111,27 @@ module.exports = {
         parking: 5,
         driveInDoors: 2,
         owner: "nancy_piedra@yahoo.com",
-        publishStatus: "Draft",
+        publishStatus: "On Market",
         createdAt: new Date(),
         updatedAt: new Date()
 
+      },
+      {
+        ListingId: 6,
+        address: '77 Rumford Ave',
+        city: 'Waltham',
+        state: 'Massachusetts',
+        listingType: 'For Lease',
+        shortDescription: 'Prime office suite consisting of reception/waiting area, two conference rooms, 4 private offices, kitchenette with break room, server/storage room and open work space. Suite gets nice natural light.',
+        yearBuilt: 1982,
+        totalAvailableSpace: 27373,
+        parking: 60,
+        owner: "paulp@sabrerealtygroup.com",
+        publishStatus: "On Market",
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
+
       ], {});
   },
 

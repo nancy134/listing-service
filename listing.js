@@ -39,11 +39,14 @@ exports.create = function(body){
 }
 
 exports.update = function(id, body){
+    console.log("id: "+id);
+    console.log("body: "+JSON.stringify(body));
     return new Promise(function(resolve, reject){
         models.Listing.update(
             body,
             {returning: true, where: {id: id}}
         ).then(function([rowsUpdate, [listing]]){
+            console.log("listing: "+JSON.stringify(listing));
             resolve(listing);
         }).catch(function(err){
             console.log("updateListing err: "+err);

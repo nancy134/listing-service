@@ -124,22 +124,29 @@ app.post('/image', (req, res) => {
        res.json(err);
    });
 });
-/*
+
 app.get('/listings', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
-    if (req.query.owner) where = {owner: req.query.owner};
-
-   var getListingsPromise = listingService.getListingsAPI(page, limit, offset, where);
-   getListingsPromise.then(function(result){
-       res.json(result);
-   }).catch(function(err){
-       console.log("err: "+err);
-   });
+    if (req.query.owner){
+        where = {
+            owner: req.query.owner
+        };
+    } else {
+        where = {
+            publishStatus: "On Market"
+        };
+    }
+    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where);
+    getListingsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
 });
-*/
+
 app.get('/listing/:listing_id/spaces', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -244,17 +251,16 @@ app.get('/portfolios', (req, res) => {
         console.log("err: "+err);
     });
 });
-/*
-app.get('/listing/:id', (req, res) => {
-    var getListingPromise = listingService.getListingAPI(req.params.id);
+app.get('/listings/:id', (req, res) => {
+    var getListingPromise = listingAPIService.findListingAPI(req.params.id);
     getListingPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
     });
 });
-*/
 app.put('/listings/:id', (req, res) => {
+    console.log("req.params.id: "+req.params.id);
     var updateListingPromise = listingAPIService.updateListingAPI(req.params.id, req.body);
     updateListingPromise.then(function(result){
         res.json(result);
@@ -346,11 +352,21 @@ app.post('/listings/:id/approvals', (req, res) => {
 });
 
 app.post('/listings/:id/publications', (req, res) => {
-   var publishListingPromise = listingAPIService.publishListingAPI(req.params.id);
+ var publishListingPromise = listingAPIService.publishListingAPI(req.params.id);
    publishListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
        console.log("/listings/:id/publications error: "+err);
+       res.state(500).send(err);
+   });
+});
+
+app.post('/listings/:id/directPublications', (req, res) => {
+ var publishListingPromise = listingAPIService.publishDirectListingAPI(req.params.id);
+   publishListingPromise.then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       console.log("/listings/:id/directPublications error: "+err);
        res.state(500).send(err);
    });
 });

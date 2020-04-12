@@ -11,7 +11,7 @@ exports.index = function(page, limit, offset, where){
             distinct: true,
             limit: limit,
             offset: offset,
-            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner'],
+            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'ListingId'],
             include: [
             {
                 model: models.Image, 

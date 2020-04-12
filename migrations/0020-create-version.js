@@ -138,7 +138,7 @@ module.exports = {
       },
       publishStatus: {
         type: Sequelize.ENUM,
-        values: ['Draft', 'Under Moderation', 'Approved', 'On Market', 'Off Market', 'Archived']
+        values: ['Draft', 'Under Review', 'Approved', 'On Market', 'Off Market', 'Archived']
       },
       // Amenities
       amenities: {
