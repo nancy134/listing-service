@@ -274,7 +274,8 @@ app.put('/space/:id', (req, res) => {
         id: req.params.id,
         body: req.body
     }
-    var updateSpacePromise = spaceService.updateSpace(updateData);
+    //var updateSpacePromise = spaceService.updateSpace(updateData);
+    updateSpacePromise = spaceService.updateAPI(req.params.id, req.body);
     updateSpacePromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -391,7 +392,7 @@ app.post('/listing/:id/draft', (req, res) => {
 });
 */
 app.post('/space', (req, res) => {
-    var createSpacePromise = spaceService.createSpace(req.body);
+    var createSpacePromise = spaceService.createAPI(req.body);
     createSpacePromise.then(function(result){
         res.json(result);
     }).catch(function(err){

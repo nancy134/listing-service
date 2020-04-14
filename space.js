@@ -1,16 +1,29 @@
 const models = require("./models")
+const listingService = require("./listing");
+const listingVersionService = require("./listingVersion");
 
-var find = function(space){
+var find = function(id){
     return new Promise(function(resolve, reject){
         models.Space.findOne({
            where: {
-               id: space.id
+               id: id
            }
         }).then(function(space){
-            ret = {
-                space: space
+            resolve(space);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var findWithPrevious = function(id){
+    return new Promise(function(resolve, reject){
+        models.Space.findOne({
+            where: {
+                PreviousVersionId: id
             }
-            resolve(ret);
+        }).then(function(space){
+            resolve(space);
         }).catch(function(err){
             reject(err);
         });
@@ -27,13 +40,13 @@ var create = function(body){
     });
 }
 
-var update = function(update){
+var update = function(id, body){
     return new Promise(function(resolve, reject){
         models.Space.update(
-            update.body,
-            {returning: true, where: {id: update.id}}
-        ).then(function([rowsUpdate, [listing]]){
-            resolve(listing);
+            body,
+            {returning: true, where: {id: id}}
+        ).then(function([rowsUpdate, [space]]){
+            resolve(space);
         }).catch(function(err){
             reject(err);
         });
@@ -46,7 +59,7 @@ var index = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'unit', 'size', 'type', 'use', 'ListingVersionId']
+            attributes: ['id', 'unit', 'size', 'type', 'use', 'ListingVersionId', 'PreviousVersionId']
         }).then(spaces => {
             var ret = {
                 page: page,
@@ -72,9 +85,7 @@ exports.getSpaces = function(page, limit, offset, where){
 
 exports.updateSpace = function(updateData){
     return new Promise(function(resolve, reject){
-        update(updateData)
-        .then(find)
-        .then(function(space){
+        update(updateData).then(function(space){
             resolve(space);
         }).catch(function(err){
             reject(err);
@@ -84,9 +95,7 @@ exports.updateSpace = function(updateData){
 
 exports.createSpace = function(body){
     return new Promise(function(resolve, reject){
-        create(body)
-        .then(find)
-        .then(function(space){
+        create(body).then(function(space){
             resolve(space);
         }).catch(function(err){
             reject(err);
@@ -104,6 +113,7 @@ exports.copySpace = function(id, ListingVersionId){
             var body = space.get({plain: true});
             delete body["id"];
             body.ListingVersionId = ListingVersionId;
+            body.PreviousVersionId = id;
             for (var propName in body) {
                 if (body[propName] === null || body[propName] === undefined) {
                     delete body[propName];
@@ -121,3 +131,89 @@ exports.copySpace = function(id, ListingVersionId){
     });
 }
 
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
+        listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
+            console.log("createAPI: listingVersion: "+JSON.stringify(listingVersion)); 
+            listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                console.log("creatAPI: listing: "+JSON.stringify(listing));
+                if (listing.latestDraftId){
+                    create(body).then(function(space){
+                        resolve(space);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                } else {
+                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                         console.log("createAPI: copied: "+JSON.stringify(copied));
+                         body.ListingVersionId = copied.id;
+                         create(body).then(function(createdSpace){
+                             console.log("createAPI: createdSpace: "+JSON.stringify(createdSpace));
+                             var listingBody = {
+                                latestDraftId: copied.id
+                             };
+                             listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                 resolve(createdSpace);
+                             }).catch(function(err){
+                                 reject(err);
+                             });
+                         }).catch(function(err){
+                             reject(err);
+                         });
+                     }).catch(function(err){
+                         reject(err);
+                     }); 
+                }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+ 
+}
+
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve, reject){
+        find(id).then(function(space){
+            listingVersionService.find(space.ListingVersionId).then(function(listingVersion){
+                listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                    if (listing.latestDraftId){
+                        update(id, body).then(function(space){
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                            findWithPrevious(id).then(function(updateSpace){
+                                update(updateSpace.id, body).then(function(updatedSpace){
+                                    var listingBody = {
+                                        latestDraftId: copied.id
+                                    };
+                                    listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                        resolve(updatedSpace);
+                                    }).catch(function(err){
+                                        reject(err);
+                                    });
+                                }).catch(function(err){
+                                    reject(err);
+                                });
+                            }).catch(function(err){
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    }
+                }).catch(function(err){
+                    reject(err);
+                }); 
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}

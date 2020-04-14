@@ -33,6 +33,15 @@ module.exports = {
           key: 'id'
         }
       },
+      PreviousVersionId: {
+       type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Spaces',
+          key: 'id'
+        }
+
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -93,7 +93,6 @@ find = function(id){
             };
             resolve(ret);
         }).catch(function(err){
-            console.log("findListingVersion err: "+err);
             reject(err);
         });
     });
@@ -105,7 +104,6 @@ create = function(body){
         models.ListingVersion.create(body).then(function(listing){
             resolve(listing);
         }).catch(function(err){
-            console.log("createListingVersion err: "+err);
             reject(err);
         });
     });
@@ -188,12 +186,11 @@ exports.copy = function(id){
                 }
 
                 Promise.all(promises).then(function(values){
-                    resolve(values);
+                    resolve(newListingVersion);
                 }).catch(function(err){
                      reject(err);
                 });
 
-                resolve(newListingVersion);
             }).catch(function(err){
                 reject(err);
             });

@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Space.associate = function(models) {
      Space.belongsTo(models.ListingVersion);
+     Space.belongsTo(models.Space, {foreignKey: 'PreviousVersionId'});
      Space.hasMany(models.Image, {as: 'images'});
   };
   return Space;

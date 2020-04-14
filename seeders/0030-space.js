@@ -21,6 +21,7 @@ module.exports = {
         type: 'NNN',
         use: 'Restaurant',
         ListingVersionId: 2,
+        PreviousVersionId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -45,6 +46,7 @@ module.exports = {
         type: 'Modified Gross',
         use: 'Office',
         ListingVersionId: 4,
+        PreviousVersionId: 3,
         createdAt: new Date(),
         updatedAt: new Date()
  
