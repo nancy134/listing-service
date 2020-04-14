@@ -179,25 +179,55 @@ exports.publishListingAPI = function(id){
 exports.publishDirectListingAPI = function(id){
     return new Promise(function(resolve, reject){
         listingService.find(id).then(function(listing){
+
+            var latestDraftId = listing.latestDraftId;
+            var latestApprovedId = listing.latestApprovedId;
+            
             if (listing.latestDraftId){
                 var body = {
                     publishStatus: "On Market"
                 };
                 listingVersionService.update(listing.latestDraftId, body).then(function(listingVersion){
-                    var listingBody = {
-                        latestDraftId: null,
-                        latestApprovedId: listingVersion.id
-                    };
-                    listingService.update(listingVersion.ListingId, listingBody).then(function(newListing){
-                    
-                        listingVersionService.find(newListing.latestApprovedId).then(function(finalListingVersion){
-                            resolve(finalListingVersion);
+
+                    if (latestApprovedId){
+                        var body = {
+                            publishStatus: "Archived"
+                        };
+                        listingVersionService.update(latestApprovedId,body).then(function(archivedListingVersion){
+                            var listingBody = {
+                                latestDraftId: null,
+                                latestApprovedId: listingVersion.id
+                            };
+                            listingService.update(listingVersion.ListingId, listingBody).then(function(newListing){
+                                listingVersionService.find(newListing.latestApprovedId).then(function(finalListingVersion){
+                                    resolve(finalListingVersion);
+                                }).catch(function(err){
+                                    reject(err);
+                                });
+                            }).catch(function(err){
+                                reject(err);
+                            });
                         }).catch(function(err){
                             reject(err);
                         });
-                    }).catch(function(err){
-                        reject(err);
-                    });
+                    } else {
+
+
+                        var listingBody = {
+                            latestDraftId: null,
+                            latestApprovedId: listingVersion.id
+                        };
+                        listingService.update(listingVersion.ListingId, listingBody).then(function(newListing){
+                    
+                            listingVersionService.find(newListing.latestApprovedId).then(function(finalListingVersion){
+                                resolve(finalListingVersion);
+                            }).catch(function(err){
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    }
 
                 }).catch(function(err){
                     reject(err);

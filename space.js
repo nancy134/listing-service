@@ -134,9 +134,7 @@ exports.copySpace = function(id, ListingVersionId){
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
         listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
-            console.log("createAPI: listingVersion: "+JSON.stringify(listingVersion)); 
             listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                console.log("creatAPI: listing: "+JSON.stringify(listing));
                 if (listing.latestDraftId){
                     create(body).then(function(space){
                         resolve(space);
@@ -145,10 +143,8 @@ exports.createAPI = function(body){
                     });
                 } else {
                     listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                         console.log("createAPI: copied: "+JSON.stringify(copied));
                          body.ListingVersionId = copied.id;
                          create(body).then(function(createdSpace){
-                             console.log("createAPI: createdSpace: "+JSON.stringify(createdSpace));
                              var listingBody = {
                                 latestDraftId: copied.id
                              };
@@ -181,13 +177,16 @@ exports.updateAPI = function(id, body){
                 listingService.find(listingVersion.listing.ListingId).then(function(listing){
                     if (listing.latestDraftId){
                         update(id, body).then(function(space){
+                            resolved(space);
                         }).catch(function(err){
                             reject(err);
                         });
                     } else {
                         listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                            findWithPrevious(id).then(function(updateSpace){
-                                update(updateSpace.id, body).then(function(updatedSpace){
+                            findWithPrevious(id).then(function(foundSpace){
+                                delete body.ListingVersionId;
+                                delete body.id;
+                                update(foundSpace.id, body).then(function(updatedSpace){
                                     var listingBody = {
                                         latestDraftId: copied.id
                                     };

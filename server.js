@@ -269,7 +269,7 @@ app.put('/listings/:id', (req, res) => {
     });
 });
 
-app.put('/space/:id', (req, res) => {
+app.put('/spaces/:id', (req, res) => {
     var updateData = {
         id: req.params.id,
         body: req.body
@@ -391,7 +391,7 @@ app.post('/listing/:id/draft', (req, res) => {
     });
 });
 */
-app.post('/space', (req, res) => {
+app.post('/spaces', (req, res) => {
     var createSpacePromise = spaceService.createAPI(req.body);
     createSpacePromise.then(function(result){
         res.json(result);
