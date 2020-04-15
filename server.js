@@ -305,12 +305,8 @@ app.put('/tenant/:id', (req, res) => {
     });
 });
 
-app.put('/portfolio/:id', (req, res) => {
-    var updateData = {
-        id: req.params.id,
-        body: req.body
-    }
-    var updatePortfolioPromise = portfolioService.updatePortfolio(updateData);
+app.put('/portfolios/:id', (req, res) => {
+    var updatePortfolioPromise = portfolioService.updateAPI(req.params.id, req.body);
     updatePortfolioPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -414,8 +410,8 @@ app.post('/tenant', (req, res) => {
     });
 });
 
-app.post('/portfolio', (req, res) => {
-    var createPortfolioPromise = portfolioService.createPortfolio(req.body);
+app.post('/portfolios', (req, res) => {
+    var createPortfolioPromise = portfolioService.createAPI(req.body);
     createPortfolioPromise.then(function(result){
         res.json(result);
     }).catch(function(err){

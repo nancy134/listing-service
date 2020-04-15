@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Portfolio.associate = function(models) {
      Portfolio.belongsTo(models.ListingVersion);
+     Portfolio.belongsTo(models.Portfolio, {foreignKey: 'PreviousVersionId'});
   };
   return Portfolio;
 };

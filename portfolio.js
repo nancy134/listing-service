@@ -1,16 +1,29 @@
 const models = require("./models")
+const listingService = require("./listing");
+const listingVersionService = require("./listingVersion");
 
-var find = function(portfolio){
+var find = function(id){
     return new Promise(function(resolve, reject){
         models.Portfolio.findOne({
            where: {
-               id: portfolio.id
+               id: id
            }
         }).then(function(portfolio){
-            ret = {
-                portfolio: portfolio
+            resolve(portfolio);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var findWithPrevious = function(id){
+    return new Promise(function(resolve, reject){
+        models.Portfolio.findOne({
+            where: {
+                PreviousVersionId: id
             }
-            resolve(ret);
+        }).then(function(portfolio){
+            resolve(portfolio);
         }).catch(function(err){
             reject(err);
         });
@@ -27,13 +40,13 @@ var create = function(body){
     });
 }
 
-var update = function(update){
+var update = function(id, body){
     return new Promise(function(resolve, reject){
         models.Portfolio.update(
-            update.body,
-            {returning: true, where: {id: update.id}}
-        ).then(function([rowsUpdate, [listing]]){
-            resolve(listing);
+            body,
+            {returning: true, where: {id: id}}
+        ).then(function([rowsUpdate, [portfolio]]){
+            resolve(portfolio);
         }).catch(function(err){
             reject(err);
         });
@@ -46,7 +59,7 @@ var index = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'tenant', 'buildingSize', 'type', 'ListingVersionId']
+            attributes: ['id', 'tenant', 'buildingSize', 'type', 'ListingVersionId','PreviousVersionId']
         }).then(portfolios => {
             var ret = {
                 page: page,
@@ -84,9 +97,7 @@ exports.updatePortfolio = function(updateData){
 
 exports.createPortfolio = function(body){
     return new Promise(function(resolve, reject){
-        create(body)
-        .then(find)
-        .then(function(portfolio){
+        create(body).then(function(portfolio){
             resolve(portfolio);
         }).catch(function(err){
             reject(err);
@@ -104,6 +115,7 @@ exports.copyPortfolio = function(id, ListingVersionId){
             var body = portfolio.get({plain: true});
             delete body["id"];
             body.ListingVersionId = ListingVersionId;
+            body.PreviousVersionId = id;
             for (var propName in body) {
                 if (body[propName] === null || body[propName] === undefined) {
                     delete body[propName];
@@ -115,6 +127,100 @@ exports.copyPortfolio = function(id, ListingVersionId){
                 reject(err);
             });
             return null;
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
+        listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
+            listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                if (listing.latestDraftId){
+                    create(body).then(function(portfolio){
+                        resolve(portfolio);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                } else {
+                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                         body.ListingVersionId = copied.id;
+                         create(body).then(function(createdPortfolio){
+                             var listingBody = {
+                                latestDraftId: copied.id
+                             };
+                             listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                 resolve(createdPortfolio);
+                             }).catch(function(err){
+                                 reject(err);
+                             });
+                         }).catch(function(err){
+                             reject(err);
+                         });
+                     }).catch(function(err){
+                         reject(err);
+                     }); 
+                }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.updateAPI = function(id, body){
+    console.log("id: "+id);
+    console.log("body: "+JSON.stringify(body));
+    return new Promise(function(resolve, reject){
+        find(id).then(function(portfolio){
+            console.log("portfolio: "+JSON.stringify(portfolio));
+            listingVersionService.find(portfolio.ListingVersionId).then(function(listingVersion){
+                console.log("listingVersion: "+JSON.stringify(listingVersion));
+                listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                    console.log("listing: "+JSON.stringify(listing));
+                    if (listing.latestDraftId){
+                        update(id, body).then(function(portfolio){
+                            resolved(portfolio);
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                            console.log("copied: "+JSON.stringify(copied));
+                            findWithPrevious(id).then(function(foundPortfolio){
+                                console.log("foundPortfolio: "+JSON.stringify(foundPortfolio));
+                                delete body.ListingVersionId;
+                                delete body.id;
+                                update(foundPortfolio.id, body).then(function(updatedPortfolio){
+                                    console.log("updatedPortfolio: "+JSON.stringify(updatedPortfolio));
+                                    var listingBody = {
+                                        latestDraftId: copied.id
+                                    };
+                                    listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                        console.log("updatedListing: "+JSON.stringify(updatedListing));
+                                        resolve(updatedPortfolio);
+                                    }).catch(function(err){
+                                        reject(err);
+                                    });
+                                }).catch(function(err){
+                                    reject(err);
+                                });
+                            }).catch(function(err){
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    }
+                }).catch(function(err){
+                    reject(err);
+                }); 
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });

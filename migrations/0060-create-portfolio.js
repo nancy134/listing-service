@@ -22,6 +22,14 @@ module.exports = {
               type: Sequelize.ENUM,
               values: ['Commercial', 'Vacant', 'Mixed Use']
           },
+          PreviousVersionId: {
+              type: Sequelize.INTEGER,
+              allowNull: true,
+              references: {
+                  model: 'Portfolios',
+                  key: 'id'
+              }
+          },
           createdAt: {
               allowNull: false,
               type: Sequelize.DATE
