@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Tenant.associate = function(models) {
      Tenant.belongsTo(models.ListingVersion);
+     Tenant.belongsTo(models.Tenant, {foreignKey: 'PreviousVersionId'});
   };
   return Tenant;
 };

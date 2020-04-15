@@ -292,12 +292,8 @@ app.put('/units/:id', (req, res) => {
     });
 });
 
-app.put('/tenant/:id', (req, res) => {
-    var updateData = {
-        id: req.params.id,
-        body: req.body
-    }
-    var updateTenantPromise = tenantService.updateTenant(updateData);
+app.put('/tenants/:id', (req, res) => {
+    var updateTenantPromise = tenantService.updateAPI(req.params.id, req.body);
     updateTenantPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -401,8 +397,8 @@ app.post('/units', (req, res) => {
     });
 });
 
-app.post('/tenant', (req, res) => {
-    var createTenantPromise = tenantService.createTenant(req.body);
+app.post('/tenants', (req, res) => {
+    var createTenantPromise = tenantService.createAPI(req.body);
     createTenantPromise.then(function(result){
         res.json(result);
     }).catch(function(err){

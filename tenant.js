@@ -1,16 +1,29 @@
 const models = require("./models")
+const listingService = require("./listing");
+const listingVersionService = require("./listingVersion");
 
-var find = function(tenant){
+var find = function(id){
     return new Promise(function(resolve, reject){
         models.Tenant.findOne({
            where: {
-               id: tenant.id
+               id: id
            }
         }).then(function(tenant){
-            ret = {
-                tenant:tenant 
+            resolve(tenant);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var findWithPrevious = function(id){
+    return new Promise(function(resolve, reject){
+        models.Tenant.findOne({
+            where: {
+                PreviousVersionId: id
             }
-            resolve(ret);
+        }).then(function(tenant){
+            resolve(tenant);
         }).catch(function(err){
             reject(err);
         });
@@ -27,13 +40,13 @@ var create = function(body){
     });
 }
 
-var update = function(update){
+var update = function(id, body){
     return new Promise(function(resolve, reject){
         models.Tenant.update(
-            update.body,
-            {returning: true, where: {id: update.id}}
-        ).then(function([rowsUpdate, [listing]]){
-            resolve(listing);
+            body,
+            {returning: true, where: {id: id}}
+        ).then(function([rowsUpdate, [tenant]]){
+            resolve(tenant);
         }).catch(function(err){
             reject(err);
         });
@@ -46,7 +59,7 @@ var index = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'tenant', 'space', 'leaseEnds', 'ListingVersionId']
+            attributes: ['id', 'tenant', 'space', 'leaseEnds', 'ListingVersionId', 'PreviousVersionid']
         }).then(tenant => {
             var ret = {
                 page: page,
@@ -84,9 +97,7 @@ exports.updateTenant = function(updateData){
 
 exports.createTenant = function(body){
     return new Promise(function(resolve, reject){
-        create(body)
-        .then(find)
-        .then(function(tenant){
+        create(body).then(function(tenant){
             resolve(tenant);
         }).catch(function(err){
             reject(err);
@@ -104,6 +115,7 @@ exports.copyTenant = function(id, ListingVersionId){
             var body = tenant.get({plain: true});
             delete body["id"];
             body.ListingVersionId = ListingVersionId;
+            body.PreviousVersionId = id;
             for (var propName in body) {
                 if (body[propName] === null || body[propName] === undefined) {
                     delete body[propName];
@@ -115,6 +127,91 @@ exports.copyTenant = function(id, ListingVersionId){
                 reject(err);
             });
             return null;
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
+        listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
+            listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                if (listing.latestDraftId){
+                    create(body).then(function(tenant){
+                        resolve(tenant);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                } else {
+                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                         body.ListingVersionId = copied.id;
+                         create(body).then(function(createdTenant){
+                             var listingBody = {
+                                latestDraftId: copied.id
+                             };
+                             listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                 resolve(createdTenant);
+                             }).catch(function(err){
+                                 reject(err);
+                             });
+                         }).catch(function(err){
+                             reject(err);
+                         });
+                     }).catch(function(err){
+                         reject(err);
+                     }); 
+                }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve, reject){
+        find(id).then(function(tenant){
+            listingVersionService.find(tenant.ListingVersionId).then(function(listingVersion){
+                listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                    if (listing.latestDraftId){
+                        update(id, body).then(function(tenant){
+                            resolved(tenant);
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                            findWithPrevious(id).then(function(foundTenant){
+                                delete body.ListingVersionId;
+                                delete body.id;
+                                update(foundTenant.id, body).then(function(updatedTenant){
+                                    var listingBody = {
+                                        latestDraftId: copied.id
+                                    };
+                                    listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                        resolve(updatedTenant);
+                                    }).catch(function(err){
+                                        reject(err);
+                                    });
+                                }).catch(function(err){
+                                    reject(err);
+                                });
+                            }).catch(function(err){
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    }
+                }).catch(function(err){
+                    reject(err);
+                }); 
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });

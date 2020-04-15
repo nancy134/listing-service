@@ -18,6 +18,14 @@ module.exports = {
           leaseEnds: {
               type: Sequelize.DATE
           },
+          PreviousVersionId: {
+              type: Sequelize.INTEGER,
+              allowNull: true,
+              references: {
+                  model: 'Tenants',
+                  key: 'id'
+              }
+          },
           createdAt: {
               allowNull: false,
               type: Sequelize.DATE
