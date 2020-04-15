@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Unit.associate = function(models) {
      Unit.belongsTo(models.ListingVersion);
+     Unit.belongsTo(models.Unit, {foreignKey: 'PreviousVersionId'});
   };
   return Unit;
 };

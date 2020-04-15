@@ -21,6 +21,14 @@ module.exports = {
           income: {
               type: Sequelize.DECIMAL(13,4)
           },
+          PreviousVersionId: {
+              type: Sequelize.INTEGER,
+              allowNull: true,
+              references: {
+                  model: 'Units',
+                  key: 'id'
+              }
+          },
           createdAt: {
               allowNull: false,
               type: Sequelize.DATE

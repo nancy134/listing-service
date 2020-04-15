@@ -283,12 +283,8 @@ app.put('/spaces/:id', (req, res) => {
     });
 });
 
-app.put('/unit/:id', (req, res) => {
-    var updateData = {
-        id: req.params.id,
-        body: req.body
-    }
-    var updateUnitPromise = unitService.updateUnit(updateData);
+app.put('/units/:id', (req, res) => {
+    var updateUnitPromise = unitService.updateAPI(req.params.id, req.body);
     updateUnitPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
@@ -400,8 +396,8 @@ app.post('/spaces', (req, res) => {
     });
 });
 
-app.post('/unit', (req, res) => {
-    var createUnitPromise = unitService.createUnit(req.body);
+app.post('/units', (req, res) => {
+    var createUnitPromise = unitService.createAPI(req.body);
     createUnitPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
