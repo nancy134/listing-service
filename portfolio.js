@@ -172,15 +172,10 @@ exports.createAPI = function(body){
 }
 
 exports.updateAPI = function(id, body){
-    console.log("id: "+id);
-    console.log("body: "+JSON.stringify(body));
     return new Promise(function(resolve, reject){
         find(id).then(function(portfolio){
-            console.log("portfolio: "+JSON.stringify(portfolio));
             listingVersionService.find(portfolio.ListingVersionId).then(function(listingVersion){
-                console.log("listingVersion: "+JSON.stringify(listingVersion));
                 listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                    console.log("listing: "+JSON.stringify(listing));
                     if (listing.latestDraftId){
                         update(id, body).then(function(portfolio){
                             resolved(portfolio);
@@ -189,18 +184,14 @@ exports.updateAPI = function(id, body){
                         });
                     } else {
                         listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                            console.log("copied: "+JSON.stringify(copied));
                             findWithPrevious(id).then(function(foundPortfolio){
-                                console.log("foundPortfolio: "+JSON.stringify(foundPortfolio));
                                 delete body.ListingVersionId;
                                 delete body.id;
                                 update(foundPortfolio.id, body).then(function(updatedPortfolio){
-                                    console.log("updatedPortfolio: "+JSON.stringify(updatedPortfolio));
                                     var listingBody = {
                                         latestDraftId: copied.id
                                     };
                                     listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
-                                        console.log("updatedListing: "+JSON.stringify(updatedListing));
                                         resolve(updatedPortfolio);
                                     }).catch(function(err){
                                         reject(err);
