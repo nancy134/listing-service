@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   Image.associate = function(models) {
      Image.belongsTo(models.ListingVersion);
      Image.belongsTo(models.Space);
+     Image.belongsTo(models.Image, {foreignKey: 'PreviousVersionId'});
   };
   return Image;
 };

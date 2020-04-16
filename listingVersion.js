@@ -3,6 +3,7 @@ const spaceService = require("./space");
 const unitService = require("./unit");
 const tenantService = require("./tenant");
 const portfolioService = require("./portfolio");
+const imageService = require("./image");
 
 exports.index = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
@@ -110,6 +111,8 @@ create = function(body){
 }
 
 exports.update = function(id, body){
+    console.log("id: "+id);
+    console.log("body: "+JSON.stringify(body));
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
             body,
@@ -142,8 +145,6 @@ exports.copy = function(id){
             delete body.updatedAt;
             delete body.createdAt;
 
-            delete body["images"];
-
             var spaces = body.spaces
             delete body.spaces;
             var units = body.units;
@@ -152,6 +153,7 @@ exports.copy = function(id){
             delete body.tenants;
             var portfolios = body.portfolios;
             delete body.portfolios;
+            var images = body.images;
 
             for (var propName in body) { 
                 if (body[propName] === null || body[propName] === undefined) {
@@ -181,6 +183,12 @@ exports.copy = function(id){
                 for (var index in portfolios){
                     var copyPromise = portfolioService.copyPortfolio(
                         portfolios[index].id,
+                        newListingVersion.id);
+                    promises.push(copyPromise);
+                }
+                for (var index in images){
+                    var copyPromise = imageService.copyImage(
+                        images[index].id,
                         newListingVersion.id);
                     promises.push(copyPromise);
                 }

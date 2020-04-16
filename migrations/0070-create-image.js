@@ -27,6 +27,14 @@ module.exports = {
           key: 'id'
         }
       },
+      PreviousVersionId: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+              model: 'Images',
+              key: 'id'
+          }
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

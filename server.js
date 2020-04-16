@@ -57,30 +57,17 @@ app.get('/admin/listingVersions', (req, res) => {
 
 app.post('/upload', upload.single('image'), function(req, res, next) {
 
-  models.Image.create({
-      ListingVersionId: req.body.listing_id
-  }).then(image => {
-      var uploadPromise = imageService.uploadFile(
-          req.file.path,
-          req.file.originalname,
-          'listing',
-          req.body.listing_id,
-          image.id);
-      uploadPromise.then(function(result){
-          image.url = result.Location;
-          image.save().then(image => {
-              res.json(image);
-          }).catch(err => {
-              res.json(err);
-          });
+  imageService.createAPI(
+      req.body.listing_id,
+      req.file.path, 
+      req.file.originalname,
+      'listing',
+      req.body.listing_id)
+      .then(function(image){
+          res.json(image);
       }).catch(function(err){
-          res.send(err);
+          res.json(err);
       });
-
-  }).catch(err => {
-      res.send(err);
-  });
-
 });
 
 app.get('/images', (req, res) => {
