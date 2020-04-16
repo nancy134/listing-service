@@ -14,6 +14,65 @@ exports.find = function(id){
     });
 }
 
+exports.index = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        models.Listing.findAndCountAll({
+            where: where,
+            distinct: true,
+            limit: limit,
+            offset, offset,
+            attributes: ['id', 'latestDraftId', 'latestApprovedId'],
+            include: [
+            {
+                model: models.ListingVersion,
+                as: 'latestDraftVersion',
+                attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'ListingId'],
+include: [
+                {
+                    model: models.Image, 
+                    as: 'images',
+                    attributes: ['id','url']
+                },
+                {
+                    model: models.Space,
+                    as: 'spaces',
+                    attributes: ['price', 'size']
+                }
+                ]
+ 
+            },
+            {
+                model: models.ListingVersion,
+                as: 'latestApprovedVersion',
+                attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'ListingId'],
+                include: [
+                {
+                    model: models.Image,
+                    as: 'images',
+                    attributes: ['id','url']
+                },
+                {
+                    model: models.Space,
+                    as: 'spaces',
+                    attributes: ['price', 'size']
+                }
+                ]
+
+            }
+            ]
+        }).then(listings => {
+            var ret = {
+                page: page,
+                perPage: limit,
+                listings: listings
+            };
+            resolve(ret);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 exports.indexAdmin = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.Listing.findAll({
@@ -25,6 +84,7 @@ exports.indexAdmin = function(page, limit, offset, where){
         });
     });
 }
+
 
 exports.create = function(body){
     return new Promise(function(resolve, reject){

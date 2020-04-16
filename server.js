@@ -14,6 +14,7 @@ const unitService = require('./unit');
 const tenantService = require('./tenant');
 const portfolioService = require('./portfolio');
 const listingAPIService = require('./listingAPI');
+const listingServices = require("./listing");
 
 // Constants
 const PORT = 8080;
@@ -121,12 +122,8 @@ app.get('/listings', (req, res) => {
         where = {
             owner: req.query.owner
         };
-    } else {
-        where = {
-            publishStatus: "On Market"
-        };
     }
-    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where);
+    var getListingsPromise = listingService.index(page, limit, offset, where);
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
