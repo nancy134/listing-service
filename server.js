@@ -15,6 +15,8 @@ const tenantService = require('./tenant');
 const portfolioService = require('./portfolio');
 const listingAPIService = require('./listingAPI');
 const listingServices = require("./listing");
+const listingVersionService = require("./listingVersion");
+const { Op } = require("sequelize");
 
 // Constants
 const PORT = 8080;
@@ -118,12 +120,18 @@ app.get('/listings', (req, res) => {
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
+    var mode = req.query.mode;
     if (req.query.owner){
         where = {
-            owner: req.query.owner
+            owner: req.query.owner,
+            [Op.or]: [{publishStatus: 'Draft'}, {publishStatus: 'On Market'}, {publishStatus: 'Off Market'}]
+        };
+    } else {
+        where = {
+            publishStatus: 'On Market'
         };
     }
-    var getListingsPromise = listingService.index(page, limit, offset, where);
+    var getListingsPromise = listingVersionService.index(page, limit, offset, where);
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){

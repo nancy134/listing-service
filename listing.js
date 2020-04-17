@@ -14,7 +14,7 @@ exports.find = function(id){
     });
 }
 
-exports.index = function(page, limit, offset, where){
+exports.index = function(page, limit, offset, where, mode){
     return new Promise(function(resolve, reject){
         models.Listing.findAndCountAll({
             where: where,
