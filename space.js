@@ -177,7 +177,7 @@ exports.updateAPI = function(id, body){
                 listingService.find(listingVersion.listing.ListingId).then(function(listing){
                     if (listing.latestDraftId){
                         update(id, body).then(function(space){
-                            resolved(space);
+                            resolve(space);
                         }).catch(function(err){
                             reject(err);
                         });

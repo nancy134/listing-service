@@ -96,9 +96,15 @@ app.get('/enums', (req, res) => {
         listingTypes: models.ListingVersion.rawAttributes.listingType.values,
         propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
         spaceTypes: models.Space.rawAttributes.type.values,
-        spaceUse: models.Space.rawAttributes.use.values,
+        spaceUses: models.Space.rawAttributes.use.values,
         amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
 
+    });
+});
+
+app.get('/spaceUse', (req, res) => {
+    res.json({
+        spaceUse: models.Space.rawAttributes.use.values
     });
 });
 
@@ -131,7 +137,7 @@ app.get('/listings', (req, res) => {
             publishStatus: 'On Market'
         };
     }
-    var getListingsPromise = listingVersionService.index(page, limit, offset, where);
+    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where);
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){

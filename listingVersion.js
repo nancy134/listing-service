@@ -89,7 +89,7 @@ find = function(id){
                 listingTypes: models.ListingVersion.rawAttributes.listingType.values,
                 propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
                 spaceTypes: models.Space.rawAttributes.type.values,
-                spaceUse: models.Space.rawAttributes.use.values,
+                spaceUses: models.Space.rawAttributes.use.values,
                 amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
             };
             resolve(ret);
