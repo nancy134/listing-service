@@ -29,8 +29,43 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-  res.send('listing-api.phowma.com\n');
+  res.send("listing service");
 });
+
+app.get('/listings', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null;
+    var spaceWhere = null;
+    if (req.query.owner){
+        where = {
+            owner: req.query.owner,
+            [Op.or]: [{publishStatus: 'Draft'}, {publishStatus: 'On Market'}, {publishStatus: 'Off Market'}]
+        };
+    } else {
+        where = {
+            publishStatus: 'On Market'
+        };
+    }
+    if (req.query.spaceUse){
+        var spaceUses = req.query.spaceUse;
+        var spaceUseWhereClause = [];
+        spaceUses.forEach(spaceUse => {
+            spaceUseWhereClause.push({use: spaceUse});
+        });
+        spaceWhere = {
+            [Op.or]: spaceUseWhereClause 
+        };
+    }
+    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where, spaceWhere);
+    getListingsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
 app.get('/admin/listings', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -119,30 +154,6 @@ app.post('/image', (req, res) => {
    }).catch(err => {
        res.json(err);
    });
-});
-
-app.get('/listings', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = null;
-    var mode = req.query.mode;
-    if (req.query.owner){
-        where = {
-            owner: req.query.owner,
-            [Op.or]: [{publishStatus: 'Draft'}, {publishStatus: 'On Market'}, {publishStatus: 'Off Market'}]
-        };
-    } else {
-        where = {
-            publishStatus: 'On Market'
-        };
-    }
-    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where);
-    getListingsPromise.then(function(result){
-        res.json(result);
-    }).catch(function(err){
-        console.log("err: "+err);
-    });
 });
 
 app.get('/listing/:listing_id/spaces', (req, res) => {

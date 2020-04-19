@@ -2,9 +2,9 @@ const models = require("./models");
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 
-exports.indexListingAPI = function(page, limit, offset, where){
+exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
-        listingVersionService.index(page, limit, offset, where).then(function(listingVersions){
+        listingVersionService.index(page, limit, offset, where, spaceWhere).then(function(listingVersions){
             resolve(listingVersions);
         }).catch(function(err){
             reject(err);

@@ -5,7 +5,7 @@ const tenantService = require("./tenant");
 const portfolioService = require("./portfolio");
 const imageService = require("./image");
 
-exports.index = function(page, limit, offset, where){
+exports.index = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
             where: where,
@@ -22,7 +22,8 @@ exports.index = function(page, limit, offset, where){
             {
                 model: models.Space,
                 as: 'spaces',
-                attributes: ['price', 'size']
+                where: spaceWhere,
+                attributes: ['price', 'size', 'use']
             }
             ]
         }).then(listings => {
@@ -111,8 +112,6 @@ create = function(body){
 }
 
 exports.update = function(id, body){
-    console.log("id: "+id);
-    console.log("body: "+JSON.stringify(body));
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
             body,
