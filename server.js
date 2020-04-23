@@ -33,31 +33,71 @@ app.get('/', (req, res) => {
 });
 
 app.get('/listings', (req, res) => {
+    console.log("req.query: "+JSON.stringify(req.query));
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
     var spaceWhere = null;
+
+    var listingTypes = models.ListingVersion.rawAttributes.listingType.values;
+    if (req.query.ListingType){
+       if (req.query.ListingType !== 'All'){
+           listingTypes = [req.query.ListingType];
+       }
+    }
+    console.log("listingTypes: "+JSON.stringify(listingTypes));
+
     if (req.query.owner){
         where = {
             owner: req.query.owner,
-            [Op.or]: [{publishStatus: 'Draft'}, {publishStatus: 'On Market'}, {publishStatus: 'Off Market'}]
+            [Op.or]: [{publishStatus: 'Draft'}, {publishStatus: 'On Market'}, {publishStatus: 'Off Market'}],
+            listingType: {[Op.or]: listingTypes}
         };
     } else {
         where = {
-            publishStatus: 'On Market'
+            publishStatus: 'On Market',
+            listingType: {[Op.or]: listingTypes}
         };
     }
+    // Use ['Office', 'Retail']
+    var spaceUseWhereClause = models.Space.rawAttributes.use.values;
     if (req.query.spaceUse){
-        var spaceUses = req.query.spaceUse;
-        var spaceUseWhereClause = [];
-        spaceUses.forEach(spaceUse => {
-            spaceUseWhereClause.push({use: spaceUse});
-        });
-        spaceWhere = {
-            [Op.or]: spaceUseWhereClause 
-        };
+        spaceUseWhereClause = req.query.spaceUse;
     }
+
+    // Size
+    var minSize = 0;
+    if (req.query.minSize){
+        minSize = req.query.minSize;
+    }
+    var maxSize = 999999;
+    if (req.query.maxSize){
+        maxSize = req.query.maxSize;
+    }
+
+    // Rate (price) 
+    var minRate = 0;
+    var maxRate = 999999;
+    if (req.query.minRate){
+        minRate = req.query.minRate;
+    };
+    if (req.query.maxRate){
+        maxRate = req.query.maxRate;
+    }
+    spaceWhere = {
+        [Op.and]: {
+            use: { [Op.or]: spaceUseWhereClause}, 
+            size: {
+                [Op.gte]: minSize,
+                [Op.lte]: maxSize 
+            },
+            price: {
+                [Op.gte]: minRate,
+                [Op.lte]: maxRate
+            }
+        }
+    };
     var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where, spaceWhere);
     getListingsPromise.then(function(result){
         res.json(result);
@@ -137,9 +177,15 @@ app.get('/enums', (req, res) => {
     });
 });
 
-app.get('/spaceUse', (req, res) => {
+app.get('/spaceUses', (req, res) => {
     res.json({
-        spaceUse: models.Space.rawAttributes.use.values
+        spaceUses: models.Space.rawAttributes.use.values
+    });
+});
+
+app.get('/listingTypes', (req, res) => {
+    res.json({
+        listingTypes: models.ListingVersion.rawAttributes.listingType.values
     });
 });
 

@@ -13,6 +13,7 @@ exports.index = function(page, limit, offset, where, spaceWhere){
             limit: limit,
             offset: offset,
             attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'ListingId'],
+            order: [['spaces','price','ASC']],
             include: [
             {
                 model: models.Image, 

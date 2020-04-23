@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     use: {
         type: DataTypes.ENUM,
-        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaturant', 'Specialty']
+        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty']
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
