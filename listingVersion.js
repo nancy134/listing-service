@@ -25,6 +25,12 @@ exports.index = function(page, limit, offset, where, spaceWhere){
                 as: 'spaces',
                 where: spaceWhere,
                 attributes: ['price', 'size', 'use']
+            },
+            {
+                model: models.Listing,
+                as: 'listing',
+                attributes: ['latestDraftId', 'latestApprovedId'],
+                required: true
             }
             ]
         }).then(listings => {
@@ -82,6 +88,11 @@ find = function(id){
                 model: models.Portfolio,
                 as: 'portfolios',
                 attributes: ['id', 'tenant', 'buildingSize', 'lotSize', 'type']
+            },
+            {
+                model: models.Listing,
+                as: 'listing',
+                attributes: ['latestDraftId', 'latestApprovedId']
             }
             ]
         }).then(function(listing){
@@ -96,6 +107,7 @@ find = function(id){
             };
             resolve(ret);
         }).catch(function(err){
+            console.log("err: "+err);
             reject(err);
         });
     });

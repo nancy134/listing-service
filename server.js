@@ -51,7 +51,13 @@ app.get('/listings', (req, res) => {
     if (req.query.owner){
         where = {
             owner: req.query.owner,
-            [Op.or]: [{publishStatus: 'Draft'}, {publishStatus: 'On Market'}, {publishStatus: 'Off Market'}],
+            [Op.or]: [
+                {publishStatus: 'Draft'}, 
+                {[Op.and]: [ 
+                   {publishStatus: 'On Market'},
+                   {'$listing.latestDraftId$': null}
+                ]} 
+            ],
             listingType: {[Op.or]: listingTypes}
         };
     } else {
@@ -102,6 +108,7 @@ app.get('/listings', (req, res) => {
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
+        res.send(err);
         console.log("err: "+err);
     });
 });

@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
 
   }, {});
   ListingVersion.associate = function(models) {
-    ListingVersion.belongsTo(models.Listing);
+    ListingVersion.belongsTo(models.Listing, {as: 'listing', foreignKey: 'ListingId'});
     ListingVersion.hasMany(models.Image, {as: 'images'});
     ListingVersion.hasMany(models.Space, {as: 'spaces'});
     ListingVersion.hasMany(models.Unit, {as: 'units'});
