@@ -17,6 +17,8 @@ const listingAPIService = require('./listingAPI');
 const listingServices = require("./listing");
 const listingVersionService = require("./listingVersion");
 const { Op } = require("sequelize");
+const _ = require("lodash");
+
 
 // Constants
 const PORT = 8080;
@@ -27,6 +29,23 @@ const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
+
+function desymbolize(o) {
+  if (Array.isArray(o)) {
+    return o.map(desymbolize);
+  } else if (typeof o != "object") {
+    return o;
+  } else {
+    let d = Object.assign(Object.create(Object.getPrototypeOf(o)), o);
+    Object.getOwnPropertySymbols(o).forEach(k => {
+      d[`<${Symbol.keyFor(k)}>`] = o[k];
+      delete d[k];
+    });
+    Object.keys(d).forEach(k => d[k] = desymbolize(d[k]));
+    return d;
+  }
+}
+
 
 app.get('/', (req, res) => {
   res.send("listing service");
@@ -40,14 +59,15 @@ app.get('/listings', (req, res) => {
     var where = null;
     var spaceWhere = null;
 
-    var listingTypes = models.ListingVersion.rawAttributes.listingType.values;
+    // Listing Type
+    var listingTypes = null;
     if (req.query.ListingType){
        if (req.query.ListingType !== 'All'){
            listingTypes = [req.query.ListingType];
        }
     }
-    console.log("listingTypes: "+JSON.stringify(listingTypes));
 
+    // Owner & publishStatus
     if (req.query.owner){
         where = {
             owner: req.query.owner,
@@ -58,31 +78,72 @@ app.get('/listings', (req, res) => {
                    {'$listing.latestDraftId$': null}
                 ]} 
             ],
-            listingType: {[Op.or]: listingTypes}
         };
     } else {
         where = {
             publishStatus: 'On Market',
-            listingType: {[Op.or]: listingTypes}
         };
     }
-    // Use ['Office', 'Retail']
-    var spaceUseWhereClause = models.Space.rawAttributes.use.values;
+
+    if (listingTypes) where.listingType = {[Op.or]: listingTypes};
+
+    var spaceWhere = null;
+    var spaceAndClause = {};
+
+    // Use
+    if (req.query.spaceUse){
+        spaceAndClause.use = { [Op.or]: req.query.spaceUse} 
+    }
+
+    // Size
+    if (req.query.minSize && req.query.maxSize){
+        spaceAndClause.size = {[Op.gte]: req.query.minSize, [Opt.lte]: req.query.maxSize};
+    } else if (req.query.minSize && !req.query.maxSize){
+        spaceAndClause.size = {[Op.gte]: req.query.minSize};
+    } else if (!req.query.minSize && req.query.maxSize){
+        spaceAndClause.size = {[Op.lte]: req.query.maxSize};
+    }
+
+    // Price 
+    if (req.query.minRate && req.query.maxRate){
+        spaceAndClause.price = {[Op.gte]: req.query.minRate, [Opt.lte]: req.query.maxRate};
+    } else if (req.query.minxRate && !req.query.maxRate){
+        spaceAndClause.price = {[Op.gte]: req.query.minRate};
+    } else if (!req.query.minRate && req.query.maxRate){
+        spaceAndClause.price = {[Op.lte]: req.query.maxRate};
+    }
+
+    var isEmpty = _.isEmpty(spaceAndClause); 
+    if (!isEmpty){
+        spaceWhere = {
+            [Op.and]: spaceAndClause
+        };
+        sW = desymbolize(spaceWhere);
+        console.log("spacewhere: "+JSON.stringify(sW));
+    }
+    
+    //-------------------------
+    /*
+    var spaceUseWhereClause = null;
+    if (req.query.spaceUse ||
+        req.query.minSize ||
+        req.query.maxSize ||
+        req.query.minPrice ||
+        req.query.maxPrice){
+    spaceUseWhereClause = models.Space.rawAttributes.use.values;
     if (req.query.spaceUse){
         spaceUseWhereClause = req.query.spaceUse;
     }
 
-    // Size
     var minSize = 0;
     if (req.query.minSize){
-        minSize = req.query.minSize;
+        gminSize = req.query.minSize;
     }
     var maxSize = 999999;
     if (req.query.maxSize){
         maxSize = req.query.maxSize;
     }
 
-    // Rate (price) 
     var minRate = 0;
     var maxRate = 999999;
     if (req.query.minRate){
@@ -91,6 +152,7 @@ app.get('/listings', (req, res) => {
     if (req.query.maxRate){
         maxRate = req.query.maxRate;
     }
+
     spaceWhere = {
         [Op.and]: {
             use: { [Op.or]: spaceUseWhereClause}, 
@@ -104,6 +166,8 @@ app.get('/listings', (req, res) => {
             }
         }
     };
+    }
+    */
     var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where, spaceWhere);
     getListingsPromise.then(function(result){
         res.json(result);
