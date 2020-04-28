@@ -52,7 +52,6 @@ app.get('/', (req, res) => {
 });
 
 app.get('/listings', (req, res) => {
-    console.log("req.query: "+JSON.stringify(req.query));
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
@@ -119,7 +118,6 @@ app.get('/listings', (req, res) => {
             [Op.and]: spaceAndClause
         };
         sW = desymbolize(spaceWhere);
-        console.log("spacewhere: "+JSON.stringify(sW));
     }
     
     //-------------------------

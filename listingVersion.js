@@ -12,7 +12,7 @@ exports.index = function(page, limit, offset, where, spaceWhere){
             distinct: true,
             limit: limit,
             offset: offset,
-            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'ListingId'],
+            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'shortDescription', 'ListingId'],
             order: [['spaces','price','ASC']],
             include: [
             {
