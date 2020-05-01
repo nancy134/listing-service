@@ -106,12 +106,11 @@ app.get('/listings', (req, res) => {
     // Price 
     if (req.query.minRate && req.query.maxRate){
         spaceAndClause.price = {[Op.gte]: req.query.minRate, [Op.lte]: req.query.maxRate};
-    } else if (req.query.minxRate && !req.query.maxRate){
+    } else if (req.query.minRate && !req.query.maxRate){
         spaceAndClause.price = {[Op.gte]: req.query.minRate};
     } else if (!req.query.minRate && req.query.maxRate){
         spaceAndClause.price = {[Op.lte]: req.query.maxRate};
     }
-
     var isEmpty = _.isEmpty(spaceAndClause); 
     if (!isEmpty){
         spaceWhere = {
