@@ -96,7 +96,7 @@ app.get('/listings', (req, res) => {
 
     // Size
     if (req.query.minSize && req.query.maxSize){
-        spaceAndClause.size = {[Op.gte]: req.query.minSize, [Opt.lte]: req.query.maxSize};
+        spaceAndClause.size = {[Op.gte]: req.query.minSize, [Op.lte]: req.query.maxSize};
     } else if (req.query.minSize && !req.query.maxSize){
         spaceAndClause.size = {[Op.gte]: req.query.minSize};
     } else if (!req.query.minSize && req.query.maxSize){
@@ -105,7 +105,7 @@ app.get('/listings', (req, res) => {
 
     // Price 
     if (req.query.minRate && req.query.maxRate){
-        spaceAndClause.price = {[Op.gte]: req.query.minRate, [Opt.lte]: req.query.maxRate};
+        spaceAndClause.price = {[Op.gte]: req.query.minRate, [Op.lte]: req.query.maxRate};
     } else if (req.query.minxRate && !req.query.maxRate){
         spaceAndClause.price = {[Op.gte]: req.query.minRate};
     } else if (!req.query.minRate && req.query.maxRate){
