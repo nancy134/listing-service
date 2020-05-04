@@ -240,6 +240,7 @@ app.get('/enums', (req, res) => {
         propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
         spaceTypes: models.Space.rawAttributes.type.values,
         spaceUses: models.Space.rawAttributes.use.values,
+        portfolioTypes: models.Portfolio.rawAttributes.type.values,
         amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
 
     });
@@ -372,6 +373,7 @@ app.get('/portfolios', (req, res) => {
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
+        res.send(err);
     });
 });
 app.get('/listings/:id', (req, res) => {
@@ -430,6 +432,7 @@ app.put('/portfolios/:id', (req, res) => {
         res.json(result);
     }).catch(function(err){
         console.log("err: "+err);
+        res.send(err);
     });
 });
 
@@ -534,7 +537,18 @@ app.post('/portfolios', (req, res) => {
     createPortfolioPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("err: "+err);
+        if (err.message){
+            var ret = {
+                message: err.message
+            }; 
+            res.status(400).json(ret);
+        } else {
+            var ret = {
+                message: err
+            };
+            res.status(400).json(ret);
+        }
+         
     });
 });
 

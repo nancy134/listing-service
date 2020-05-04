@@ -47,9 +47,10 @@ exports.index = function(page, limit, offset, where, spaceWhere){
 }
 
 exports.indexAdmin = function(page, limit, offset, where){
+    console.log("listingVersion:indexAdmin");
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAll({
-            attributes: ['id','publishStatus'],
+            attributes: ['id','publishStatus','owner', 'createdAt'],
         }).then(listings => {
             resolve(listings); 
         }).catch(err => { 
@@ -103,6 +104,7 @@ find = function(id){
                 propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
                 spaceTypes: models.Space.rawAttributes.type.values,
                 spaceUses: models.Space.rawAttributes.use.values,
+                portfolioTypes: models.Portfolio.rawAttributes.type.values,
                 amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
             };
             resolve(ret);
@@ -132,18 +134,6 @@ exports.update = function(id, body){
         ).then(function([rowsUpdate, [listing]]){
             resolve(listing);
         }).catch(function(err){
-            reject(err);
-        });
-    });
-}
-
-exports.indexAdmin = function(page, limit, offset, where){
-    return new Promise(function(resolve, reject){
-        models.ListingVersion.findAll({
-            attributes: ['id','publishStatus'],
-        }).then(listings => {
-            resolve(listings); 
-        }).catch(err => { 
             reject(err);
         });
     });

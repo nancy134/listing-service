@@ -16,7 +16,7 @@ module.exports = {
               type: Sequelize.INTEGER
           },
           lotSize: {
-              type: Sequelize.INTEGER
+              type: Sequelize.DECIMAL(10,2)
           },
           type: {
               type: Sequelize.ENUM,

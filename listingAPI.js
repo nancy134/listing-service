@@ -282,6 +282,7 @@ exports.unPublishListingAPI = function(id){
 }
 
 exports.getListingVersionsAdmin = function(page, limit, offset, where){
+    console.log("listingAPI.getListingVersionsAdmin");
     return new Promise(function(resolve, reject){
        listingVersionService.indexAdmin(page, limit, offset, where).then(function(listingVersions){
            resolve(listingVersions);
