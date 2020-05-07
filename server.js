@@ -46,7 +46,18 @@ function desymbolize(o) {
   }
 }
 
-
+function formatError(err){
+    if (err.message){
+        var ret = {
+            message: err.message
+        };
+    } else {
+        var ret = {
+            message: err
+        };
+    }
+    return(ret);
+}
 app.get('/', (req, res) => {
   res.send("listing service");
 });
@@ -431,8 +442,9 @@ app.put('/portfolios/:id', (req, res) => {
     updatePortfolioPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("err: "+err);
-        res.send(err);
+        var ret = formatError(err);
+        res.status(400).json(ret);
+
     });
 });
 
@@ -537,18 +549,8 @@ app.post('/portfolios', (req, res) => {
     createPortfolioPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        if (err.message){
-            var ret = {
-                message: err.message
-            }; 
-            res.status(400).json(ret);
-        } else {
-            var ret = {
-                message: err
-            };
-            res.status(400).json(ret);
-        }
-         
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 
