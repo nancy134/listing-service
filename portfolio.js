@@ -41,6 +41,13 @@ var create = function(body){
 }
 
 var update = function(id, body){
+    // Clear numerics
+    if (body.lotSize === ""){
+        body.lotSize = null;
+    }
+    if (body.buildingSize === ""){
+        body.buildingSize = null;
+    }
     return new Promise(function(resolve, reject){
         models.Portfolio.update(
             body,
