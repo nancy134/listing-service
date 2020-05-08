@@ -433,7 +433,8 @@ app.put('/tenants/:id', (req, res) => {
     updateTenantPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("err: "+err);
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 
@@ -540,7 +541,8 @@ app.post('/tenants', (req, res) => {
     createTenantPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("err: "+err);
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 

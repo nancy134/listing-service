@@ -15,6 +15,9 @@ module.exports = {
           space: {
               type: Sequelize.INTEGER
           },
+          baseRent: {
+              type: Sequelize.DECIMAL(8,2)
+          },
           leaseEnds: {
               type: Sequelize.DATE
           },

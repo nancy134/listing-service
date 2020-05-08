@@ -41,6 +41,16 @@ var create = function(body){
 }
 
 var update = function(id, body){
+    // Clear numerics
+    if (body.space === ""){
+        body.space = null;
+    }
+    if (body.baseRent === ""){
+        body.baseRent = null;
+    }
+    if (body.leaseEnds === ""){
+        body.leaseEnds = null;
+    }
     return new Promise(function(resolve, reject){
         models.Tenant.update(
             body,
@@ -59,7 +69,7 @@ var index = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'tenant', 'space', 'leaseEnds', 'ListingVersionId', 'PreviousVersionid']
+            attributes: ['id', 'tenant', 'space', 'baseRent', 'leaseEnds', 'ListingVersionId', 'PreviousVersionid']
         }).then(tenant => {
             var ret = {
                 page: page,

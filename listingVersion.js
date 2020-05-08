@@ -83,7 +83,7 @@ find = function(id){
             {
                 model: models.Tenant,
                 as: 'tenants',
-                attributes: ['id', 'tenant', 'space', 'leaseEnds']
+                attributes: ['id', 'tenant', 'space', 'baseRent', 'leaseEnds']
             },
             {
                 model: models.Portfolio,
