@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING,
     numUnits: DataTypes.INTEGER,
     space: DataTypes.INTEGER,
-    income: DataTypes.DECIMAL(13,4),
+    income: DataTypes.DECIMAL(8,2),
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
   }, {});

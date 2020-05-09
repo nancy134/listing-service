@@ -19,7 +19,7 @@ module.exports = {
               type: Sequelize.INTEGER 
           },
           income: {
-              type: Sequelize.DECIMAL(13,4)
+              type: Sequelize.DECIMAL(8,2)
           },
           PreviousVersionId: {
               type: Sequelize.INTEGER,

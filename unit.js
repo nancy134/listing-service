@@ -41,6 +41,16 @@ var create = function(body){
 }
 
 var update = function(id, body){
+    // Clear numerics
+    if (body.numUnits === ""){
+        body.numUnits = null;
+    }
+    if (body.space === ""){
+        body.space = null;
+    }
+    if (body.income === ""){
+        body.income = null;
+    }
     return new Promise(function(resolve, reject){
         models.Unit.update(
             body,

@@ -181,7 +181,6 @@ app.get('/listings', (req, res) => {
         res.json(result);
     }).catch(function(err){
         res.send(err);
-        console.log("err: "+err);
     });
 });
 
@@ -194,7 +193,6 @@ app.get('/admin/listings', (req, res) => {
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("Error /admin/listings: "+err);
         res.status(400).send(err);
     });
 });
@@ -396,7 +394,6 @@ app.get('/listings/:id', (req, res) => {
     });
 });
 app.put('/listings/:id', (req, res) => {
-    console.log("req.params.id: "+req.params.id);
     var updateListingPromise = listingAPIService.updateListingAPI(req.params.id, req.body);
     updateListingPromise.then(function(result){
         res.json(result);
@@ -424,7 +421,8 @@ app.put('/units/:id', (req, res) => {
     updateUnitPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("err: "+err);
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 
@@ -454,7 +452,6 @@ app.post('/listings', (req, res) => {
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
-       console.log("POST/listings error: "+err);
        res.status(500).send(err);
    });
 });
@@ -464,7 +461,6 @@ app.post('/listings/:id/moderations', (req, res) => {
    moderateListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
-       console.log("POST/listings/:id/moderations error:"+err);
        res.status(500).send(err);
    });
 });
@@ -532,7 +528,8 @@ app.post('/units', (req, res) => {
     createUnitPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("err: "+err);
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 
