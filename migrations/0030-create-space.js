@@ -15,15 +15,46 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       price: {
-        type: Sequelize.FLOAT
+        type: Sequelize.DECIMAL(8,2)
       },
       type: {
         type: Sequelize.ENUM,
-        values: ['Full Gross', 'Modified Gross', 'NNN']
+        values: ['Full Gross', 'Modified Gross', 'Triple Net']
       },
       use: {
         type: Sequelize.ENUM,
         values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty']
+      },
+      description: {
+        type: Sequelize.STRING
+      },
+      driveInDoors: {
+        type: Sequelize.INTEGER
+      },
+      floors: {
+        type: Sequelize.INTEGER
+      },
+      divisible: {
+        type: Sequelize.ENUM,
+        values: ['Yes', 'No']
+      },
+      loadingDocks: {
+        type: Sequelize.INTEGER
+      },
+      leaseTerm: {
+        type: Sequelize.STRING
+      },
+      ceilingHeight: {
+        type: Sequelize.DECIMAL(8,2)
+      },
+      availableDate: {
+        type: Sequelize.DATE
+      },
+      nets: {
+        type: Sequelize.DECIMAL(8,2)
+      },
+      class: {
+        type: Sequelize.STRING
       },
       ListingVersionId: {
        type: Sequelize.INTEGER,

@@ -73,7 +73,24 @@ find = function(id){
             {
                 model: models.Space,
                 as: 'spaces',
-                attributes: ['id', 'unit','price', 'size','type','use']
+                attributes: [
+                    'id',
+                    'unit',
+                    'price',
+                    'size',
+                    'type',
+                    'use',
+                    'description',
+                    'driveInDoors',
+                    'floors',
+                    'divisible',
+                    'loadingDocks',
+                    'leaseTerm',
+                    'ceilingHeight',
+                    'availableDate',
+                    'nets',
+                    'class'
+                ]
             },
             {
                 model: models.Unit,
@@ -104,6 +121,7 @@ find = function(id){
                 propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
                 spaceTypes: models.Space.rawAttributes.type.values,
                 spaceUses: models.Space.rawAttributes.use.values,
+                spaceDivisibles: models.Space.rawAttributes.divisible.values,
                 portfolioTypes: models.Portfolio.rawAttributes.type.values,
                 amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
             };

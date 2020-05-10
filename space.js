@@ -84,6 +84,15 @@ exports.getSpaces = function(page, limit, offset, where){
 }
 
 exports.updateSpace = function(updateData){
+
+    if (body.price === "") body.price = null;
+    if (body.driveIndoors === "") body.driveInDoors = null;
+    if (body.floors === "") body.floors = null;
+    if (body.loadingDocks === "") body.loadingDocks = null;
+    if (body.ceilingHeight === "") body.ceilingHeight = null;
+    if (body.nets === "") body.nets = null;
+    if (body.availableDate === "") body.availableDate = null;
+
     return new Promise(function(resolve, reject){
         update(updateData).then(function(space){
             resolve(space);
