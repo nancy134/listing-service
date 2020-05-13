@@ -12,8 +12,9 @@ exports.index = function(page, limit, offset, where, spaceWhere){
             distinct: true,
             limit: limit,
             offset: offset,
-            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'shortDescription', 'ListingId'],
-            order: [['spaces','price','ASC']],
+            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'shortDescription', 'ListingId', 'createdAt'],
+            //order: [['spaces','price','ASC']],
+            order: [['createdAt', 'DESC']],
             include: [
             {
                 model: models.Image, 
@@ -90,6 +91,13 @@ find = function(id){
                     'availableDate',
                     'nets',
                     'class'
+                ],
+                include: [
+                {
+                    model: models.Image,
+                    as: 'images',
+                    attributes: ['id', 'url']
+                }
                 ]
             },
             {

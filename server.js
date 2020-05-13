@@ -180,7 +180,7 @@ app.get('/listings', (req, res) => {
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        res.send(err);
+        res.status(400).send(err);
     });
 });
 
