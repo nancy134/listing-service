@@ -12,9 +12,9 @@ exports.index = function(page, limit, offset, where, spaceWhere){
             distinct: true,
             limit: limit,
             offset: offset,
-            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'shortDescription', 'ListingId', 'createdAt'],
+            attributes: ['id','listingType', 'listingPrice', 'address', 'city','state','yearBuilt', 'owner', 'publishStatus', 'shortDescription', 'ListingId', 'createdAt','updatedAt'],
             //order: [['spaces','price','ASC']],
-            order: [['createdAt', 'DESC']],
+            order: [['updatedAt', 'DESC']],
             include: [
             {
                 model: models.Image, 
