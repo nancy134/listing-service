@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     // Building Details
     propertyType: {
         type: DataTypes.ENUM,
-        values: ['Office', 'Coworking', 'Industrial', 'Retail', 'Restaurant', 'Flex', 'Medical', 'Land']
+        values: ['Office', 'Coworking', 'Industrial', 'Retail', 'Restaurant', 'Flex', 'Medical', 'Land', 'Mixed Use']
     },
     totalBuildingSize: DataTypes.INTEGER,
     lotSize:  DataTypes.DECIMAL(8,2),

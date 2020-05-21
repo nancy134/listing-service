@@ -55,7 +55,7 @@ module.exports = {
       // Building Details
       propertyType: {
         type: Sequelize.ENUM,
-        values: ['Office', 'Coworking', 'Industrial', 'Retail', 'Restaurant', 'Flex', 'Medical', 'Land']
+        values: ['Office', 'Coworking', 'Industrial', 'Retail', 'Restaurant', 'Flex', 'Medical', 'Land', 'Mixed Use']
       },
       totalBuildingSize: {
         type: Sequelize.INTEGER
