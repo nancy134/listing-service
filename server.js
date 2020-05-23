@@ -399,6 +399,7 @@ app.put('/listings/:id', (req, res) => {
     updateListingPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
+        res.status(400).json(err);
         console.log("err: "+err);
     });
 });

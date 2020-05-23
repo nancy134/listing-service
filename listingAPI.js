@@ -2,6 +2,7 @@ const models = require("./models");
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 
+
 exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
         listingVersionService.index(page, limit, offset, where, spaceWhere).then(function(listingVersions){
@@ -110,41 +111,50 @@ exports.approveListingAPI = function(id){
 }
 
 exports.updateListingAPI = function(id, body){
+    var sequelize = models.sequelize;
     return new Promise(function(resolve, reject){
-        listingService.find(id).then(function(listing){
-            if (listing.latestDraftId){
-                listingVersionService.update(listing.latestDraftId,body).then(function(listingVersion){
-                    listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
-                        resolve(finalListingVersion);
+        sequelize.transaction().then(function (t) {
+            listingService.find(id).then(function(listing){
+                if (listing.latestDraftId){
+                    listingVersionService.update(listing.latestDraftId,body,t).then(function(listingVersion){
+                        listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                            t.commit();
+                            resolve(finalListingVersion);
+                        })
                     }).catch(function(err){
+                        t.rollback();
                         reject(err);
                     });
-                }).catch(function(err){
-                    reject(err);
-                });
-            } else {
-                listingVersionService.copy(listing.latestApprovedId).then(function(listingVersion){
-                    listingVersionService.update(listingVersion.id, body).then(function(newListingVersion){
-                        var listingBody = {
-                            latestDraftId: listingVersion.id
-                        };
-                        listingService.update(listingVersion.ListingId, listingBody).then(function(newListing){
-                            listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
-                                resolve(finalListingVersion);
+                } else {
+                    listingVersionService.copy(listing.latestApprovedId,t).then(function(listingVersion){
+                        listingVersionService.update(listingVersion.id, body,t).then(function(newListingVersion){
+                            var listingBody = {
+                                latestDraftId: listingVersion.id
+                            };
+                            listingService.update(listingVersion.ListingId, listingBody,t).then(function(newListing){
+                                listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                                    t.commit();
+                                    resolve(finalListingVersion);
+                                });
                             }).catch(function(err){
+                                t.rollback();
                                 reject(err);
                             });
                         }).catch(function(err){
+                            t.rollback();
                             reject(err);
                         });
                     }).catch(function(err){
-                        reject(err);
+                        t.rollback()
+                        reject(err)
                     });
-                }).catch(function(err){
-                    reject(err);
-                });
-            }
-        }).catch(function(err){
+                }
+            }).catch(function(err){
+                t.rollback()
+                reject(err)
+            });
+        }).catch(function (err) {
+            t.rollback();
             reject(err);
         });
     });

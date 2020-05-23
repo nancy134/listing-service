@@ -141,10 +141,10 @@ find = function(id){
     });
 }
 
-create = function(body){
+create = function(body, t){
     body.publishStatus = "Draft";
     return new Promise(function(resolve, reject){
-        models.ListingVersion.create(body).then(function(listing){
+        models.ListingVersion.create(body, {transaction: t}).then(function(listing){
             resolve(listing);
         }).catch(function(err){
             reject(err);
@@ -152,11 +152,11 @@ create = function(body){
     });
 }
 
-exports.update = function(id, body){
+exports.update = function(id, body, t){
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
             body,
-            {returning: true, where: {id: id}}
+            {transaction: t, returning: true, where: {id: id}}
         ).then(function([rowsUpdate, [listing]]){
             resolve(listing);
         }).catch(function(err){
@@ -165,7 +165,7 @@ exports.update = function(id, body){
     });
 }
 
-exports.copy = function(id){
+exports.copy = function(id, t){
     return new Promise(function(resolve, reject){
         this.find(id).then(function(listingVersion){
             var body = listingVersion.listing.get({plain: true});
@@ -188,7 +188,7 @@ exports.copy = function(id){
                     delete body[propName];
                 }
             }
-            create(body).then(function(newListingVersion){
+            create(body, t).then(function(newListingVersion){
                 var promises = [];
                 for (var index in spaces){
                     var copyPromise = spaceService.copySpace(
