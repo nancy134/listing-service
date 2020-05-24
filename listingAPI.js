@@ -1,7 +1,7 @@
 const models = require("./models");
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
-
+const unitService = require("./unit");
 
 exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
@@ -309,6 +309,101 @@ exports.getListingsAdmin = function(page, limit, offset, where){
        }).catch(function(err){
            reject(err);
        });
+    });
+}
+
+exports.createAssociationAPI = function(body, associatedTable){ // CHANGED
+    return new Promise(function(resolve, reject){
+
+        if (associatedTable === "unit"){
+            var createAssociatedRecord = unitService.createUnit;
+        }
+        listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
+            listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                if (listing.latestDraftId){
+                        createAssociatedRecord(body).then(function(newAssociation){ // CHANGED
+                            resolve(newAssociation); // CHANGED
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                } else {
+                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                         body.ListingVersionId = copied.id;
+                             createAssociatedRecord(body).then(function(newAssociation){ // CHANGED
+                                 var listingBody = {
+                                     latestDraftId: copied.id
+                                 };
+                                 listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                     resolve(newAssociation);  // CHANGED
+                                 }).catch(function(err){
+                                     reject(err);
+                                 });
+                             }).catch(function(err){
+                                 reject(err);
+                             });
+                     }).catch(function(err){
+                         reject(err);
+                     });
+                }
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.updateAssociationAPI = function(id, body, associatedTable){
+    return new Promise(function(resolve, reject){
+        if (associatedTable === "unit"){
+            var findAssociatedRecord = unitService.find;
+            var updateAssociatedRecord = unitService.update;
+            var findWithPreviousAssociatedRecord = unitService.findWithPrevious;
+        }
+        findAssociatedRecord(id).then(function(associatedRecord){
+            listingVersionService.find(associatedRecord.ListingVersionId).then(function(listingVersion){
+                listingService.find(listingVersion.listing.ListingId).then(function(listing){
+                    if (listing.latestDraftId){
+                        console.log("body: "+JSON.stringify(body));
+                        updateAssociatedRecord(id, body).then(function(associatedRecord){
+                            resolve(associatedRecord);
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        listingVersionService.copy(listing.latestApprovedId).then(function(copied){
+                            findWithPreviousAssociatedRecord(id).then(function(foundAssociatedRecord){
+                                delete body.ListingVersionId;
+                                delete body.id;
+                                updateAssociatedRecord(foundAssociatedRecord.id, body).then(function(updatedAssociatedRecord){
+                                    var listingBody = {
+                                        latestDraftId: copied.id
+                                    };
+                                    listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
+                                        resolve(updatedAssociatedRecord);
+                                    }).catch(function(err){
+                                        reject(err);
+                                    });
+                                }).catch(function(err){
+                                    reject(err);
+                                });
+                            }).catch(function(err){
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    }
+                }).catch(function(err){
+                    reject(err);
+                });
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
     });
 }
 

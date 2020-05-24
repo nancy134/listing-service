@@ -130,52 +130,6 @@ app.get('/listings', (req, res) => {
         sW = desymbolize(spaceWhere);
     }
     
-    //-------------------------
-    /*
-    var spaceUseWhereClause = null;
-    if (req.query.spaceUse ||
-        req.query.minSize ||
-        req.query.maxSize ||
-        req.query.minPrice ||
-        req.query.maxPrice){
-    spaceUseWhereClause = models.Space.rawAttributes.use.values;
-    if (req.query.spaceUse){
-        spaceUseWhereClause = req.query.spaceUse;
-    }
-
-    var minSize = 0;
-    if (req.query.minSize){
-        gminSize = req.query.minSize;
-    }
-    var maxSize = 999999;
-    if (req.query.maxSize){
-        maxSize = req.query.maxSize;
-    }
-
-    var minRate = 0;
-    var maxRate = 999999;
-    if (req.query.minRate){
-        minRate = req.query.minRate;
-    };
-    if (req.query.maxRate){
-        maxRate = req.query.maxRate;
-    }
-
-    spaceWhere = {
-        [Op.and]: {
-            use: { [Op.or]: spaceUseWhereClause}, 
-            size: {
-                [Op.gte]: minSize,
-                [Op.lte]: maxSize 
-            },
-            price: {
-                [Op.gte]: minRate,
-                [Op.lte]: maxRate
-            }
-        }
-    };
-    }
-    */
     var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where, spaceWhere);
     getListingsPromise.then(function(result){
         res.json(result);

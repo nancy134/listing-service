@@ -1,6 +1,7 @@
 const models = require("./models")
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
+const listingAPIService = require("./listingAPI");
 
 var find = function(id){
     return new Promise(function(resolve, reject){
@@ -145,6 +146,25 @@ exports.copyUnit = function(id, ListingVersionId){
 
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
+        listingAPIService.createAssociationAPI(body, "unit").then(function(createdUnit){
+            resolve(createdUnit);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve,reject){
+        listingAPIService.updateAssociationAPI(id, body, "unit").then(function(updatedUnit){
+            resolve(updatedUnit);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+/*
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
         listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
             listingService.find(listingVersion.listing.ListingId).then(function(listing){
                 if (listing.latestDraftId){
@@ -180,7 +200,6 @@ exports.createAPI = function(body){
         });
     });
 }
-
 exports.updateAPI = function(id, body){
     return new Promise(function(resolve, reject){
         find(id).then(function(unit){
@@ -227,3 +246,7 @@ exports.updateAPI = function(id, body){
         });
     });
 }
+*/
+exports.find = find;
+exports.update = update;
+exports.findWithPrevious = findWithPrevious;

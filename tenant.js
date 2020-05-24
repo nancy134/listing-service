@@ -3,6 +3,7 @@ const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 
 var find = function(id){
+    console.log("id: "+id);
     return new Promise(function(resolve, reject){
         models.Tenant.findOne({
            where: {
@@ -15,7 +16,6 @@ var find = function(id){
         });
     });
 }
-
 var findWithPrevious = function(id){
     return new Promise(function(resolve, reject){
         models.Tenant.findOne({
