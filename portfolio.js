@@ -1,13 +1,15 @@
 const models = require("./models")
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
+const listingAPIService = require("./listingAPI");
 
-var find = function(id){
+var find = function(id, t){
     return new Promise(function(resolve, reject){
         models.Portfolio.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(portfolio){
             resolve(portfolio);
         }).catch(function(err){
@@ -16,12 +18,13 @@ var find = function(id){
     });
 }
 
-var findWithPrevious = function(id){
+var findWithPrevious = function(id, t){
     return new Promise(function(resolve, reject){
         models.Portfolio.findOne({
             where: {
                 PreviousVersionId: id
-            }
+            },
+            transaction: t
         }).then(function(portfolio){
             resolve(portfolio);
         }).catch(function(err){
@@ -30,9 +33,9 @@ var findWithPrevious = function(id){
     });
 }
 
-var create = function(body){
+var create = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Portfolio.create(body).then(function(portfolio){
+        models.Portfolio.create(body, {transaction: t}).then(function(portfolio){
             resolve(portfolio);
         }).catch(function(err){
             reject(err);
@@ -40,7 +43,7 @@ var create = function(body){
     });
 }
 
-var update = function(id, body){
+var update = function(id, body, t){
     // Clear numerics
     if (body.lotSize === ""){
         body.lotSize = null;
@@ -51,7 +54,11 @@ var update = function(id, body){
     return new Promise(function(resolve, reject){
         models.Portfolio.update(
             body,
-            {returning: true, where: {id: id}}
+            {
+                returning: true, 
+                where: {id: id},
+                transaction: t
+            }
         ).then(function([rowsUpdate, [portfolio]]){
             resolve(portfolio);
         }).catch(function(err){
@@ -102,9 +109,9 @@ exports.updatePortfolio = function(updateData){
     });
 }
 
-exports.createPortfolio = function(body){
+exports.createPortfolio = function(body, t){
     return new Promise(function(resolve, reject){
-        create(body).then(function(portfolio){
+        create(body, t).then(function(portfolio){
             resolve(portfolio);
         }).catch(function(err){
             reject(err);
@@ -112,12 +119,13 @@ exports.createPortfolio = function(body){
     });
 }
 
-exports.copyPortfolio = function(id, ListingVersionId){
+exports.copyPortfolio = function(id, ListingVersionId, t){
     return new Promise(function(resolve, reject){
         models.Portfolio.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(portfolio){
             var body = portfolio.get({plain: true});
             delete body["id"];
@@ -128,7 +136,7 @@ exports.copyPortfolio = function(id, ListingVersionId){
                     delete body[propName];
                 }
             }
-            create(body).then(function(portfolio){
+            create(body, t).then(function(portfolio){
                 resolve(portfolio);
             }).catch(function(err){
                 reject(err);
@@ -140,6 +148,25 @@ exports.copyPortfolio = function(id, ListingVersionId){
     });
 }
 
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
+        listingAPIService.createAssociationAPI(body, "portfolio").then(function(createdPortfolio){
+            resolve(createdPortfolio);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve,reject){
+        listingAPIService.updateAssociationAPI(id, body, "portfolio").then(function(updatedPortfolio){
+            resolve(updatedPortfolio);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+/*
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
         listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
@@ -224,3 +251,7 @@ exports.updateAPI = function(id, body){
         });
     });
 }
+*/
+exports.find = find;
+exports.update = update;
+exports.findWithPrevious = findWithPrevious;

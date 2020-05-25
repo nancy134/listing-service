@@ -1,13 +1,15 @@
 const models = require("./models")
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
+const listingAPIService = require("./listingAPI");
 
-var find = function(id){
+var find = function(id, t){
     return new Promise(function(resolve, reject){
         models.Space.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(space){
             resolve(space);
         }).catch(function(err){
@@ -16,12 +18,13 @@ var find = function(id){
     });
 }
 
-var findWithPrevious = function(id){
+var findWithPrevious = function(id, t){
     return new Promise(function(resolve, reject){
         models.Space.findOne({
             where: {
                 PreviousVersionId: id
-            }
+            },
+            transaction: t
         }).then(function(space){
             resolve(space);
         }).catch(function(err){
@@ -30,9 +33,9 @@ var findWithPrevious = function(id){
     });
 }
 
-var create = function(body){
+var create = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Space.create(body).then(function(space){
+        models.Space.create(body, {transaction: t}).then(function(space){
             resolve(space);
         }).catch(function(err){
             reject(err);
@@ -40,11 +43,15 @@ var create = function(body){
     });
 }
 
-var update = function(id, body){
+var update = function(id, body, t){
     return new Promise(function(resolve, reject){
         models.Space.update(
             body,
-            {returning: true, where: {id: id}}
+            {
+                returning: true, 
+                where: {id: id},
+                transaction: t
+            }
         ).then(function([rowsUpdate, [space]]){
             resolve(space);
         }).catch(function(err){
@@ -102,9 +109,9 @@ exports.updateSpace = function(updateData){
     });
 }
 
-exports.createSpace = function(body){
+exports.createSpace = function(body, t){
     return new Promise(function(resolve, reject){
-        create(body).then(function(space){
+        create(body, t).then(function(space){
             resolve(space);
         }).catch(function(err){
             reject(err);
@@ -112,12 +119,13 @@ exports.createSpace = function(body){
     });
 }
 
-exports.copySpace = function(id, ListingVersionId){
+exports.copySpace = function(id, ListingVersionId, t){
     return new Promise(function(resolve, reject){
         models.Space.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(space){
             var body = space.get({plain: true});
             delete body["id"];
@@ -128,7 +136,7 @@ exports.copySpace = function(id, ListingVersionId){
                     delete body[propName];
                 }
             }
-            create(body).then(function(space){
+            create(body, t).then(function(space){
                 resolve(space);
             }).catch(function(err){
                 reject(err);
@@ -140,6 +148,26 @@ exports.copySpace = function(id, ListingVersionId){
     });
 }
 
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
+        listingAPIService.createAssociationAPI(body, "space").then(function(createdSpace){
+            resolve(createdSpace);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve,reject){
+        listingAPIService.updateAssociationAPI(id, body, "space").then(function(updatedSpace){
+            resolve(updatedSpace);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+/*
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
         listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
@@ -225,3 +253,8 @@ exports.updateAPI = function(id, body){
         });
     });
 }
+*/
+
+exports.find = find;
+exports.update = update;
+exports.findWithPrevious = findWithPrevious;

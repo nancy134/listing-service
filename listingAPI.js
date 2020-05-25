@@ -2,6 +2,9 @@ const models = require("./models");
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 const unitService = require("./unit");
+const spaceService = require("./space");
+const portfolioService = require("./portfolio");
+const tenantService = require("./tenant");
 
 exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
@@ -318,6 +321,16 @@ exports.createAssociationAPI = function(body, associatedTable){
         if (associatedTable === "unit"){
             var createAssociatedRecord = unitService.createUnit;
         }
+        if (associatedTable === "space"){
+            var createAssociatedRecord = spaceService.createSpace;
+        }
+        if (associatedTable === "portfolio"){
+            var createAssociatedRecord = portfolioService.createPortfolio;
+        }
+        if (associatedTable === "tenant"){
+            var createAssociatedRecord = tenantService.createTenant;
+        }
+
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             var attributes = ["ListingId"];
@@ -373,6 +386,22 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             var updateAssociatedRecord = unitService.update;
             var findWithPreviousAssociatedRecord = unitService.findWithPrevious;
         }
+        if (associatedTable === "space"){
+            var findAssociatedRecord = spaceService.find;
+            var updateAssociatedRecord = spaceService.update;
+            var findWithPreviousAssociatedRecord = spaceService.findWithPrevious;
+        }
+        if (associatedTable === "portfolio"){
+            var findAssociatedRecord = portfolioService.find;
+            var updateAssociatedRecord = portfolioService.update;
+            var findWithPreviousAssociatedRecord = portfolioService.findWithPrevious;
+        }
+        if (associatedTable === "tenant"){
+            var findAssociatedRecord = tenantService.find;
+            var updateAssociatedRecord = tenantService.update;
+            var findWithPreviousAssociatedRecord = tenantService.findWithPrevious;
+        }
+ 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             findAssociatedRecord(id,t).then(function(associatedRecord){

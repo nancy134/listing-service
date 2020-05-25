@@ -1,14 +1,16 @@
 const models = require("./models")
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
+const listingAPIService = require("./listingAPI");
 
-var find = function(id){
+var find = function(id, t){
     console.log("id: "+id);
     return new Promise(function(resolve, reject){
         models.Tenant.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(tenant){
             resolve(tenant);
         }).catch(function(err){
@@ -16,12 +18,13 @@ var find = function(id){
         });
     });
 }
-var findWithPrevious = function(id){
+var findWithPrevious = function(id, t){
     return new Promise(function(resolve, reject){
         models.Tenant.findOne({
             where: {
                 PreviousVersionId: id
-            }
+            },
+            transaction: t
         }).then(function(tenant){
             resolve(tenant);
         }).catch(function(err){
@@ -30,9 +33,9 @@ var findWithPrevious = function(id){
     });
 }
 
-var create = function(body){
+var create = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Tenant.create(body).then(function(tenant){
+        models.Tenant.create(body, {transaction: t}).then(function(tenant){
             resolve(tenant);
         }).catch(function(err){
             reject(err);
@@ -40,7 +43,7 @@ var create = function(body){
     });
 }
 
-var update = function(id, body){
+var update = function(id, body, t){
     // Clear numerics
     if (body.space === ""){
         body.space = null;
@@ -54,7 +57,11 @@ var update = function(id, body){
     return new Promise(function(resolve, reject){
         models.Tenant.update(
             body,
-            {returning: true, where: {id: id}}
+            {
+                returning: true, 
+                where: {id: id},
+                transaction: t
+            }
         ).then(function([rowsUpdate, [tenant]]){
             resolve(tenant);
         }).catch(function(err){
@@ -105,9 +112,9 @@ exports.updateTenant = function(updateData){
     });
 }
 
-exports.createTenant = function(body){
+exports.createTenant = function(body, t){
     return new Promise(function(resolve, reject){
-        create(body).then(function(tenant){
+        create(body, t).then(function(tenant){
             resolve(tenant);
         }).catch(function(err){
             reject(err);
@@ -115,12 +122,13 @@ exports.createTenant = function(body){
     });
 }
 
-exports.copyTenant = function(id, ListingVersionId){
+exports.copyTenant = function(id, ListingVersionId, t){
     return new Promise(function(resolve, reject){
         models.Tenant.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(tenant){
             var body = tenant.get({plain: true});
             delete body["id"];
@@ -131,7 +139,7 @@ exports.copyTenant = function(id, ListingVersionId){
                     delete body[propName];
                 }
             }
-            create(body).then(function(tenant){
+            create(body, t).then(function(tenant){
                 resolve(tenant);
             }).catch(function(err){
                 reject(err);
@@ -143,6 +151,25 @@ exports.copyTenant = function(id, ListingVersionId){
     });
 }
 
+exports.createAPI = function(body){
+    return new Promise(function(resolve, reject){
+        listingAPIService.createAssociationAPI(body, "tenant").then(function(createdTenant){
+            resolve(createdTenant);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve,reject){
+        listingAPIService.updateAssociationAPI(id, body, "tenant").then(function(updatedTenant){
+            resolve(updatedTenant);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+/*
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
         listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
@@ -227,3 +254,7 @@ exports.updateAPI = function(id, body){
         });
     });
 }
+*/
+exports.find = find;
+exports.update = update;
+exports.findWithPrevious = findWithPrevious;

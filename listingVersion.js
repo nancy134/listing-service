@@ -207,7 +207,8 @@ exports.copy = function(id, t){
                 for (var index in spaces){
                     var copyPromise = spaceService.copySpace(
                         spaces[index].id, 
-                        newListingVersion.id);
+                        newListingVersion.id,
+                        t);
                     promises.push(copyPromise);
                 }
                 for (var index in units){
@@ -220,19 +221,22 @@ exports.copy = function(id, t){
                 for (var index in tenants){
                     var copyPromise = tenantService.copyTenant(
                         tenants[index].id,
-                        newListingVersion.id);
+                        newListingVersion.id,
+                        t);
                     promises.push(copyPromise);
                 }
                 for (var index in portfolios){
                     var copyPromise = portfolioService.copyPortfolio(
                         portfolios[index].id,
-                        newListingVersion.id);
+                        newListingVersion.id,
+                        t);
                     promises.push(copyPromise);
                 }
                 for (var index in images){
                     var copyPromise = imageService.copyImage(
                         images[index].id,
-                        newListingVersion.id);
+                        newListingVersion.id,
+                        t);
                     promises.push(copyPromise);
                 }
 
