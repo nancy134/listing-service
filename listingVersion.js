@@ -58,6 +58,21 @@ exports.indexAdmin = function(page, limit, offset, where){
         });
     });
 }
+findAttributes = function(id, attributes, t){
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.findOne({
+            where: {
+               id: id
+            },
+            attributes: attributes,
+            transaction: t
+        }).then(function(listing){
+            resolve(listing);
+        }).catch(function(err){
+            reject(err);
+        });;
+    });
+}
 find = function(id, t){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findOne({
@@ -237,4 +252,5 @@ exports.copy = function(id, t){
 }
 
 exports.find = find;
+exports.findAttributes = findAttributes;
 exports.create = create;

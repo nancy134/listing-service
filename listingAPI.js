@@ -320,8 +320,9 @@ exports.createAssociationAPI = function(body, associatedTable){
         }
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
-            listingVersionService.find(body.ListingVersionId, t).then(function(listingVersion){
-                listingService.find(listingVersion.listing.ListingId, t).then(function(listing){
+            var attributes = ["ListingId"];
+            listingVersionService.findAttributes(body.ListingVersionId, attributes, t).then(function(listingVersion){
+                listingService.find(listingVersion.ListingId, t).then(function(listing){
                     if (listing.latestDraftId){
                         createAssociatedRecord(body, t).then(function(newAssociation){
                             t.commit();
@@ -375,7 +376,8 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             findAssociatedRecord(id,t).then(function(associatedRecord){
-                listingVersionService.find(associatedRecord.ListingVersionId,t).then(function(listingVersion){
+                var attributes = ["ListingId"];
+                listingVersionService.findAttributes(associatedRecord.ListingVersionId,attributes, t).then(function(listingVersion){
                     listingService.find(listingVersion.listing.ListingId, t).then(function(listing){
                         if (listing.latestDraftId){
                             updateAssociatedRecord(id, body, t).then(function(associatedRecord){
