@@ -378,7 +378,7 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             findAssociatedRecord(id,t).then(function(associatedRecord){
                 var attributes = ["ListingId"];
                 listingVersionService.findAttributes(associatedRecord.ListingVersionId,attributes, t).then(function(listingVersion){
-                    listingService.find(listingVersion.listing.ListingId, t).then(function(listing){
+                    listingService.find(listingVersion.ListingId, t).then(function(listing){
                         if (listing.latestDraftId){
                             updateAssociatedRecord(id, body, t).then(function(associatedRecord){
                                 t.commit();
