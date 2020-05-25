@@ -3,12 +3,13 @@ const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 const listingAPIService = require("./listingAPI");
 
-var find = function(id){
+var find = function(id, t){
     return new Promise(function(resolve, reject){
         models.Unit.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(unit){
             resolve(unit);
         }).catch(function(err){
@@ -17,12 +18,13 @@ var find = function(id){
     });
 }
 
-var findWithPrevious = function(id){
+var findWithPrevious = function(id,t){
     return new Promise(function(resolve, reject){
         models.Unit.findOne({
             where: {
                 PreviousVersionId: id
-            }
+            },
+            transaction: t
         }).then(function(unit){
             resolve(unit);
         }).catch(function(err){
@@ -31,9 +33,9 @@ var findWithPrevious = function(id){
     });
 }
 
-var create = function(body){
+var create = function(body,t){
     return new Promise(function(resolve, reject){
-        models.Unit.create(body).then(function(unit){
+        models.Unit.create(body, {transaction: t}).then(function(unit){
             resolve(unit);
         }).catch(function(err){
             reject(err);
@@ -41,7 +43,7 @@ var create = function(body){
     });
 }
 
-var update = function(id, body){
+var update = function(id, body, t){
     // Clear numerics
     if (body.numUnits === ""){
         body.numUnits = null;
@@ -55,7 +57,11 @@ var update = function(id, body){
     return new Promise(function(resolve, reject){
         models.Unit.update(
             body,
-            {returning: true, where: {id: id}}
+            {
+                returning: true, 
+                where: {id: id},
+                transaction: t
+            }
         ).then(function([rowsUpdate, [unit]]){
             resolve(unit);
         }).catch(function(err){
@@ -106,9 +112,9 @@ exports.updateUnit = function(updateData){
     });
 }
 
-exports.createUnit = function(body){
+exports.createUnit = function(body, t){
     return new Promise(function(resolve, reject){
-        create(body).then(function(unit){
+        create(body, t).then(function(unit){
             resolve(unit);
         }).catch(function(err){
             reject(err);
@@ -116,12 +122,13 @@ exports.createUnit = function(body){
     });
 }
 
-exports.copyUnit = function(id, ListingVersionId){
+exports.copyUnit = function(id, ListingVersionId, t){
     return new Promise(function(resolve, reject){
         models.Unit.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(unit){
             var body = unit.get({plain: true});
             delete body["id"];
@@ -132,7 +139,7 @@ exports.copyUnit = function(id, ListingVersionId){
                     delete body[propName];
                 }
             }
-            create(body).then(function(unit){
+            create(body, t).then(function(unit){
                 resolve(unit);
             }).catch(function(err){
                 reject(err);

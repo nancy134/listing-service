@@ -48,7 +48,6 @@ exports.index = function(page, limit, offset, where, spaceWhere){
 }
 
 exports.indexAdmin = function(page, limit, offset, where){
-    console.log("listingVersion:indexAdmin");
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAll({
             attributes: ['id','publishStatus','owner', 'createdAt'],
@@ -59,12 +58,13 @@ exports.indexAdmin = function(page, limit, offset, where){
         });
     });
 }
-find = function(id){
+find = function(id, t){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findOne({
             where: {
                 id: id 
             },
+            transaction: t,
             include: [
             {
                 model: models.Image,
@@ -135,7 +135,6 @@ find = function(id){
             };
             resolve(ret);
         }).catch(function(err){
-            console.log("err: "+err);
             reject(err);
         });
     });
@@ -167,7 +166,7 @@ exports.update = function(id, body, t){
 
 exports.copy = function(id, t){
     return new Promise(function(resolve, reject){
-        this.find(id).then(function(listingVersion){
+        this.find(id, t).then(function(listingVersion){
             var body = listingVersion.listing.get({plain: true});
             delete body.id;
             delete body.updatedAt;
@@ -199,7 +198,8 @@ exports.copy = function(id, t){
                 for (var index in units){
                     var copyPromise = unitService.copyUnit(
                         units[index].id,
-                        newListingVersion.id);
+                        newListingVersion.id,
+                        t);
                     promises.push(copyPromise);
                 }
                 for (var index in tenants){

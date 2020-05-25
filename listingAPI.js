@@ -111,13 +111,13 @@ exports.approveListingAPI = function(id){
 }
 
 exports.updateListingAPI = function(id, body){
-    var sequelize = models.sequelize;
     return new Promise(function(resolve, reject){
+        var sequelize = models.sequelize;
         sequelize.transaction().then(function (t) {
-            listingService.find(id).then(function(listing){
+            listingService.find(id, t).then(function(listing){
                 if (listing.latestDraftId){
                     listingVersionService.update(listing.latestDraftId,body,t).then(function(listingVersion){
-                        listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                        listingVersionService.find(listingVersion.id, t).then(function(finalListingVersion){
                             t.commit();
                             resolve(finalListingVersion);
                         })
@@ -132,7 +132,7 @@ exports.updateListingAPI = function(id, body){
                                 latestDraftId: listingVersion.id
                             };
                             listingService.update(listingVersion.ListingId, listingBody,t).then(function(newListing){
-                                listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                                listingVersionService.find(listingVersion.id, t).then(function(finalListingVersion){
                                     t.commit();
                                     resolve(finalListingVersion);
                                 });
@@ -153,6 +153,7 @@ exports.updateListingAPI = function(id, body){
                 t.rollback()
                 reject(err)
             });
+            return null;
         }).catch(function (err) {
             t.rollback();
             reject(err);
@@ -292,7 +293,6 @@ exports.unPublishListingAPI = function(id){
 }
 
 exports.getListingVersionsAdmin = function(page, limit, offset, where){
-    console.log("listingAPI.getListingVersionsAdmin");
     return new Promise(function(resolve, reject){
        listingVersionService.indexAdmin(page, limit, offset, where).then(function(listingVersions){
            resolve(listingVersions);
@@ -312,44 +312,55 @@ exports.getListingsAdmin = function(page, limit, offset, where){
     });
 }
 
-exports.createAssociationAPI = function(body, associatedTable){ // CHANGED
+exports.createAssociationAPI = function(body, associatedTable){
     return new Promise(function(resolve, reject){
 
         if (associatedTable === "unit"){
             var createAssociatedRecord = unitService.createUnit;
         }
-        listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
-            listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                if (listing.latestDraftId){
-                        createAssociatedRecord(body).then(function(newAssociation){ // CHANGED
-                            resolve(newAssociation); // CHANGED
+        var sequelize = models.sequelize;
+        sequelize.transaction().then(function(t){
+            listingVersionService.find(body.ListingVersionId, t).then(function(listingVersion){
+                listingService.find(listingVersion.listing.ListingId, t).then(function(listing){
+                    if (listing.latestDraftId){
+                        createAssociatedRecord(body, t).then(function(newAssociation){
+                            t.commit();
+                            resolve(newAssociation);
                         }).catch(function(err){
+                            t.rollback();
                             reject(err);
                         });
-                } else {
-                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                         body.ListingVersionId = copied.id;
-                             createAssociatedRecord(body).then(function(newAssociation){ // CHANGED
+                    } else {
+                        listingVersionService.copy(listing.latestApprovedId, t).then(function(copied){
+                             body.ListingVersionId = copied.id;
+                             createAssociatedRecord(body, t).then(function(newAssociation){
                                  var listingBody = {
                                      latestDraftId: copied.id
                                  };
-                                 listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
-                                     resolve(newAssociation);  // CHANGED
+                                 listingService.update(copied.ListingId, listingBody, t).then(function(updatedListing){
+                                     t.commit();
+                                     resolve(newAssociation);
                                  }).catch(function(err){
+                                     t.rollback();
                                      reject(err);
                                  });
                              }).catch(function(err){
+                                 t.rollback();
                                  reject(err);
                              });
-                     }).catch(function(err){
-                         reject(err);
-                     });
-                }
+                         }).catch(function(err){
+                             t.rollback();
+                             reject(err);
+                         });
+                    }
+                }).catch(function(err){
+                    t.rollback();
+                    reject(err);
+                });
             }).catch(function(err){
+                t.rollback();
                 reject(err);
             });
-        }).catch(function(err){
-            reject(err);
         });
     });
 }
@@ -361,48 +372,60 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             var updateAssociatedRecord = unitService.update;
             var findWithPreviousAssociatedRecord = unitService.findWithPrevious;
         }
-        findAssociatedRecord(id).then(function(associatedRecord){
-            listingVersionService.find(associatedRecord.ListingVersionId).then(function(listingVersion){
-                listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                    if (listing.latestDraftId){
-                        console.log("body: "+JSON.stringify(body));
-                        updateAssociatedRecord(id, body).then(function(associatedRecord){
-                            resolve(associatedRecord);
-                        }).catch(function(err){
-                            reject(err);
-                        });
-                    } else {
-                        listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                            findWithPreviousAssociatedRecord(id).then(function(foundAssociatedRecord){
-                                delete body.ListingVersionId;
-                                delete body.id;
-                                updateAssociatedRecord(foundAssociatedRecord.id, body).then(function(updatedAssociatedRecord){
-                                    var listingBody = {
-                                        latestDraftId: copied.id
-                                    };
-                                    listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
-                                        resolve(updatedAssociatedRecord);
+        var sequelize = models.sequelize;
+        sequelize.transaction().then(function(t){
+            findAssociatedRecord(id,t).then(function(associatedRecord){
+                listingVersionService.find(associatedRecord.ListingVersionId,t).then(function(listingVersion){
+                    listingService.find(listingVersion.listing.ListingId, t).then(function(listing){
+                        if (listing.latestDraftId){
+                            updateAssociatedRecord(id, body, t).then(function(associatedRecord){
+                                t.commit();
+                                resolve(associatedRecord);
+                            }).catch(function(err){
+                                t.rollback();
+                                reject(err);
+                            });
+                        } else {
+                            listingVersionService.copy(listing.latestApprovedId, t).then(function(copied){
+                                findWithPreviousAssociatedRecord(id,t).then(function(foundAssociatedRecord){
+                                    delete body.ListingVersionId;
+                                    delete body.id;
+                                    updateAssociatedRecord(foundAssociatedRecord.id, body, t).then(function(updatedAssociatedRecord){
+                                        var listingBody = {
+                                            latestDraftId: copied.id
+                                        };
+                                        listingService.update(copied.ListingId, listingBody, t).then(function(updatedListing){
+                                            t.commit();
+                                            resolve(updatedAssociatedRecord);
+                                        }).catch(function(err){
+                                            t.rollback();
+                                            reject(err);
+                                        });
                                     }).catch(function(err){
+                                        t.rollback();
                                         reject(err);
                                     });
                                 }).catch(function(err){
+                                    t.rollback();
                                     reject(err);
                                 });
                             }).catch(function(err){
+                                t.rollback();
                                 reject(err);
                             });
-                        }).catch(function(err){
-                            reject(err);
-                        });
-                    }
+                        }
+                    }).catch(function(err){
+                        t.rollback();
+                        reject(err);
+                    });
                 }).catch(function(err){
+                    t.rollback(); 
                     reject(err);
                 });
             }).catch(function(err){
+                t.rollback();
                 reject(err);
             });
-        }).catch(function(err){
-            reject(err);
         });
     });
 }

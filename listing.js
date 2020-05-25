@@ -1,11 +1,12 @@
 const models = require("./models");
 
-exports.find = function(id){
+exports.find = function(id, t){
     return new Promise(function(resolve, reject){
         models.Listing.findOne({
             where: {
                 id: id
             },
+            transaction: t
         }).then(function(listing){
             resolve(listing);
         }).catch(function(err){
@@ -96,11 +97,15 @@ exports.create = function(body){
     });
 }
 
-exports.update = function(id, body){
+exports.update = function(id, body, t){
     return new Promise(function(resolve, reject){
         models.Listing.update(
             body,
-            {returning: true, where: {id: id}}
+            {
+                returning: true, 
+                where: {id: id},
+                transaction: t
+            }
         ).then(function([rowsUpdate, [listing]]){
             resolve(listing);
         }).catch(function(err){
