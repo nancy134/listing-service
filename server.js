@@ -326,7 +326,17 @@ app.get('/tenants', (req, res) => {
         console.log("err: "+err);
     });
 });
-
+app.get('/tenants/:id', (req, res) => {
+    console.log("req.params.id: "+req.params.id);
+    var getTenantPromise = tenantService.find(req.params.id);
+    getTenantPromise.then(function(tenant){
+        console.log('tenant: '+tenant);
+        res.json(tenant);
+    }).catch(function(err){
+        console.log("err: "+err);
+        res.status(400).json(err);
+    });
+});
 app.get('/portfolios', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;

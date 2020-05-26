@@ -14,17 +14,32 @@ describe('tenants', () => {
 
     const id = 1;
     const data = {
-        tenant: "Home Depot"
-    }
+        "id":1,
+        "tenant":"Home Depot",
+        "space":3000,
+        "baseRent":null,
+        "leaseEnds":"2020-12-31T00:00:00.000Z",
+        "createdAt":"2020-05-25T20:43:58.851Z",
+        "updatedAt":"2020-05-25T20:43:58.851Z",
+        "ListingVersionId":1,
+        "PreviousVersionId":null
+    };
     const index = [{"id": 1, "tenant": "Home Depot"}];
     const fakeTenant = {id, ...data}
-    context('user exists', () => {
+    context('tenant exists', () => {
         Tenant.findOne.resolves(fakeTenant)
-        Tenant.findAndCountAll.resolves(index);
-        tenant.getTenants().then((results) => {
-            it('get tenants', () => {
-                expect(1).to.equal(results.tenants[0].id)
+        tenant.find().then((tenant) => {
+            it('tenant found', () => {
+                expect(1).to.equal(tenant.id)
             })
         })
+    })
+    context('tenant does not exist', () => {
+        Tenant.findOne.resolves(undefined)
+        tenant.find().then((tenant) => {
+            it('tenant not found', () => {
+                expect(undefined).to.equal(tenant)
+            })
+         })
     })
 })
