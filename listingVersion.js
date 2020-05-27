@@ -120,7 +120,8 @@ find = function(id, t){
                     'ceilingHeight',
                     'availableDate',
                     'nets',
-                    'class'
+                    'class',
+                    'createdAt'
                 ],
                 include: [
                 {
@@ -150,6 +151,13 @@ find = function(id, t){
                 as: 'listing',
                 attributes: ['latestDraftId', 'latestApprovedId']
             }
+            ],
+            order: [
+                [
+                    {model: models.Space, as: 'spaces'},
+                    'createdAt',
+                    'DESC'
+                ]
             ]
         }).then(function(listing){
             ret = {
