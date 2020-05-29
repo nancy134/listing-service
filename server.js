@@ -519,4 +519,13 @@ app.post('/portfolios', (req, res) => {
     });
 });
 
+app.delete('/spaces/:id', (req, res) => {
+    var deleteSpacePromise = spaceService.destroy(req.params.id);
+    deleteSpacePromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.state(400).json(ret);
+    });
+});
 app.listen(PORT, HOST);

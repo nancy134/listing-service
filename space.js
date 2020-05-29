@@ -167,94 +167,19 @@ exports.updateAPI = function(id, body){
     });
 }
 
-/*
-exports.createAPI = function(body){
+destroy = function(id){
     return new Promise(function(resolve, reject){
-        listingVersionService.find(body.ListingVersionId).then(function(listingVersion){
-            listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                if (listing.latestDraftId){
-                    create(body).then(function(space){
-                        resolve(space);
-                    }).catch(function(err){
-                        reject(err);
-                    });
-                } else {
-                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                         body.ListingVersionId = copied.id;
-                         create(body).then(function(createdSpace){
-                             var listingBody = {
-                                latestDraftId: copied.id
-                             };
-                             listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
-                                 resolve(createdSpace);
-                             }).catch(function(err){
-                                 reject(err);
-                             });
-                         }).catch(function(err){
-                             reject(err);
-                         });
-                     }).catch(function(err){
-                         reject(err);
-                     }); 
-                }
-            }).catch(function(err){
-                reject(err);
-            });
-        }).catch(function(err){
-            reject(err);
-        });
-    });
- 
-}
-
-exports.updateAPI = function(id, body){
-    return new Promise(function(resolve, reject){
-        find(id).then(function(space){
-            listingVersionService.find(space.ListingVersionId).then(function(listingVersion){
-                listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                    if (listing.latestDraftId){
-                        update(id, body).then(function(space){
-                            resolve(space);
-                        }).catch(function(err){
-                            reject(err);
-                        });
-                    } else {
-                        listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                            findWithPrevious(id).then(function(foundSpace){
-                                delete body.ListingVersionId;
-                                delete body.id;
-                                update(foundSpace.id, body).then(function(updatedSpace){
-                                    var listingBody = {
-                                        latestDraftId: copied.id
-                                    };
-                                    listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
-                                        resolve(updatedSpace);
-                                    }).catch(function(err){
-                                        reject(err);
-                                    });
-                                }).catch(function(err){
-                                    reject(err);
-                                });
-                            }).catch(function(err){
-                                reject(err);
-                            });
-                        }).catch(function(err){
-                            reject(err);
-                        });
-                    }
-                }).catch(function(err){
-                    reject(err);
-                }); 
-            }).catch(function(err){
-                reject(err);
-            });
+        models.Space.destroy({
+            where: {id: id}
+        }).then(function(result){
+            resolve(result);
         }).catch(function(err){
             reject(err);
         });
     });
 }
-*/
 
 exports.find = find;
 exports.update = update;
 exports.findWithPrevious = findWithPrevious;
+exports.destroy = destroy
