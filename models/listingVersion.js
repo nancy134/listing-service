@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
 
     // Overview
     shortDescription: DataTypes.STRING,
-    longDescription: DataTypes.STRING,
+    longDescription: DataTypes.TEXT,
     listingType: {
         type: DataTypes.ENUM,
         values: ['For Sale', 'For Lease']

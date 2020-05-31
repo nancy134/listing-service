@@ -42,7 +42,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       longDescription: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       listingType: {
         type: Sequelize.ENUM,
