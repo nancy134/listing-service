@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     zip: DataTypes.STRING,
     displayAddress: DataTypes.STRING,
-
+    location: DataTypes.GEOMETRY('POINT'),
     // Overview
     shortDescription: DataTypes.STRING,
     longDescription: DataTypes.TEXT,
