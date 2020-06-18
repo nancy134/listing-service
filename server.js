@@ -77,6 +77,26 @@ app.get('/listings', (req, res) => {
        }
     }
 
+    // Location
+    var contains = "";
+    if (req.query.lat0){
+    var lat0 = req.query.lat0;
+    var lng0 = req.query.lng0;
+    var lat1 = req.query.lat1;
+    var lng1 = req.query.lng1;
+    var a = lat0 + " " + lng0;
+    var b = lat1 + " " + lng0;
+    var c = lat1 + " " + lng1;
+    var d = lat0 + " " + lng1;
+    var e = lat0 + " " + lng0;
+    var boundingBox = `${a},${b},${c},${d},${e}`;
+    var geom = Sequelize.fn('ST_GEOMFROMTEXT', boundingBox);
+    contains = Sequelize.fn(
+        'ST_CONTAINS',
+        Sequelize.fn('ST_POLYFROMTEXT', `POLYGON((${a},${b},${c},${d},${e}))`),
+        Sequelize.col('location')
+    );
+    }
     // Owner & publishStatus
     if (req.query.owner){
         where = {
@@ -85,13 +105,17 @@ app.get('/listings', (req, res) => {
                 {publishStatus: 'Draft'}, 
                 {[Op.and]: [ 
                    {publishStatus: 'On Market'},
-                   {'$listing.latestDraftId$': null}
+                   {'$listing.latestDraftId$': null},
+                   contains
                 ]} 
             ],
         };
     } else {
         where = {
-            publishStatus: 'On Market',
+            [Op.and]: [
+                {publishStatus: 'On Market'},
+                contains
+            ]
         };
     }
 
@@ -129,7 +153,7 @@ app.get('/listings', (req, res) => {
         };
         sW = desymbolize(spaceWhere);
     }
-    
+   
     var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where, spaceWhere);
     getListingsPromise.then(function(result){
         res.json(result);
