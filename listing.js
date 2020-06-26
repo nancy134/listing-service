@@ -113,3 +113,19 @@ exports.update = function(id, body, t){
         });
     });
 }
+
+exports.delete = function(id,t){
+    return new Promise(function(resolve, reject){
+        models.Listing.destroy({
+           where: {
+              id: id
+           },
+           transaction: t
+        }).then(function(result){
+            resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+

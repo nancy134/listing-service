@@ -89,6 +89,24 @@ findAttributes = function(id, attributes, t){
         });;
     });
 }
+
+findRelated = function(listingId, t){
+    console.log("listingId: "+listingId);
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.findAll({
+            where: {
+                ListingId: listingId
+            },
+            attributes: ['id'],
+            transaction: t 
+        }).then(function(listings){
+            resolve(listings);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 find = function(id, t){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findOne({
@@ -203,6 +221,24 @@ exports.update = function(id, body, t){
     });
 }
 
+deleteAllByListingId = function(listingId, t){
+    console.log("deleteAllByListingId: "+listingId);
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.destroy({
+            where: {
+                ListingId: listingId
+            },
+            transaction: t
+        }).then(function(result){
+            console.log("deleteAllByListingId: result: "+JSON.stringify(result));
+            resolve(result); 
+        }).catch(function(err){
+            console.log("deleteAllByListingId: err: "+err);
+            reject(err);
+        });
+    });
+}
+
 exports.copy = function(id, t){
     return new Promise(function(resolve, reject){
         this.find(id, t).then(function(listingVersion){
@@ -281,4 +317,6 @@ exports.copy = function(id, t){
 
 exports.find = find;
 exports.findAttributes = findAttributes;
+exports.findRelated = findRelated;
 exports.create = create;
+exports.deleteAllByListingId = deleteAllByListingId;

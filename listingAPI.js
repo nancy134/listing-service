@@ -54,6 +54,45 @@ exports.createListingAPI = function(body){
     });
 }
 
+exports.deleteListingAPI = function(listingId){
+    console.log("listingApI.deleteListingAPI; listingId: "+listingId);
+    return new Promise(function(resolve, reject){
+        var sequelize = models.sequelize;
+        sequelize.transaction().then(function (t) {
+            var body = {
+                latestDraftId: null,
+                latestApprovedId: null
+            };
+            listingService.update(listingId, body, t).then(function(result){
+                listingVersionService.deleteAllByListingId(listingId, t).then(function(result){
+                    console.log("listingAPI.deleteListingAPI; result: "+JSON.stringify(result));
+                    // Find and delete Listing
+                    listingService.delete(listingId, t).then(function(result){
+                        console.log("result: "+JSON.stringify(result));
+                        t.commit();
+                        resolve(result);
+                    }).catch(function(err){
+                        console.log("err: "+err);
+                        t.rollback();
+                        reject(err);
+                    });
+            
+                }).catch(function(err){
+                    t.rollback(); 
+                    reject(err);
+                });
+            }).catch(function(err){
+                t.rollback();
+                reject(err);
+            });
+            return null;
+        }).catch(function(err){
+            t.rollback();
+            reject(err);
+        });
+    });
+}
+
 exports.moderateListingAPI = function(id){
     return new Promise(function(resolve, reject){
         listingService.find(id).then(function(listing){

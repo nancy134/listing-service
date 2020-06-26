@@ -391,7 +391,17 @@ app.put('/listings/:id', (req, res) => {
         console.log("err: "+err);
     });
 });
-
+app.delete('/listings/:id', (req, res) => {
+    console.log("req.params.id: "+req.params.id);
+    var deleteListingPromise = listingAPIService.deleteListingAPI(req.params.id);
+    deleteListingPromise.then(function(result){
+       console.log("server: deleteListing: result: "+JSON.stringify(result));
+       res.json(result);
+    }).catch(function(err){
+       console.log("server.delete listing err: "+err);
+       res.status(400).json(err);
+    });
+});
 app.put('/spaces/:id', (req, res) => {
     var updateData = {
         id: req.params.id,
