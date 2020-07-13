@@ -35,7 +35,7 @@ exports.index = function(page, limit, offset, where, spaceWhere){
             {
                 model: models.Image, 
                 as: 'images',
-                attributes: ['id','url']
+                attributes: ['id','url','order']
             },
             {
                 model: models.Space,

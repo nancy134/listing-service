@@ -3,12 +3,42 @@ const AWS = require('aws-sdk');
 const models = require("./models")
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
-
+const listingAPIService = require("./listingAPI");
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
+var index = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        models.Image.findAndCountAll({
+            where: where,
+            limit: limit,
+            offset: offset,
+            attributes: ['id', 'order', 'url']
+        }).then(images => {
+            var ret = {
+                page: page,
+                perPage: limit,
+                images: images
+            }
+            resolve(ret);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+
+exports.getImages = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        index(page, limit, offset, where).then(function(images){
+            resolve(images);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 
 var uploadFile = function(path,fileName,table,tableIndex,imageIndex){
     return new Promise(function(resolve, reject){
@@ -40,6 +70,36 @@ var uploadFile = function(path,fileName,table,tableIndex,imageIndex){
     });
 }
 
+var find = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.Image.findOne({
+            where: {
+                id: id
+            },
+            transaction: t
+        }).then(function(image){
+            resolve(image);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var findWithPrevious = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.Image.findOne({
+            where: {
+                PreviousVersionId: id
+            },
+            transaction: t
+        }).then(function(image){
+            resolve(image);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 var create = function(body){
     return new Promise(function(resolve, reject){
         models.Image.create(body).then(function(image){
@@ -49,27 +109,39 @@ var create = function(body){
         });
     }); 
 }
-
-var createImage = function(
-    ListingId,
-    path,
-    originalname,
-    table,
-    tableId
-){
+var update = function(id, body, t){
     return new Promise(function(resolve, reject){
-        models.Image.create({
-            ListingVersionId: ListingId 
-        }).then(image => {
+        models.Image.update(
+            body,
+            {
+                returning: true,
+                where: {id: id},
+                transaction: t
+            }
+        ).then(function([rowsUpdate, [image]]){
+            resolve(image);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var createImage = function(body, t){
+    console.log("createImage");
+    return new Promise(function(resolve, reject){
+        models.Image.create(
+            {ListingVersionId: body.ListingVersionId},
+            {transaction: t}
+        ).then(image => {
             uploadFile(
-                path,
-                originalname,
-                table,
-                tableId,
+                body.path,
+                body.originalname,
+                body.table,
+                body.tableId,
                 image.id)
             .then(function(result){
                 image.url = result.Location;
-                image.save().then(image => {
+                image.save({transaction: t}).then(image => {
                     resolve(image);
                 }).catch(err => {
                     reject(err);
@@ -111,54 +183,27 @@ exports.copyImage = function(id, ListingVersionId){
         });
     });
 }
-
-exports.createAPI = function(    
-    ListingVersionId,
-    path,
-    originalname,
-    table,
-    tableId)
+exports.createAPI = function(body)
 {
     return new Promise(function(resolve, reject){
-        console.log("ListingVersionId: "+ListingVersionId);
-        listingVersionService.find(ListingVersionId).then(function(listingVersion){
-            console.log("listingVersion: "+JSON.stringify(listingVersion));
-            listingService.find(listingVersion.listing.ListingId).then(function(listing){
-                console.log("listing: "+JSON.stringify(listing));
-                if (listing.latestDraftId){
-                    createImage(listing.latestDraftId,path,originalname,table,tableId).then(function(image){
-                        console.log("image: "+JSON.stringify(image));
-                        resolve(image);
-                    }).catch(function(err){
-                        reject(err);
-                    });
-                } else {
-                    listingVersionService.copy(listing.latestApprovedId).then(function(copied){
-                         console.log("copied: "+JSON.stringify(copied));
-                         createImage(copied.id,path,originalname,table,tableId).then(function(createdImage){
-                             console.log("createdImage: "+JSON.stringify(createdImage));
-                             var listingBody = {
-                                latestDraftId: copied.id
-                             };
-                             listingService.update(copied.ListingId, listingBody).then(function(updatedListing){
-                                 console.log("updatedListing: "+JSON.stringify(updatedListing));
-                                 resolve(createdImage);
-                             }).catch(function(err){
-                                 reject(err);
-                             });
-                         }).catch(function(err){
-                             reject(err);
-                         });
-                     }).catch(function(err){
-                         reject(err);
-                     }); 
-                }
-            }).catch(function(err){
-                reject(err);
-            });
+        listingAPIService.createAssociationAPI(body, "image").then(function(createdImage){
+            resolve(createdImage);
         }).catch(function(err){
             reject(err);
         });
     });
 }
 
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve, reject){
+        listingAPIService.updateAssociationAPI(id, body, "image").then(function(updatedImage){
+            resolve(updatedImage);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.createImage = createImage;
+exports.update = update;
+exports.find = find

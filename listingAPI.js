@@ -5,6 +5,7 @@ const unitService = require("./unit");
 const spaceService = require("./space");
 const portfolioService = require("./portfolio");
 const tenantService = require("./tenant");
+const imageService = require("./image");
 
 exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
@@ -369,6 +370,9 @@ exports.createAssociationAPI = function(body, associatedTable){
         if (associatedTable === "tenant"){
             var createAssociatedRecord = tenantService.createTenant;
         }
+        if (associatedTable === "image"){
+            var createAssociatedRecord = imageService.createImage;
+        }
 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
@@ -440,7 +444,11 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             var updateAssociatedRecord = tenantService.update;
             var findWithPreviousAssociatedRecord = tenantService.findWithPrevious;
         }
- 
+        if (associatedTable === "image"){
+            var findAssociatedRecord = imageService.find;
+            var updateAssociatedRecord = imageService.update;
+            var findWithPreviousAssociatedrecord = imageService.findWithPrevious;
+        } 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             findAssociatedRecord(id,t).then(function(associatedRecord){

@@ -189,22 +189,20 @@ app.get('/admin/listingVersions', (req, res) => {
 });
 
 app.post('/upload', upload.single('image'), function(req, res, next) {
-
-  imageService.createAPI(
-      req.body.listing_id,
-      req.file.path, 
-      req.file.originalname,
-      'listing',
-      req.body.listing_id)
-      .then(function(image){
-          res.json(image);
-      }).catch(function(err){
-          res.json(err);
-      });
-});
-
-app.get('/images', (req, res) => {
-    models.Image.findAll().then(images => res.json(images));
+  var body = {
+      ListingVersionId: req.body.listing_id,
+      path: req.file.path,
+      originalname: req.file.originalname,
+      table: 'listing',
+      tableId: req.body.listing_id
+  };
+  var createAPIPromise = imageService.createAPI(body);
+  createAPIPromise.then(function(image){
+      console.log("image; "+JSON.stringify(image));
+      res.json(image);
+  }).catch(function(err){
+      res.json(err);
+  });
 });
 
 app.get('/image/:id', (req,res) => {
@@ -350,6 +348,20 @@ app.get('/tenants', (req, res) => {
         console.log("err: "+err);
     });
 });
+
+app.get('/images', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null;
+    var getImagesPromise = imageService.getImages(page, limit, offset, where);
+    getImagesPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log("err: "+err);
+    });
+});
+
 app.get('/tenants/:id', (req, res) => {
     console.log("req.params.id: "+req.params.id);
     var getTenantPromise = tenantService.find(req.params.id);
@@ -444,6 +456,16 @@ app.put('/portfolios/:id', (req, res) => {
         var ret = formatError(err);
         res.status(400).json(ret);
 
+    });
+});
+
+app.put('/images/:id', (req, res) => {
+    var updateImagePromise = imageService.updateAPI(req.params.id, req.body);
+    updateImagePromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 
