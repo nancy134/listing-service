@@ -1,4 +1,4 @@
-'ause strict';
+'/ause strict';
 
 const express = require('express');
 const Sequelize = require('sequelize');
@@ -167,6 +167,9 @@ app.get('/admin/listings', (req, res) => {
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
+    if (req.query.ListingId){
+        where = {id: req.query.ListingId};
+    }
     var getListingsPromise = listingAPIService.getListingsAdmin(page, limit, offset, where);
     getListingsPromise.then(function(result){
         res.json(result);
@@ -179,11 +182,13 @@ app.get('/admin/listingVersions', (req, res) => {
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null;
+    if (req.query.ListingId){
+        where = {ListingId: req.query.ListingId};
+    }
     var getListingVersionsPromise = listingAPIService.getListingVersionsAdmin(page, limit, offset, where);
     getListingVersionsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log("Error /admin/listingVersions: "+err);
         res.status(400).send(err);
     });
 });
@@ -198,7 +203,6 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
   };
   var createAPIPromise = imageService.createAPI(body);
   createAPIPromise.then(function(image){
-      console.log("image; "+JSON.stringify(image));
       res.json(image);
   }).catch(function(err){
       res.json(err);
@@ -363,13 +367,10 @@ app.get('/images', (req, res) => {
 });
 
 app.get('/tenants/:id', (req, res) => {
-    console.log("req.params.id: "+req.params.id);
     var getTenantPromise = tenantService.find(req.params.id);
     getTenantPromise.then(function(tenant){
-        console.log('tenant: '+tenant);
         res.json(tenant);
     }).catch(function(err){
-        console.log("err: "+err);
         res.status(400).json(err);
     });
 });
@@ -404,16 +405,23 @@ app.put('/listings/:id', (req, res) => {
     });
 });
 app.delete('/listings/:id', (req, res) => {
-    console.log("req.params.id: "+req.params.id);
     var deleteListingPromise = listingAPIService.deleteListingAPI(req.params.id);
     deleteListingPromise.then(function(result){
-       console.log("server: deleteListing: result: "+JSON.stringify(result));
        res.json(result);
     }).catch(function(err){
-       console.log("server.delete listing err: "+err);
        res.status(400).json(err);
     });
 });
+
+app.delete('/images/:id', (req, res) => {
+    var deleteImagePromise = imageService.deleteImage(req.params.id);
+    deleteImagePromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(err);
+    });
+});
+
 app.put('/spaces/:id', (req, res) => {
     var updateData = {
         id: req.params.id,
@@ -576,12 +584,13 @@ app.post('/portfolios', (req, res) => {
 });
 
 app.delete('/spaces/:id', (req, res) => {
-    var deleteSpacePromise = spaceService.destroy(req.params.id);
+    var deleteSpacePromise = spaceService.deleteAPI(req.params.id);
     deleteSpacePromise.then(function(result){
+        console.log("server:delete:spaces: "+JSON.stringify(result));
         res.json(result);
     }).catch(function(err){
         var ret = formatError(err);
-        res.state(400).json(ret);
+        res.status(400).json(ret);
     });
 });
 app.listen(PORT, HOST);

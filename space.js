@@ -43,7 +43,16 @@ var create = function(body, t){
     });
 }
 
-var update = function(id, body, t){
+var updateSpace = function(id, body, t){
+
+    if (body.price === "") body.price = null;
+    if (body.driveIndoors === "") body.driveInDoors = null;
+    if (body.floors === "") body.floors = null;
+    if (body.loadingDocks === "") body.loadingDocks = null;
+    if (body.ceilingHeight === "") body.ceilingHeight = null;
+    if (body.nets === "") body.nets = null;
+    if (body.availableDate === "") body.availableDate = null;
+
     return new Promise(function(resolve, reject){
         models.Space.update(
             body,
@@ -90,25 +99,6 @@ exports.getSpaces = function(page, limit, offset, where){
     });
 }
 
-exports.updateSpace = function(updateData){
-
-    if (body.price === "") body.price = null;
-    if (body.driveIndoors === "") body.driveInDoors = null;
-    if (body.floors === "") body.floors = null;
-    if (body.loadingDocks === "") body.loadingDocks = null;
-    if (body.ceilingHeight === "") body.ceilingHeight = null;
-    if (body.nets === "") body.nets = null;
-    if (body.availableDate === "") body.availableDate = null;
-
-    return new Promise(function(resolve, reject){
-        update(updateData).then(function(space){
-            resolve(space);
-        }).catch(function(err){
-            reject(err);
-        });
-    });
-}
-
 exports.createSpace = function(body, t){
     return new Promise(function(resolve, reject){
         create(body, t).then(function(space){
@@ -148,6 +138,20 @@ exports.copySpace = function(id, ListingVersionId, t){
     });
 }
 
+exports. deleteSpace = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.Space.destroy({
+            where: {id: id},
+            transaction: t,
+            raw: true
+        }).then(function(result){
+            resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
         listingAPIService.createAssociationAPI(body, "space").then(function(createdSpace){
@@ -167,12 +171,10 @@ exports.updateAPI = function(id, body){
     });
 }
 
-destroy = function(id){
-    return new Promise(function(resolve, reject){
-        models.Space.destroy({
-            where: {id: id}
-        }).then(function(result){
-            resolve(result);
+exports.deleteAPI = function(id){
+    return new Promise(function(resolve,reject){
+        listingAPIService.deleteAssociationAPI(id, "space").then(function(deletedSpace){
+            resolve(deletedSpace);
         }).catch(function(err){
             reject(err);
         });
@@ -180,6 +182,5 @@ destroy = function(id){
 }
 
 exports.find = find;
-exports.update = update;
+exports.updateSpace = updateSpace;
 exports.findWithPrevious = findWithPrevious;
-exports.destroy = destroy

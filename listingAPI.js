@@ -56,7 +56,6 @@ exports.createListingAPI = function(body){
 }
 
 exports.deleteListingAPI = function(listingId){
-    console.log("listingApI.deleteListingAPI; listingId: "+listingId);
     return new Promise(function(resolve, reject){
         var sequelize = models.sequelize;
         sequelize.transaction().then(function (t) {
@@ -66,14 +65,11 @@ exports.deleteListingAPI = function(listingId){
             };
             listingService.update(listingId, body, t).then(function(result){
                 listingVersionService.deleteAllByListingId(listingId, t).then(function(result){
-                    console.log("listingAPI.deleteListingAPI; result: "+JSON.stringify(result));
                     // Find and delete Listing
                     listingService.delete(listingId, t).then(function(result){
-                        console.log("result: "+JSON.stringify(result));
                         t.commit();
                         resolve(result);
                     }).catch(function(err){
-                        console.log("err: "+err);
                         t.rollback();
                         reject(err);
                     });
@@ -431,7 +427,7 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
         }
         if (associatedTable === "space"){
             var findAssociatedRecord = spaceService.find;
-            var updateAssociatedRecord = spaceService.update;
+            var updateAssociatedRecord = spaceService.updateSpace;
             var findWithPreviousAssociatedRecord = spaceService.findWithPrevious;
         }
         if (associatedTable === "portfolio"){
@@ -508,3 +504,86 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
     });
 }
 
+exports.deleteAssociationAPI = function(id, associatedTable){
+    return new Promise(function(resolve, reject){
+        if (associatedTable === "unit"){
+            var findAssociatedRecord = unitService.find;
+            var deleteAssociatedRecord = unitService.destroy;
+            var findWithPreviousAssociatedRecord = unitService.findWithPrevious;
+        }
+        if (associatedTable === "space"){
+            var findAssociatedRecord = spaceService.find;
+            var deleteAssociatedRecord = spaceService.deleteSpace;
+            var findWithPreviousAssociatedRecord = spaceService.findWithPrevious;
+        }
+        if (associatedTable === "portfolio"){
+            var findAssociatedRecord = portfolioService.find;
+            var deleteAssociatedRecord = portfolioService.destroy;
+            var findWithPreviousAssociatedRecord = portfolioService.findWithPrevious;
+        }
+        if (associatedTable === "tenant"){
+            var findAssociatedRecord = tenantService.find;
+            var deleteAssociatedRecord = tenantService.destroy;
+            var findWithPreviousAssociatedRecord = tenantService.findWithPrevious;
+        }
+        if (associatedTable === "image"){
+            var findAssociatedRecord = imageService.find;
+            var deleteAssociatedRecord = imageService.destroy;
+            var findWithPreviousAssociatedrecord = imageService.findWithPrevious;
+        }
+        var sequelize = models.sequelize;
+        sequelize.transaction().then(function(t){
+            findAssociatedRecord(id,t).then(function(associatedRecord){
+                var attributes = ["ListingId"];
+                listingVersionService.findAttributes(associatedRecord.ListingVersionId,attributes, t).then(function(listingVersion){
+                    listingService.find(listingVersion.ListingId, t).then(function(listing){
+                        if (listing.latestDraftId){
+                            deleteAssociatedRecord(id, body, t).then(function(associatedRecord){
+                                t.commit();
+                                resolve(associatedRecord);
+                            }).catch(function(err){
+                                t.rollback();
+                                reject(err);
+                            });
+                        } else {
+                            listingVersionService.copy(listing.latestApprovedId, t).then(function(copied){
+                                findWithPreviousAssociatedRecord(id,t).then(function(foundAssociatedRecord){
+                                    deleteAssociatedRecord(foundAssociatedRecord.id, t).then(function(deletedResult){
+                                        var listingBody = {
+                                            latestDraftId: copied.id
+                                        };
+                                        listingService.update(copied.ListingId, listingBody, t).then(function(updatedListing){
+                                            t.commit();
+                                            resolve(updatedListing);
+                                        }).catch(function(err){
+                                            t.rollback();
+                                            reject(err);
+                                        });
+                                    }).catch(function(err){
+                                        t.rollback();
+                                        reject(err);
+                                    });
+                                }).catch(function(err){
+                                    t.rollback();
+                                    reject(err);
+                                });
+                            }).catch(function(err){
+                                t.rollback();
+                                reject(err);
+                            });
+                        }
+                    }).catch(function(err){
+                        t.rollback();
+                        reject(err);
+                    });
+                }).catch(function(err){
+                    t.rollback(); 
+                    reject(err);
+                });
+            }).catch(function(err){
+                t.rollback();
+                reject(err);
+            });
+        });
+    });
+}

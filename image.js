@@ -126,8 +126,19 @@ var update = function(id, body, t){
     });
 }
 
+var deleteImage = function(id){
+    return new Promise(function(resolve, reject){
+        models.Image.destroy({
+            where: {id: id}
+        }).then(function(result){
+            resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 var createImage = function(body, t){
-    console.log("createImage");
     return new Promise(function(resolve, reject){
         models.Image.create(
             {ListingVersionId: body.ListingVersionId},
@@ -206,4 +217,5 @@ exports.updateAPI = function(id, body){
 
 exports.createImage = createImage;
 exports.update = update;
-exports.find = find
+exports.find = find;
+exports.deleteImage = deleteImage;

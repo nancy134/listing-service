@@ -66,7 +66,9 @@ exports.index = function(page, limit, offset, where, spaceWhere){
 exports.indexAdmin = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAll({
+            where: where,
             attributes: ['id','publishStatus','owner', 'createdAt'],
+            order: [['id', 'ASC']]
         }).then(listings => {
             resolve(listings); 
         }).catch(err => { 
@@ -91,7 +93,6 @@ findAttributes = function(id, attributes, t){
 }
 
 findRelated = function(listingId, t){
-    console.log("listingId: "+listingId);
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAll({
             where: {
@@ -222,7 +223,6 @@ exports.update = function(id, body, t){
 }
 
 deleteAllByListingId = function(listingId, t){
-    console.log("deleteAllByListingId: "+listingId);
     return new Promise(function(resolve, reject){
         models.ListingVersion.destroy({
             where: {
@@ -230,10 +230,8 @@ deleteAllByListingId = function(listingId, t){
             },
             transaction: t
         }).then(function(result){
-            console.log("deleteAllByListingId: result: "+JSON.stringify(result));
             resolve(result); 
         }).catch(function(err){
-            console.log("deleteAllByListingId: err: "+err);
             reject(err);
         });
     });

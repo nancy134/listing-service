@@ -77,6 +77,7 @@ include: [
 exports.indexAdmin = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.Listing.findAll({
+            where: where,
             attributes: ['id', 'latestDraftId', 'latestApprovedId']
         }).then(listings => {
             resolve(listings);
