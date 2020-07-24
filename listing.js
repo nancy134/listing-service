@@ -32,7 +32,7 @@ include: [
                 {
                     model: models.Image, 
                     as: 'images',
-                    attributes: ['id','url']
+                    attributes: ['id','url','order']
                 },
                 {
                     model: models.Space,
@@ -50,7 +50,7 @@ include: [
                 {
                     model: models.Image,
                     as: 'images',
-                    attributes: ['id','url']
+                    attributes: ['id','url','order']
                 },
                 {
                     model: models.Space,

@@ -442,8 +442,8 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
         }
         if (associatedTable === "image"){
             var findAssociatedRecord = imageService.find;
-            var updateAssociatedRecord = imageService.update;
-            var findWithPreviousAssociatedrecord = imageService.findWithPrevious;
+            var updateAssociatedRecord = imageService.updateImage;
+            var findWithPreviousAssociatedRecord = imageService.findWithPrevious;
         } 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
@@ -528,8 +528,8 @@ exports.deleteAssociationAPI = function(id, associatedTable){
         }
         if (associatedTable === "image"){
             var findAssociatedRecord = imageService.find;
-            var deleteAssociatedRecord = imageService.destroy;
-            var findWithPreviousAssociatedrecord = imageService.findWithPrevious;
+            var deleteAssociatedRecord = imageService.deleteImage;
+            var findWithPreviousAssociatedRecord = imageService.findWithPrevious;
         }
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
@@ -538,9 +538,9 @@ exports.deleteAssociationAPI = function(id, associatedTable){
                 listingVersionService.findAttributes(associatedRecord.ListingVersionId,attributes, t).then(function(listingVersion){
                     listingService.find(listingVersion.ListingId, t).then(function(listing){
                         if (listing.latestDraftId){
-                            deleteAssociatedRecord(id, body, t).then(function(associatedRecord){
+                            deleteAssociatedRecord(id, t).then(function(associatedRecord){
                                 t.commit();
-                                resolve(associatedRecord);
+                                resolve(listing);
                             }).catch(function(err){
                                 t.rollback();
                                 reject(err);

@@ -138,12 +138,11 @@ exports.copySpace = function(id, ListingVersionId, t){
     });
 }
 
-exports. deleteSpace = function(id, t){
+exports.deleteSpace = function(id, t){
     return new Promise(function(resolve, reject){
         models.Space.destroy({
             where: {id: id},
-            transaction: t,
-            raw: true
+            transaction: t
         }).then(function(result){
             resolve(result);
         }).catch(function(err){

@@ -30,7 +30,14 @@ exports.index = function(page, limit, offset, where, spaceWhere){
                 'createdAt',
                 'updatedAt'],
             //order: [['spaces','price','ASC']],
-            order: [['updatedAt', 'DESC']],
+            order: [
+                ['updatedAt', 'DESC'],
+                [
+                    {model: models.Image, as: 'images'},
+                    'order',
+                    'ASC'
+                ]
+            ],
             include: [
             {
                 model: models.Image, 
@@ -119,7 +126,7 @@ find = function(id, t){
             {
                 model: models.Image,
                 as: 'images',
-                attributes: ['id','url']
+                attributes: ['id','url','order']
             },
             {
                 model: models.Space,
@@ -147,7 +154,7 @@ find = function(id, t){
                 {
                     model: models.Image,
                     as: 'images',
-                    attributes: ['id', 'url']
+                    attributes: ['id', 'url','order']
                 }
                 ]
             },
@@ -177,6 +184,11 @@ find = function(id, t){
                     {model: models.Space, as: 'spaces'},
                     'createdAt',
                     'DESC'
+                ],
+                [
+                    {model: models.Image, as: 'images'},
+                    'order',
+                    'ASC'
                 ]
             ]
         }).then(function(listing){

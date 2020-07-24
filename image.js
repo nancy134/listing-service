@@ -100,16 +100,16 @@ var findWithPrevious = function(id, t){
     });
 }
 
-var create = function(body){
+var create = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Image.create(body).then(function(image){
+        models.Image.create(body, {transaction: t}).then(function(image){
             resolve(image);
         }).catch(function(err){
             reject(err);
         });
     }); 
 }
-var update = function(id, body, t){
+var updateImage = function(id, body, t){
     return new Promise(function(resolve, reject){
         models.Image.update(
             body,
@@ -126,11 +126,13 @@ var update = function(id, body, t){
     });
 }
 
-var deleteImage = function(id){
+var deleteImage = function(id, t){
     return new Promise(function(resolve, reject){
         models.Image.destroy({
-            where: {id: id}
+            where: {id: id},
+            transaction: t
         }).then(function(result){
+            // delete S3 bucket
             resolve(result);
         }).catch(function(err){
             reject(err);
@@ -141,7 +143,7 @@ var deleteImage = function(id){
 var createImage = function(body, t){
     return new Promise(function(resolve, reject){
         models.Image.create(
-            {ListingVersionId: body.ListingVersionId},
+            body,
             {transaction: t}
         ).then(image => {
             uploadFile(
@@ -167,12 +169,13 @@ var createImage = function(body, t){
     });
 }
 
-exports.copyImage = function(id, ListingVersionId){
+exports.copyImage = function(id, ListingVersionId,t){
     return new Promise(function(resolve, reject){
         models.Image.findOne({
            where: {
                id: id
-           }
+           },
+           transaction: t
         }).then(function(image){
             var body = image.get({plain: true});
             delete body["id"];
@@ -183,7 +186,7 @@ exports.copyImage = function(id, ListingVersionId){
                     delete body[propName];
                 }
             }
-            create(body).then(function(image){
+            create(body, t).then(function(image){
                 resolve(image);
             }).catch(function(err){
                 reject(err);
@@ -194,6 +197,7 @@ exports.copyImage = function(id, ListingVersionId){
         });
     });
 }
+
 exports.createAPI = function(body)
 {
     return new Promise(function(resolve, reject){
@@ -215,7 +219,18 @@ exports.updateAPI = function(id, body){
     });
 }
 
+exports.deleteAPI = function(id){
+    return new Promise(function(resolve, reject){
+        listingAPIService.deleteAssociationAPI(id, "image").then(function(deletedImage){
+            resolve(deletedImage);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.createImage = createImage;
-exports.update = update;
+exports.updateImage = updateImage;
 exports.find = find;
+exports.findWithPrevious = findWithPrevious;
 exports.deleteImage = deleteImage;

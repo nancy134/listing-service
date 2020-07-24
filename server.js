@@ -199,7 +199,8 @@ app.post('/upload', upload.single('image'), function(req, res, next) {
       path: req.file.path,
       originalname: req.file.originalname,
       table: 'listing',
-      tableId: req.body.listing_id
+      tableId: req.body.listing_id,
+      order: req.body.order
   };
   var createAPIPromise = imageService.createAPI(body);
   createAPIPromise.then(function(image){
@@ -414,7 +415,7 @@ app.delete('/listings/:id', (req, res) => {
 });
 
 app.delete('/images/:id', (req, res) => {
-    var deleteImagePromise = imageService.deleteImage(req.params.id);
+    var deleteImagePromise = imageService.deleteAPI(req.params.id);
     deleteImagePromise.then(function(result){
         res.json(result);
     }).catch(function(err){
