@@ -4,6 +4,7 @@ const unitService = require("./unit");
 const tenantService = require("./tenant");
 const portfolioService = require("./portfolio");
 const imageService = require("./image");
+const { Op } = require("sequelize");
 
 exports.index = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
@@ -111,6 +112,37 @@ findRelated = function(listingId, t){
             resolve(listings);
         }).catch(function(err){
             reject(err);
+        });
+    });
+}
+
+findAddress = function(address, city, state, owner){
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.findAll({
+where: {
+    [Op.and]: [
+        {
+            address: address,
+            city: city,
+            state: state
+        },
+        {
+        [Op.or]: [
+        {
+            owner: owner
+        },
+        {
+            publishStatus: "On Market"
+        }
+        ]
+        }
+    ]
+},
+            attributes: ['id','address','city','state','publishStatus','owner']
+        }).then(function(listings){
+            resolve(listings);
+        }).catch(function(err){
+            resolve(err);
         });
     });
 }
@@ -328,5 +360,6 @@ exports.copy = function(id, t){
 exports.find = find;
 exports.findAttributes = findAttributes;
 exports.findRelated = findRelated;
+exports.findAddress = findAddress;
 exports.create = create;
 exports.deleteAllByListingId = deleteAllByListingId;

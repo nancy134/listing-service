@@ -367,6 +367,19 @@ app.get('/images', (req, res) => {
     });
 });
 
+app.get('/addresses', (req, res) => {
+    var address = req.query.address;
+    var city = req.query.city;
+    var state = req.query.state;
+    var owner = req.query.owner;
+    var getAddressPromise = listingVersionService.findAddress(address,city,state, owner);
+    getAddressPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(err); 
+    });
+});
+
 app.get('/tenants/:id', (req, res) => {
     var getTenantPromise = tenantService.find(req.params.id);
     getTenantPromise.then(function(tenant){
