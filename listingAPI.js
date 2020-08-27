@@ -17,7 +17,15 @@ exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
        
     });
 }
-
+exports.indexMarkersListingAPI = function(page, limit, offset, where, spaceWhere){
+    return new Promise(function(resolve, reject){
+        listingVersionService.indexMarkers(page, limit, offset, where, spaceWhere).then(function(markings){
+            resolve(markings);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 exports.findListingAPI = function(id){
     return new Promise(function(resolve, reject){
         listingVersionService.find(id).then(function(listingVersion){

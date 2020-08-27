@@ -17,7 +17,6 @@ const listingAPIService = require('./listingAPI');
 const listingServices = require("./listing");
 const listingVersionService = require("./listingVersion");
 const { Op } = require("sequelize");
-const _ = require("lodash");
 
 
 // Constants
@@ -29,22 +28,6 @@ const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cors());
-
-function desymbolize(o) {
-  if (Array.isArray(o)) {
-    return o.map(desymbolize);
-  } else if (typeof o != "object") {
-    return o;
-  } else {
-    let d = Object.assign(Object.create(Object.getPrototypeOf(o)), o);
-    Object.getOwnPropertySymbols(o).forEach(k => {
-      d[`<${Symbol.keyFor(k)}>`] = o[k];
-      delete d[k];
-    });
-    Object.keys(d).forEach(k => d[k] = desymbolize(d[k]));
-    return d;
-  }
-}
 
 function formatError(err){
     if (err.message){
@@ -66,95 +49,23 @@ app.get('/listings', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = null;
-    var spaceWhere = null;
 
-    // Listing Type
-    var listingTypes = null;
-    if (req.query.ListingType){
-       if (req.query.ListingType !== 'All'){
-           listingTypes = [req.query.ListingType];
-       }
-    }
+    var whereClauses = listingVersionService.buildListingWhereClauses(req); 
+    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, whereClauses.where, whereClauses.spaceWhere);
+    getListingsPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).send(err);
+    });
+});
 
-    // Location
-    var contains = "";
-    if (req.query.lat0){
-    var lat0 = req.query.lat0;
-    var lng0 = req.query.lng0;
-    var lat1 = req.query.lat1;
-    var lng1 = req.query.lng1;
-    var a = lat0 + " " + lng0;
-    var b = lat1 + " " + lng0;
-    var c = lat1 + " " + lng1;
-    var d = lat0 + " " + lng1;
-    var e = lat0 + " " + lng0;
-    var boundingBox = `${a},${b},${c},${d},${e}`;
-    var geom = Sequelize.fn('ST_GEOMFROMTEXT', boundingBox);
-    contains = Sequelize.fn(
-        'ST_CONTAINS',
-        Sequelize.fn('ST_POLYFROMTEXT', `POLYGON((${a},${b},${c},${d},${e}))`),
-        Sequelize.col('location')
-    );
-    }
-    // Owner & publishStatus
-    if (req.query.owner){
-        where = {
-            owner: req.query.owner,
-            [Op.or]: [
-                {publishStatus: 'Draft'}, 
-                {[Op.and]: [ 
-                   {publishStatus: 'On Market'},
-                   {'$listing.latestDraftId$': null},
-                   contains
-                ]} 
-            ],
-        };
-    } else {
-        where = {
-            [Op.and]: [
-                {publishStatus: 'On Market'},
-                contains
-            ]
-        };
-    }
+app.get('/listingMarkers', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
 
-    if (listingTypes) where.listingType = {[Op.or]: listingTypes};
-
-    var spaceWhere = null;
-    var spaceAndClause = {};
-
-    // Use
-    if (req.query.spaceUse){
-        spaceAndClause.use = { [Op.or]: req.query.spaceUse} 
-    }
-
-    // Size
-    if (req.query.minSize && req.query.maxSize){
-        spaceAndClause.size = {[Op.gte]: req.query.minSize, [Op.lte]: req.query.maxSize};
-    } else if (req.query.minSize && !req.query.maxSize){
-        spaceAndClause.size = {[Op.gte]: req.query.minSize};
-    } else if (!req.query.minSize && req.query.maxSize){
-        spaceAndClause.size = {[Op.lte]: req.query.maxSize};
-    }
-
-    // Price 
-    if (req.query.minRate && req.query.maxRate){
-        spaceAndClause.price = {[Op.gte]: req.query.minRate, [Op.lte]: req.query.maxRate};
-    } else if (req.query.minRate && !req.query.maxRate){
-        spaceAndClause.price = {[Op.gte]: req.query.minRate};
-    } else if (!req.query.minRate && req.query.maxRate){
-        spaceAndClause.price = {[Op.lte]: req.query.maxRate};
-    }
-    var isEmpty = _.isEmpty(spaceAndClause); 
-    if (!isEmpty){
-        spaceWhere = {
-            [Op.and]: spaceAndClause
-        };
-        sW = desymbolize(spaceWhere);
-    }
-   
-    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, where, spaceWhere);
+    var whereClauses = listingVersionService.buildListingWhereClauses(req);
+    var getListingsPromise = listingAPIService.indexMarkersListingAPI(page, limit, offset, whereClauses.where, whereClauses.spaceWhere);
     getListingsPromise.then(function(result){
         res.json(result);
     }).catch(function(err){

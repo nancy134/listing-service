@@ -5,7 +5,117 @@ const tenantService = require("./tenant");
 const portfolioService = require("./portfolio");
 const imageService = require("./image");
 const { Op } = require("sequelize");
+const _ = require("lodash");
+const Sequelize = require('sequelize');
 
+function desymbolize(o) {
+  if (Array.isArray(o)) {
+    return o.map(desymbolize);
+  } else if (typeof o != "object") {
+    return o;
+  } else {
+    let d = Object.assign(Object.create(Object.getPrototypeOf(o)), o);
+    Object.getOwnPropertySymbols(o).forEach(k => {
+      d[`<${Symbol.keyFor(k)}>`] = o[k];
+      delete d[k];
+    });
+    Object.keys(d).forEach(k => d[k] = desymbolize(d[k]));
+    return d;
+  }
+}
+
+exports.buildListingWhereClauses = function(req){
+    // Listing Type
+    var listingTypes = null;
+    if (req.query.ListingType){
+       if (req.query.ListingType !== 'All'){
+           listingTypes = [req.query.ListingType];
+       }
+    }
+
+    // Location
+    var contains = "";
+    if (req.query.lat0){
+        var lat0 = req.query.lat0;
+        var lng0 = req.query.lng0;
+        var lat1 = req.query.lat1;
+        var lng1 = req.query.lng1;
+        var a = lat0 + " " + lng0;
+        var b = lat1 + " " + lng0;
+        var c = lat1 + " " + lng1;
+        var d = lat0 + " " + lng1;
+        var e = lat0 + " " + lng0;
+        var boundingBox = `${a},${b},${c},${d},${e}`;
+        var geom = Sequelize.fn('ST_GEOMFROMTEXT', boundingBox);
+        contains = Sequelize.fn(
+            'ST_CONTAINS',
+            Sequelize.fn('ST_POLYFROMTEXT', `POLYGON((${a},${b},${c},${d},${e}))`),
+            Sequelize.col('location')
+        );
+    }
+    // Owner & publishStatus
+    if (req.query.owner){
+        where = {
+            owner: req.query.owner,
+            [Op.or]: [
+                {[Op.and]: [
+                    {publishStatus: 'Draft'},
+                    contains
+                ]}, 
+                {[Op.and]: [ 
+                   {publishStatus: 'On Market'},
+                   {'$listing.latestDraftId$': null},
+                   contains
+                ]} 
+            ],
+        };
+    } else {
+        where = {
+            [Op.and]: [
+                {publishStatus: 'On Market'},
+                contains
+            ]
+        };
+    }
+    if (listingTypes) where.listingType = {[Op.or]: listingTypes};
+    var spaceWhere = null;
+    var spaceAndClause = {};
+
+    // Use
+    if (req.query.spaceUse){
+        spaceAndClause.use = { [Op.or]: req.query.spaceUse} 
+    }
+
+    // Size
+    if (req.query.minSize && req.query.maxSize){
+        spaceAndClause.size = {[Op.gte]: req.query.minSize, [Op.lte]: req.query.maxSize};
+    } else if (req.query.minSize && !req.query.maxSize){
+        spaceAndClause.size = {[Op.gte]: req.query.minSize};
+    } else if (!req.query.minSize && req.query.maxSize){
+        spaceAndClause.size = {[Op.lte]: req.query.maxSize};
+    }
+
+    // Price 
+    if (req.query.minRate && req.query.maxRate){
+        spaceAndClause.price = {[Op.gte]: req.query.minRate, [Op.lte]: req.query.maxRate};
+    } else if (req.query.minRate && !req.query.maxRate){
+        spaceAndClause.price = {[Op.gte]: req.query.minRate};
+    } else if (!req.query.minRate && req.query.maxRate){
+        spaceAndClause.price = {[Op.lte]: req.query.maxRate};
+    }
+    var isEmpty = _.isEmpty(spaceAndClause); 
+    if (!isEmpty){
+        spaceWhere = {
+            [Op.and]: spaceAndClause
+        };
+        sW = desymbolize(spaceWhere);
+    }
+    ret = {
+        where: where,
+        spaceWhere: spaceWhere
+    }
+    return ret;
+}
 exports.index = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
@@ -63,6 +173,49 @@ exports.index = function(page, limit, offset, where, spaceWhere){
                 page: page,
                 perPage: limit,
                 listings: listings
+            };
+            resolve(ret); 
+        }).catch(err => { 
+            reject(err);
+        });
+    });
+}
+
+exports.indexMarkers = function(page, limit, offset, where, spaceWhere){
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.findAndCountAll({
+            where: where,
+            distinct: true,
+            limit: limit,
+            offset: offset,
+            attributes: [
+                'id',
+                'location',
+                'updatedAt'
+            ],
+            //order: [['spaces','price','ASC']],
+            order: [
+                ['updatedAt', 'DESC']
+            ],
+            include: [
+            {
+                model: models.Space,
+                as: 'spaces',
+                where: spaceWhere,
+                attributes: []
+            },
+            {
+                model: models.Listing,
+                as: 'listing',
+                attributes: [],
+                required: true
+            }
+            ]
+        }).then(markers => {
+            var ret = {
+                page: page,
+                perPage: limit,
+                markers: markers
             };
             resolve(ret); 
         }).catch(err => { 
