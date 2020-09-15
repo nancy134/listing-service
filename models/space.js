@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty']
     },
-    description: DataTypes.STRING,
+    description: DataTypes.TEXT,
     driveInDoors: DataTypes.INTEGER,
     floors: DataTypes.INTEGER,
     divisible: { 
