@@ -75,7 +75,7 @@ var index = function(page, limit, offset, where){
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'unit', 'size', 'type', 'use', 'ListingVersionId', 'PreviousVersionId']
+            attributes: ['id', 'unit', 'size', 'type', 'use', 'priceUnit', 'ListingVersionId', 'PreviousVersionId']
         }).then(spaces => {
             var ret = {
                 page: page,

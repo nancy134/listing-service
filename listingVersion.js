@@ -159,7 +159,7 @@ exports.index = function(page, limit, offset, where, spaceWhere){
                 model: models.Space,
                 as: 'spaces',
                 where: spaceWhere,
-                attributes: ['price', 'size', 'use']
+                attributes: ['price', 'priceUnit', 'size', 'use']
             },
             {
                 model: models.Listing,
@@ -333,6 +333,7 @@ find = function(id, t){
                     'availableDate',
                     'nets',
                     'class',
+                    'priceUnit',
                     'createdAt'
                 ],
                 include: [
@@ -386,7 +387,8 @@ find = function(id, t){
                 spaceUses: models.Space.rawAttributes.use.values,
                 spaceDivisibles: models.Space.rawAttributes.divisible.values,
                 portfolioTypes: models.Portfolio.rawAttributes.type.values,
-                amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
+                amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values,
+                priceUnits: models.Space.rawAttributes.priceUnit.values
             };
             resolve(ret);
         }).catch(function(err){

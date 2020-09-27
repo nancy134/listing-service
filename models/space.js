@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
     unit: DataTypes.STRING,
     size: DataTypes.INTEGER,
     price: DataTypes.DECIMAL(8,2),
+    priceUnit: {
+        type: DataTypes.ENUM,
+        values: ['/sf/yr', '/sf/mo', '/mo', '/yr']
+    },
     type: {
         type: DataTypes.ENUM,
         values: ['Full Gross', 'Modified Gross', 'Triple Net']

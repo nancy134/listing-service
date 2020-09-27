@@ -143,7 +143,8 @@ app.get('/enums', (req, res) => {
         spaceUses: models.Space.rawAttributes.use.values,
         spaceDivisibles: models.Space.rawAttributes.divisible.values,
         portfolioTypes: models.Portfolio.rawAttributes.type.values,
-        amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values
+        amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values,
+        priceUnits: models.Space.rawAttributes.priceUnit.values
 
     });
 });
