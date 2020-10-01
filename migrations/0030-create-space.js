@@ -62,7 +62,8 @@ module.exports = {
         references: {
           model: 'ListingVersions',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE'
       },
       PreviousVersionId: {
        type: Sequelize.INTEGER,

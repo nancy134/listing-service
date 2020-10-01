@@ -43,7 +43,8 @@ module.exports = {
               references: {
                   model: 'ListingVersions',
                   key: 'id'
-              }
+              },
+              onDelete: 'CASCADE'
           }
       });
   },

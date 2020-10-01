@@ -17,7 +17,8 @@ module.exports = {
         references: {
           model: 'ListingVersions',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE'
       },
       SpaceId: {
         type: Sequelize.INTEGER,
@@ -25,7 +26,8 @@ module.exports = {
         references: {
           model: 'Spaces',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE'
       },
       PreviousVersionId: {
           type: Sequelize.INTEGER,

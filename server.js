@@ -339,6 +339,16 @@ app.delete('/listings/:id', (req, res) => {
     });
 });
 
+app.delete('/listingVersions/:id', (req, res) => {
+    var deleteListingVersionPromise = listingAPIService.deleteListingDraftAPI(req.params.id);
+    deleteListingVersionPromise.then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log(err);
+        res.status(400).json(err);
+    });
+});
+
 app.delete('/images/:id', (req, res) => {
     var deleteImagePromise = imageService.deleteAPI(req.params.id);
     deleteImagePromise.then(function(result){

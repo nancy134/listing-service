@@ -436,6 +436,21 @@ deleteAllByListingId = function(listingId, t){
     });
 }
 
+exports.delete = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.destroy({
+            where: {
+                id: id
+            },
+            transaction: t
+        }).then(function(result){
+            resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.copy = function(id, t){
     return new Promise(function(resolve, reject){
         this.find(id, t).then(function(listingVersion){

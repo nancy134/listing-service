@@ -98,6 +98,40 @@ exports.deleteListingAPI = function(listingId){
     });
 }
 
+exports.deleteListingDraftAPI = function(id){
+    return new Promise(function(resolve, reject){
+        var sequelize = models.sequelize;
+        sequelize.transaction().then(function(t){
+            var attributes = ["publishStatus", "ListingId"];
+            listingVersionService.findAttributes(id, attributes).then(function(listingVersion){
+                if (listingVersion.publishStatus === "Draft"){
+                    var listingBody = {
+                        latestDraftId: null
+                    };
+                    listingService.update(listingVersion.ListingId, listingBody, t).then(function(listing){
+                        listingVersionService.delete(id, t).then(function(deletedListingVersion){
+                            t.commit();
+                            resolve(deletedListingVersion);
+                        }).catch(function(err){
+                            t.rollback();
+                            reject(err);
+                        });
+                    }).catch(function(err){
+                        t.rollback();
+                        reject(err);
+                    });
+                } else {
+                    t.rollback();
+                    reject("Listing is not a Draft");
+                }
+            }).catch(function(err){
+                t.rollback();
+                reject(err);
+            });
+        }); 
+    });
+}
+
 exports.moderateListingAPI = function(id){
     return new Promise(function(resolve, reject){
         listingService.find(id).then(function(listing){
@@ -472,6 +506,7 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
                                 findWithPreviousAssociatedRecord(id,t).then(function(foundAssociatedRecord){
                                     delete body.ListingVersionId;
                                     delete body.id;
+                                    delete body.PreviousVersionId;
                                     updateAssociatedRecord(foundAssociatedRecord.id, body, t).then(function(updatedAssociatedRecord){
                                         var listingBody = {
                                             latestDraftId: copied.id
