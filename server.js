@@ -16,6 +16,7 @@ const portfolioService = require('./portfolio');
 const listingAPIService = require('./listingAPI');
 const listingServices = require("./listing");
 const listingVersionService = require("./listingVersion");
+const statusEventService = require("./statusEvent");
 const { Op } = require("sequelize");
 
 
@@ -452,22 +453,38 @@ app.post('/listings/:id/publications', (req, res) => {
 });
 
 app.post('/listings/:id/directPublications', (req, res) => {
- var publishListingPromise = listingAPIService.publishDirectListingAPI(req.params.id);
-   publishListingPromise.then(function(result){
-       res.json(result);
-   }).catch(function(err){
-       console.log("/listings/:id/directPublications error: "+err);
-       res.state(500).send(err);
-   });
+    listingAPIService.publishDirectListingAPI(req.params.id).then(function(publishResult){
+        var body = {
+            ListingId: req.params.id,
+            publishStatus: "On Market"
+        }
+        statusEventService.create(body).then(function(statusResult){
+            res.json(publishResult);
+        }).catch(function(err){
+            var ret = formatError(err);
+            res.status(400).json(ret);
+        });
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(400).json(ret);
+    });
 });
 
 app.delete('/listings/:id/publications', (req, res) => {
-   var unpublishListingPromise = listingAPIService.unPublishListingAPI(req.params.id);
-   unpublishListingPromise.then(function(result){
-       res.json(result);
+   listingAPIService.unPublishListingAPI(req.params.id).then(function(publishResult){
+       var body = {
+           ListingId: req.params.id,
+           publishStatus: "Off Market"
+       };
+       statusEventService.create(body).then(function(statusResult){
+           res.json(publishResult);
+       }).catch(function(err){
+           var ret = formatError(err);
+           res.status(400).json(ret);
+       });
    }).catch(function(err){
-       console.log("DELETE/listings/:id/publications error: "+err);
-       res.state(500).send(err);
+       var ret = formatError(err);
+       res.status(400).json(err);
    });
 });
 /*
@@ -529,4 +546,27 @@ app.delete('/spaces/:id', (req, res) => {
         res.status(400).json(ret);
     });
 });
+
+app.post('/statusEvents', (req, res) => {
+    statusEventService.create(req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(400).json(ret);
+    });
+});
+
+app.get('/statusEvents', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = null; 
+    statusEventService.index().then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(400).json(ret);
+    });
+});
+
 app.listen(PORT, HOST);
