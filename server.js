@@ -17,6 +17,9 @@ const listingAPIService = require('./listingAPI');
 const listingServices = require("./listing");
 const listingVersionService = require("./listingVersion");
 const statusEventService = require("./statusEvent");
+const listService = require("./list");
+const listItemService = require("./listItem");
+
 const { Op } = require("sequelize");
 
 
@@ -566,6 +569,44 @@ app.get('/statusEvents', (req, res) => {
     }).catch(function(err){
         var ret = formatError(err);
         res.status(400).json(ret);
+    });
+});
+
+app.post('/lists', (req, res) => {
+   listService.create(req.body).then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       res.status(500).send(err);
+   });
+});
+
+app.get('/lists', (req, res) => {
+   listService.index().then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       res.status(500).send(err);
+   });
+});
+
+app.post('/listItems', (req, res) => {
+    listItemService.create(req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(500).send(err);
+    });
+});
+
+app.get('/listItems', (req, res) => {
+    var page = req.query.page;
+    var limit = req.query.perPage;
+    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var where = {ListId: req.query.ListId};
+
+    listItemService.index(page, limit, offset, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(500).send(ret);
     });
 });
 
