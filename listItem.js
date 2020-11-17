@@ -11,12 +11,28 @@ var create = function(body, t){
     });
 }
 
+var index2 = function(page, limit, offset, where){
+    return new Promise(function(resolve, reject){
+        models.ListItem.findAndCountAll({
+            where: where,
+            limit: limit,
+            offset: offset,
+            attributes: ['id', 'ListId', 'ListingId']
+        }).then(listItems => {
+            resolve(listItems);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 var index = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.ListItem.findAndCountAll({
             where: where,
             limit: limit,
             offset: offset,
+            distinct: true,
             attributes: ['id', 'ListId', 'ListingId'],
             include: [{
                 model: models.Listing,
@@ -70,5 +86,20 @@ var index = function(page, limit, offset, where){
     });
 }
 
+var deleteListItem = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.ListItem.destroy({
+            where: {id: id},
+            transaction: t
+        }).then(function(result){
+            resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.create = create;
 exports.index = index;
+exports.index2 = index2;
+exports.deleteListItem = deleteListItem;

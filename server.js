@@ -610,4 +610,13 @@ app.get('/listItems', (req, res) => {
     });
 });
 
+app.delete('/listItems/:id', (req, res) => {
+    listItemService.deleteListItem(req.params.id).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(500).json(ret);
+    }); 
+});
+
 app.listen(PORT, HOST);
