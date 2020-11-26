@@ -11,9 +11,9 @@ RUN npm install
 COPY . .
 
 #Building app
-RUN npm run build
+#RUN npm run build
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
 
 
 
