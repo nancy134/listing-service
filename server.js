@@ -50,10 +50,12 @@ app.get('/', (req, res) => {
 });
 
 app.get('/listings', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 10;
+    var offset = (parseInt(page)-1)*parseInt(limit);
+    console.log("page: "+page);
+    console.log("limit: "+limit);
+    console.log("offset: "+offset);
     var whereClauses = listingVersionService.buildListingWhereClauses(req); 
     var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, whereClauses.where, whereClauses.spaceWhere);
     getListingsPromise.then(function(result){
