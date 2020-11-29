@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     const List = sequelize.define('List', {
         name: DataTypes.STRING,
         order: DataTypes.INTEGER,
+        owner: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {});

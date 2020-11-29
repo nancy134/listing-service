@@ -583,9 +583,14 @@ app.post('/lists', (req, res) => {
 });
 
 app.get('/lists', (req, res) => {
-   listService.index().then(function(result){
+   var page = req.query.page || 1;
+   var limit = req.query.perPage || 20;
+   var offset = (parseInt(page)-1)*parseInt(limit);
+   var where = {owner: req.query.owner};
+   listService.index(page, limit, offset, where).then(function(result){
        res.json(result);
    }).catch(function(err){
+       console.log(err);
        res.status(500).send(err);
    });
 });
@@ -599,9 +604,9 @@ app.post('/listItems', (req, res) => {
 });
 
 app.get('/listItems', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 20;
+    var offset = (parseInt(page)-1)*parseInt(limit);
     var where = {ListId: req.query.ListId};
 
     listItemService.index(page, limit, offset, where).then(function(result){
