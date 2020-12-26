@@ -5,6 +5,9 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ENUM,
             values: ['On Market', 'Off Market']
         },
+        owner: {
+            type: DataTypes.STRING
+        },
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE,
     }, {});

@@ -1,6 +1,6 @@
 const models = require("./models")
 
-var create = function(body,t){
+exports.create = function(body,t){
     return new Promise(function(resolve, reject){
         models.StatusEvent.create(body, {transaction: t}).then(function(statusEvent){
             resolve(statusEvent);
@@ -10,13 +10,13 @@ var create = function(body,t){
     });
 }
 
-var index = function(page, limit, offset, where){
+exports.index = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
         models.StatusEvent.findAndCountAll({
             where: where,
             limit: limit,
             offset: offset,
-            attributes: ['id', 'ListingId', 'publishStatus','createdAt']
+            attributes: ['id', 'ListingId', 'publishStatus','createdAt', 'owner']
         }).then(statusEvent => {
             var ret = {
                 page: page,
@@ -30,6 +30,21 @@ var index = function(page, limit, offset, where){
     });
 }
 
-exports.create = create;
-exports.index = index;
+exports.findLastOnMarketEvent = function(ListingId){
+    return new Promise(function(resolve, reject){
+        models.StatusEvent.findAndCountAll({
+            where: { ListingId: ListingId, publishStatus: "On Market"},
+            order: [['createdAt', 'DESC']] 
+        }).then(function(statusEvents){
+            if (statusEvents.rows.length > 0){
+                var ret = statusEvents.rows[0]
+            } else {
+                var ret = "empty rows";
+            }
+            resolve(ret);
+        }).catch(function(err){
+            reject(err);
+        }); 
+    });
+}
 

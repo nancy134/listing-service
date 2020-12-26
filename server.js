@@ -19,6 +19,8 @@ const listingVersionService = require("./listingVersion");
 const statusEventService = require("./statusEvent");
 const listService = require("./list");
 const listItemService = require("./listItem");
+const billingCalculationService = require("./billingCalculation");
+const jwt = require("./jwt");
 
 const { Op } = require("sequelize");
 
@@ -45,6 +47,13 @@ function formatError(err){
     }
     return(ret);
 }
+function errorResponse(res, err){
+    if (err.statusCode){
+        res.status(err.statusCode).send(err);
+    } else {
+        res.status(400).send(err);
+    }
+}
 app.get('/', (req, res) => {
   res.send("listing service");
 });
@@ -53,9 +62,6 @@ app.get('/listings', (req, res) => {
     var page = req.query.page || 1;
     var limit = req.query.perPage || 10;
     var offset = (parseInt(page)-1)*parseInt(limit);
-    console.log("page: "+page);
-    console.log("limit: "+limit);
-    console.log("offset: "+offset);
     var whereClauses = listingVersionService.buildListingWhereClauses(req); 
     var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, whereClauses.where, whereClauses.spaceWhere);
     getListingsPromise.then(function(result){
@@ -458,10 +464,12 @@ app.post('/listings/:id/publications', (req, res) => {
 });
 
 app.post('/listings/:id/directPublications', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
     listingAPIService.publishDirectListingAPI(req.params.id).then(function(publishResult){
         var body = {
             ListingId: req.params.id,
-            publishStatus: "On Market"
+            publishStatus: "On Market",
+            owner: publishResult.listing.owner
         }
         statusEventService.create(body).then(function(statusResult){
             res.json(publishResult);
@@ -476,10 +484,12 @@ app.post('/listings/:id/directPublications', (req, res) => {
 });
 
 app.delete('/listings/:id/publications', (req, res) => {
+   var authParams = jwt.getAuthParams(req);
    listingAPIService.unPublishListingAPI(req.params.id).then(function(publishResult){
        var body = {
            ListingId: req.params.id,
-           publishStatus: "Off Market"
+           publishStatus: "Off Market",
+           owner: publishResult.listing.owner
        };
        statusEventService.create(body).then(function(statusResult){
            res.json(publishResult);
@@ -566,7 +576,7 @@ app.get('/statusEvents', (req, res) => {
     var limit = req.query.perPage;
     var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
     var where = null; 
-    statusEventService.index().then(function(result){
+    statusEventService.index(page, limit, offset, where).then(function(result){
         res.json(result);
     }).catch(function(err){
         var ret = formatError(err);
@@ -624,6 +634,15 @@ app.delete('/listItems/:id', (req, res) => {
         var ret = formatError(err);
         res.status(500).json(ret);
     }); 
+});
+
+app.get('/playBillingCycle', (req, res) => {
+    billingCalculationService.playBillingCycle().then(function(result){
+        res.send(result);
+    }).catch(function(err){
+        console.log(err);
+        res.send(err);
+    });
 });
 
 app.listen(PORT, HOST);

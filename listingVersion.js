@@ -181,6 +181,24 @@ exports.index = function(page, limit, offset, where, spaceWhere){
     });
 }
 
+exports.indexOnMarket = function(page, limit, offset){
+    return new Promise(function(resolve, reject){
+        models.ListingVersion.findAndCountAll({
+            where: { publishStatus: "On Market" },
+            attributes: [ 'id', 'ListingId', 'publishStatus' ]
+        }).then(function(listings){
+            var ret = {
+                page: page,
+                perPage: limit,
+                listings: listings
+            };
+            resolve(ret);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.indexMarkers = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
