@@ -2,6 +2,7 @@ const listingVersionService = require("./listingVersion");
 const statusEventService = require("./statusEvent");
 const { Pool } = require("pg");
 const Cursor = require("pg-cursor");
+const sns = require("./sns");
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -33,6 +34,7 @@ exports.getLastOnMarketEvent = function(ListingId, dateBefore, billingCycleStart
                 owner: lastOnMarketEvent.owner
             };
             console.log(billingRecord);
+            sns.billingEvent(billingRecord);
         }
     }).catch(function(err){
         console.log(err);
