@@ -1,4 +1,5 @@
 const models = require("./models")
+const { Op } = require("sequelize");
 
 exports.create = function(body,t){
     return new Promise(function(resolve, reject){
@@ -30,10 +31,17 @@ exports.index = function(page, limit, offset, where){
     });
 }
 
-exports.findLastOnMarketEvent = function(ListingId){
+exports.findLastOnMarketEvent = function(ListingId, date){
+        var where = {
+            [Op.and]: [
+                {ListingId: ListingId},
+                {publishStatus: "On Market"},
+                {createdAt: {[Op.lte]: date}}
+            ]
+        };
     return new Promise(function(resolve, reject){
         models.StatusEvent.findAndCountAll({
-            where: { ListingId: ListingId, publishStatus: "On Market"},
+            where: where,
             order: [['createdAt', 'DESC']] 
         }).then(function(statusEvents){
             if (statusEvents.rows.length > 0){

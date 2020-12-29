@@ -572,9 +572,9 @@ app.post('/statusEvents', (req, res) => {
 });
 
 app.get('/statusEvents', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 20;
+    var offset = (parseInt(page)-1)*parseInt(limit);
     var where = null; 
     statusEventService.index(page, limit, offset, where).then(function(result){
         res.json(result);
@@ -637,12 +637,14 @@ app.delete('/listItems/:id', (req, res) => {
 });
 
 app.get('/playBillingCycle', (req, res) => {
-    billingCalculationService.playBillingCycle().then(function(result){
-        res.send(result);
-    }).catch(function(err){
-        console.log(err);
-        res.send(err);
-    });
+    /*
+    billingCalculationService.playBillingCycle();
+    res.send("ok");
+    */
+    var billingCycleStart = "2020-12-15T05:00:01.000Z";
+    var billingCycleEnd = "2021-01-15T05:00:00.000Z";
+    billingCalculationService.playBillingCycle(billingCycleStart, billingCycleEnd);
+    res.send("ok");
 });
 
 app.listen(PORT, HOST);
