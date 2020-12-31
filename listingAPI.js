@@ -6,10 +6,25 @@ const spaceService = require("./space");
 const portfolioService = require("./portfolio");
 const tenantService = require("./tenant");
 const imageService = require("./image");
+const jwt = require("./jwt");
 
-exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
+function getPaginationParams(req){
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 10;
+    var offset = (parseInt(page)-1)*parseInt(limit);
+    var params = {
+        page: page,
+        limit: limit,
+        offset: offset
+    };
+    return params;
+}
+
+exports.indexListingAPI = function(req){
+    var paginationParams = getPaginationParams(req);
+    var whereClauses = listingVersionService.buildListingWhereClauses(req, "allListings"); 
     return new Promise(function(resolve, reject){
-        listingVersionService.index(page, limit, offset, where, spaceWhere).then(function(listingVersions){
+        listingVersionService.index(paginationParams, whereClauses).then(function(listingVersions){
             resolve(listingVersions);
         }).catch(function(err){
             reject(err);
@@ -17,6 +32,25 @@ exports.indexListingAPI = function(page, limit, offset, where, spaceWhere){
        
     });
 }
+
+exports.indexListingMeAPI = function(req){
+    return new Promise(function(resolve, reject){
+        var authParams = jwt.getAuthParams(req);
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            var paginationParams = getPaginationParams(req);
+            var username = jwtResult["cognito:username"];
+            var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings", username);
+            listingVersionService.index(paginationParams, whereClauses).then(function(listingVersion){
+                resolve(listingVersion);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.indexMarkersListingAPI = function(page, limit, offset, where, spaceWhere){
     return new Promise(function(resolve, reject){
         listingVersionService.indexMarkers(page, limit, offset, where, spaceWhere).then(function(markings){
@@ -38,21 +72,37 @@ exports.findListingAPI = function(id){
     });
 }
 
-exports.createListingAPI = function(body){
+exports.createListingAPI = function(authParams, body){
     return new Promise(function(resolve, reject){
-        listingService.create().then(function(listing){
-            body.ListingId = listing.id;   
-            listingVersionService.create(body).then(function(listingVersion){
-                var listingBody = {
-                    latestDraftId: listingVersion.id
-                };
-                listingService.update(listingVersion.ListingId,listingBody).then(function(updatedListing){
-                    listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
-                        resolve(finalListingVersion);
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            var sequelize = models.sequelize;
+            sequelize.transaction().then(function(t){
+                listingService.create({},t).then(function(listing){
+                    body.ListingId = listing.id;
+                    body.owner = jwtResult["cognito:username"]; 
+                    listingVersionService.create(body, t).then(function(listingVersion){
+                        var listingBody = {
+                            latestDraftId: listingVersion.id
+                        };
+                        listingService.update(listingVersion.ListingId,listingBody, t).then(function(updatedListing){
+                            t.commit();
+                            listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                                resolve(finalListingVersion);
+                            }).catch(function(err){
+                                t.rollback();
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            t.rollback();
+                            reject(err);
+                        });
                     }).catch(function(err){
+                        t.rollback();
                         reject(err);
                     });
                 }).catch(function(err){
+                    t.rollback();
+                    reject(err);
                 });
             }).catch(function(err){
                 reject(err);

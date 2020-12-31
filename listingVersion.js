@@ -24,7 +24,7 @@ function desymbolize(o) {
   }
 }
 
-exports.buildListingWhereClauses = function(req){
+exports.buildListingWhereClauses = function(req, listingMode, username){
     // Listing Type
     var listingTypes = null;
     if (req.query.ListingType){
@@ -54,9 +54,9 @@ exports.buildListingWhereClauses = function(req){
         );
     }
     // Owner & publishStatus
-    if (req.query.owner){
+    if (listingMode === "myListings"){
         where = {
-            owner: req.query.owner,
+            owner: username,
             [Op.or]: [
                 {[Op.and]: [
                     {publishStatus: 'Draft'},
@@ -116,7 +116,12 @@ exports.buildListingWhereClauses = function(req){
     }
     return ret;
 }
-exports.index = function(page, limit, offset, where, spaceWhere){
+exports.index = function(paginationParams, whereClauses){
+    var page = paginationParams.page;
+    var limit = paginationParams.limit;
+    var offset = paginationParams.offset;
+    var where = whereClauses.where;
+    var spaceWhere = whereClauses.spaceWhere;
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
             where: where,

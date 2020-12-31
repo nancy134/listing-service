@@ -88,9 +88,9 @@ exports.indexAdmin = function(page, limit, offset, where){
 }
 
 
-exports.create = function(body){
+exports.create = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Listing.create(body).then(function(listing){
+        models.Listing.create(body, {transaction: t}).then(function(listing){
             resolve(listing);
         }).catch(function(err){
             reject(err);

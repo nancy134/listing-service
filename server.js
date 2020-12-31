@@ -59,15 +59,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/listings', (req, res) => {
-    var page = req.query.page || 1;
-    var limit = req.query.perPage || 10;
-    var offset = (parseInt(page)-1)*parseInt(limit);
-    var whereClauses = listingVersionService.buildListingWhereClauses(req); 
-    var getListingsPromise = listingAPIService.indexListingAPI(page, limit, offset, whereClauses.where, whereClauses.spaceWhere);
-    getListingsPromise.then(function(result){
+    listingAPIService.indexListingAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
-        res.status(400).send(err);
+        errorResponse(res, err);
+    });
+});
+
+app.get('/listings/me', (req, res) => {
+    listingAPIService.indexListingMeAPI(req).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        console.log(err);
+        errorResponse(res, err);
     });
 });
 
@@ -426,10 +430,12 @@ app.put('/images/:id', (req, res) => {
 });
 
 app.post('/listings', (req, res) => {
-   var createListingPromise = listingAPIService.createListingAPI(req.body);
+   var authParams = jwt.getAuthParams(req);
+   var createListingPromise = listingAPIService.createListingAPI(authParams, req.body);
    createListingPromise.then(function(result){
        res.json(result);
    }).catch(function(err){
+       console.log(err);
        res.status(500).send(err);
    });
 });
