@@ -8,7 +8,6 @@ exports.billingEvent = function(billingData){
             Message: JSON.stringify(billingData),
             TopicArn: billingEventTopicARN
         };
-        console.log(params);
         var publishPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
         publishPromise.then(function(data){
             resolve(data);

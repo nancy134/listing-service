@@ -642,15 +642,14 @@ app.delete('/listItems/:id', (req, res) => {
     }); 
 });
 
-app.get('/playBillingCycle', (req, res) => {
-    /*
-    billingCalculationService.playBillingCycle();
-    res.send("ok");
-    */
-    var billingCycleStart = "2020-12-15T05:00:01.000Z";
-    var billingCycleEnd = "2021-01-15T05:00:00.000Z";
-    billingCalculationService.playBillingCycle(billingCycleStart, billingCycleEnd);
-    res.send("ok");
+app.post('/billingCycles/play', (req, res) => {
+    console.log(req.body);
+    var billingCycleStart = req.body.start;
+    var billingCycleEnd = req.body.end;
+    var billingCycleId = req.body.id;
+    var authParams = jwt.getAuthParams(req);
+    billingCalculationService.playBillingCycle(authParams, billingCycleStart, billingCycleEnd, billingCycleId);
+    res.send("billing cycle calculation started");
 });
 
 app.listen(PORT, HOST);
