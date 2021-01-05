@@ -21,6 +21,7 @@ const listService = require("./list");
 const listItemService = require("./listItem");
 const billingCalculationService = require("./billingCalculation");
 const jwt = require("./jwt");
+const utilities = require("./utilities");
 
 const { Op } = require("sequelize");
 
@@ -643,13 +644,21 @@ app.delete('/listItems/:id', (req, res) => {
 });
 
 app.post('/billingCycles/play', (req, res) => {
-    console.log(req.body);
     var billingCycleStart = req.body.start;
     var billingCycleEnd = req.body.end;
     var billingCycleId = req.body.id;
     var authParams = jwt.getAuthParams(req);
-    billingCalculationService.playBillingCycle(authParams, billingCycleStart, billingCycleEnd, billingCycleId);
-    res.send("billing cycle calculation started");
+    jwt.verifyToken(authParams).then(function(jwtResult){
+        if (jwt.isAdmin(jwtResult)){
+            billingCalculationService.playBillingCycle(authParams, billingCycleStart, billingCycleEnd, billingCycleId);
+            res.send("billing cycle calculation started");
+        } else {
+            ret = utilities.notAuthorizedResponse();
+            reject(ret);
+        }
+    }).catch(function(err){
+        res.send(err);
+    });
 });
 
 app.listen(PORT, HOST);

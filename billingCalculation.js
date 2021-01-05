@@ -109,12 +109,8 @@ exports.calcOffMarketListings = function(billingCycleStart, billingCycleEnd, bil
 }
 
 exports.playBillingCycle = function(authParams, billingCycleStart, billingCycleEnd, billingCycleId){
-    jwt.verifyToken(authParams).then(function(jwtResult){
-        module.exports.calcOnMarketListings(billingCycleStart, billingCycleEnd, billingCycleId).then(function(result){
-            module.exports.calcOffMarketListings(billingCycleStart, billingCycleEnd, billingCycleId).then(function(result){
-            }).catch(function(err){
-                console.log(err);
-            });
+    module.exports.calcOnMarketListings(billingCycleStart, billingCycleEnd, billingCycleId).then(function(result){
+        module.exports.calcOffMarketListings(billingCycleStart, billingCycleEnd, billingCycleId).then(function(result){
         }).catch(function(err){
             console.log(err);
         });
