@@ -23,7 +23,7 @@ module.exports = {
       },
       use: {
         type: Sequelize.ENUM,
-        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty']
+        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty', 'Land']
       },
       description: {
         type: Sequelize.STRING
