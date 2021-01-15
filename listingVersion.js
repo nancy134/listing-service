@@ -214,6 +214,10 @@ exports.indexMarkers = function(page, limit, offset, where, spaceWhere){
             attributes: [
                 'id',
                 'location',
+                'address',
+                'city',
+                'state',
+                'publishStatus',
                 'updatedAt'
             ],
             //order: [['spaces','price','ASC']],
