@@ -51,15 +51,36 @@ exports.indexListingMeAPI = function(req){
     });
 }
 
-exports.indexMarkersListingAPI = function(page, limit, offset, where, spaceWhere){
+exports.indexMarkersListingAPI = function(req){
+    var paginationParams = getPaginationParams(req);
+    var whereClauses = listingVersionService.buildListingWhereClauses(req, "allListings");
     return new Promise(function(resolve, reject){
-        listingVersionService.indexMarkers(page, limit, offset, where, spaceWhere).then(function(markings){
+        listingVersionService.indexMarkers(paginationParams, whereClauses).then(function(markings){
             resolve(markings);
         }).catch(function(err){
             reject(err);
         });
     });
 }
+
+exports.indexMarkersListingMeAPI = function(req){
+    return new Promise(function(resolve, reject){
+        var authParams = jwt.getAuthParams(req);
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            var paginationParams = getPaginationParams(req);
+            var username = jwtResult["cognito:username"];
+            var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings", username);
+            listingVersionService.indexMarkers(paginationParams, whereClauses).then(function(markings){
+                resolve(markings);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.findListingAPI = function(id){
     return new Promise(function(resolve, reject){
         listingVersionService.find(id).then(function(listingVersion){

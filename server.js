@@ -71,22 +71,23 @@ app.get('/listings/me', (req, res) => {
     listingAPIService.indexListingMeAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log(err);
         errorResponse(res, err);
     });
 });
 
 app.get('/listingMarkers', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-
-    var whereClauses = listingVersionService.buildListingWhereClauses(req);
-    var getListingsPromise = listingAPIService.indexMarkersListingAPI(page, limit, offset, whereClauses.where, whereClauses.spaceWhere);
-    getListingsPromise.then(function(result){
+    listingAPIService.indexMarkersListingAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
-        res.status(400).send(err);
+        errorResponse(res, err);
+    });
+});
+
+app.get('/listingMarkers/me', (req, res) => {
+    listingAPIService.indexMarkersListingMeAPI(req).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
     });
 });
 

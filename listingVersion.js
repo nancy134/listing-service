@@ -204,7 +204,12 @@ exports.indexOnMarket = function(page, limit, offset){
     });
 }
 
-exports.indexMarkers = function(page, limit, offset, where, spaceWhere){
+exports.indexMarkers = function(paginationParams, whereClauses){
+    var page = paginationParams.page;
+    var limit = paginationParams.limit;
+    var offset = paginationParams.offset;
+    var where = whereClauses.where;
+    var spaceWhere = whereClauses.spaceWhere;
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
             where: where,
