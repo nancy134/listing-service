@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Listing.associate = function(models){
       Listing.hasMany(models.ListingVersion, {as: 'versions'});
+      Listing.hasMany(models.StatusEvent, {as: 'statusEvents'});
       Listing.belongsTo(models.ListingVersion, {as: 'latestDraftVersion', foreignKey: 'latestDraftId'});
       Listing.belongsTo(models.ListingVersion, {as: 'latestApprovedVersion', foreignKey: 'latestApprovedId'});
   };
