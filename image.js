@@ -4,6 +4,8 @@ const models = require("./models")
 const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 const listingAPIService = require("./listingAPI");
+const sharp = require('sharp');
+
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
@@ -43,7 +45,7 @@ exports.getImages = function(page, limit, offset, where){
 var uploadFile = function(path,fileName,table,tableIndex,imageIndex){
     return new Promise(function(resolve, reject){
         var filePath = "./"+path;
-        fs.readFile(filePath, (err, data) => {
+        fs.readFile(filePath, (err, originalImage) => {
             if (err){
                 reject(err);
             }
@@ -52,19 +54,30 @@ var uploadFile = function(path,fileName,table,tableIndex,imageIndex){
                 tableIndex + "/" +
                 'image' + "/" +
                 imageIndex + "/" +
-                fileName;
-                 
-            const params = {
-                Bucket: process.env.S3_BUCKET, 
-                Key: key, 
-                Body: data
+                'resized400x600.jpg';
+            console.log("key: "+key);
+            var sharpOptions = {
+                fit: 'contain',
+                background: {r: 255, g: 255, b: 255},
+                position: sharp.position.bottom
             };
-            s3.upload(params, function(s3Err, data) {
-                if (s3Err) {
-                    reject(s3Err);
-                } else {
-                    resolve(data);
-                }
+            sharp(originalImage)
+            .resize(640, 480, sharpOptions)
+            .toBuffer((err, resizedImage, info) => { 
+                const params = {
+                    Bucket: process.env.S3_BUCKET, 
+                    Key: key, 
+                    Body:resizedImage 
+                };
+
+
+                s3.upload(params, function(s3Err, s3Data) {
+                    if (s3Err) {
+                        reject(s3Err);
+                    } else {
+                        resolve(s3Data);
+                    }
+                });
             });
         });
     });
