@@ -14,7 +14,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     use: {
         type: DataTypes.ENUM,
-        values: ['Office', 'Retail', 'Flex', 'Warehouse', 'Restaurant', 'Specialty', 'Land']
+        values: [
+            'Office',
+            'Retail',
+            'Flex',
+            'Warehouse',
+            'Restaurant',
+            'Specialty',
+            'Land',
+            'Multifamily'
+        ]
     },
     description: DataTypes.TEXT,
     driveInDoors: DataTypes.INTEGER,
