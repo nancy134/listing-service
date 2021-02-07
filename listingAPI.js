@@ -7,21 +7,10 @@ const portfolioService = require("./portfolio");
 const tenantService = require("./tenant");
 const imageService = require("./image");
 const jwt = require("./jwt");
-
-function getPaginationParams(req){
-    var page = req.query.page || 1;
-    var limit = req.query.perPage || 10;
-    var offset = (parseInt(page)-1)*parseInt(limit);
-    var params = {
-        page: page,
-        limit: limit,
-        offset: offset
-    };
-    return params;
-}
+const utilities = require("./utilities");
 
 exports.indexListingAPI = function(req){
-    var paginationParams = getPaginationParams(req);
+    var paginationParams = utilities.getPaginationParams(req);
     var whereClauses = listingVersionService.buildListingWhereClauses(req, "allListings"); 
     return new Promise(function(resolve, reject){
         listingVersionService.index(paginationParams, whereClauses).then(function(listingVersions){
@@ -37,7 +26,7 @@ exports.indexListingMeAPI = function(req){
     return new Promise(function(resolve, reject){
         var authParams = jwt.getAuthParams(req);
         jwt.verifyToken(authParams).then(function(jwtResult){
-            var paginationParams = getPaginationParams(req);
+            var paginationParams = utilities.getPaginationParams(req);
             var username = jwtResult["cognito:username"];
             var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings", username);
             listingVersionService.index(paginationParams, whereClauses).then(function(listingVersion){
@@ -52,7 +41,7 @@ exports.indexListingMeAPI = function(req){
 }
 
 exports.indexMarkersListingAPI = function(req){
-    var paginationParams = getPaginationParams(req);
+    var paginationParams = utilities.getPaginationParams(req);
     var whereClauses = listingVersionService.buildListingWhereClauses(req, "allListings");
     return new Promise(function(resolve, reject){
         listingVersionService.indexMarkers(paginationParams, whereClauses).then(function(markings){
@@ -67,7 +56,7 @@ exports.indexMarkersListingMeAPI = function(req){
     return new Promise(function(resolve, reject){
         var authParams = jwt.getAuthParams(req);
         jwt.verifyToken(authParams).then(function(jwtResult){
-            var paginationParams = getPaginationParams(req);
+            var paginationParams = utilities.getPaginationParams(req);
             var username = jwtResult["cognito:username"];
             var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings", username);
             listingVersionService.indexMarkers(paginationParams, whereClauses).then(function(markings){

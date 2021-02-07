@@ -2,6 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
     const ListItem = sequelize.define('ListItem', {
         order: DataTypes.INTEGER,
+        owner: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {});

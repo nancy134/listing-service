@@ -592,51 +592,55 @@ app.get('/statusEvents', (req, res) => {
     });
 });
 
-app.post('/lists', (req, res) => {
-   listService.create(req.body).then(function(result){
+//////////////////////////////////
+// lists and listItems
+//////////////////////////////////
+
+app.post('/lists/me', (req, res) => {
+   var authParams = jwt.getAuthParams(req);
+   listService.createMe(authParams, req.body).then(function(result){
        res.json(result);
    }).catch(function(err){
-       res.status(500).send(err);
+       errorResponse(res, err);
    });
 });
 
-app.get('/lists', (req, res) => {
-   var page = req.query.page || 1;
-   var limit = req.query.perPage || 20;
-   var offset = (parseInt(page)-1)*parseInt(limit);
-   var where = {owner: req.query.owner};
-   listService.index(page, limit, offset, where).then(function(result){
+app.get('/lists/me', (req, res) => {
+   var authParams = jwt.getAuthParams(req);
+   var paginationParams = utilities.getPaginationParams(req);
+   listService.indexMe(authParams, paginationParams).then(function(result){
        res.json(result);
    }).catch(function(err){
-       console.log(err);
-       res.status(500).send(err);
+       errorResponse(res, err);
    });
 });
 
-app.post('/listItems', (req, res) => {
-    listItemService.create(req.body).then(function(result){
+app.post('/lists/:ListId/listItems/me', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    var listId = req.params.ListId;
+    listItemService.createMe(authParams, listId, req.body).then(function(result){
         res.json(result);
     }).catch(function(err){
-        res.status(500).send(err);
+        console.log(err);
+        errorResponse(res, err);
     });
 });
 
-app.get('/listItems', (req, res) => {
-    var page = req.query.page || 1;
-    var limit = req.query.perPage || 20;
-    var offset = (parseInt(page)-1)*parseInt(limit);
-    var where = {ListId: req.query.ListId};
-
-    listItemService.index(page, limit, offset, where).then(function(result){
+app.get('/lists/:ListId/listItems/me', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    var paginationParams = utilities.getPaginationParams(req);
+    var ListId = req.params.ListId;
+    listItemService.indexMe(ListId, authParams, paginationParams).then(function(result){
         res.json(result);
     }).catch(function(err){
-        var ret = formatError(err);
-        res.status(500).send(ret);
+        console.log(err);
+        errorResponse(res, err);
     });
 });
 
 app.delete('/listItems/:id', (req, res) => {
-    listItemService.deleteListItem(req.params.id).then(function(result){
+    var authParams = jwt.getAuthParams(req);
+    listItemService.deleteListItemMe(req.params.id, authParams).then(function(result){
         res.json(result);
     }).catch(function(err){
         var ret = formatError(err);

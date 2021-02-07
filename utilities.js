@@ -17,3 +17,16 @@ exports.getPageParams = function(req){
     };
     return pageParams;
 }
+
+exports.getPaginationParams = function(req){
+    var page = req.query.page || 1;
+    var limit = req.query.perPage || 10;
+    var offset = (parseInt(page)-1)*parseInt(limit);
+    var params = {
+        page: page,
+        limit: limit,
+        offset: offset
+    };
+    return params;
+}
+
