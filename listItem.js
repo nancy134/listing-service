@@ -35,12 +35,19 @@ exports.indexMe = function(ListId, authParams, paginationParams){
                     model: models.Listing,
                     as: 'listing',
                     required: true,
-                    attributes: ['latestApprovedId'],
-                    where: { 'latestApprovedId': {[Op.ne]: null}},
+                    attributes: ['latestApprovedId', 'latestDraftId'],
                     include: [{
                         model: models.ListingVersion,
                         as: 'versions',
-                        where: { 'publishStatus': 'On Market'},
+                        where: {
+                            [Op.or]: [
+                                { 'publishStatus': 'On Market'},
+                                {[Op.and]: [
+                                    {'publishStatus': 'Draft'},
+                                    {'owner': jwtResult['cognito:username']}
+                                ]}
+                            ]
+                        },
                         attributes: [
                             'id',
                             'listingType', 
