@@ -6,6 +6,7 @@ const models = require("./models");
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const imageService = require('./image');
+const attachmentService = require('./attachment');
 const multer = require('multer');
 const upload = multer({dest: 'uploads/'});
 const listingService = require('./listing');
@@ -63,6 +64,7 @@ app.get('/listings', (req, res) => {
     listingAPIService.indexListingAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
+        console.log(err);
         errorResponse(res, err);
     });
 });
@@ -71,6 +73,7 @@ app.get('/listings/me', (req, res) => {
     listingAPIService.indexListingMeAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
+        console.log(err);
         errorResponse(res, err);
     });
 });
@@ -663,6 +666,48 @@ app.post('/billingCycles/play', (req, res) => {
         }
     }).catch(function(err){
         res.send(err);
+    });
+});
+
+//////////////
+//
+// Attachments
+//
+//////////////
+app.post('/uploadAttachment', upload.single('attachment'), function(req, res, next) {
+  console.log("uploadAttachment()");
+  var body = {
+      ListingVersionId: req.body.listing_id,
+      path: req.file.path,
+      originalname: req.file.originalname,
+      table: 'listing',
+      tableId: req.body.listing_id,
+      order: req.body.order,
+      name: req.body.name
+  };
+  console.log("body:");
+  console.log(body);
+  attachmentService.createAPI(body).then(function(attachment){
+      res.json(attachment);
+  }).catch(function(err){
+      res.json(err);
+  });
+});
+
+app.delete('/attachments/:id', (req, res) => {
+    attachmentService.deleteAPI(req.params.id).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(err);
+    });
+});
+
+app.put('/attachments/:id', (req, res) => {
+    attachmentServce.updateAPI(req.params.id, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        var ret = formatError(err);
+        res.status(400).json(ret);
     });
 });
 

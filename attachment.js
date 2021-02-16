@@ -5,6 +5,7 @@ const listingService = require("./listing");
 const listingVersionService = require("./listingVersion");
 const listingAPIService = require("./listingAPI");
 const sharp = require('sharp');
+const FileType = require('file-type');
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -13,16 +14,16 @@ const s3 = new AWS.S3({
 
 var index = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
-        models.Image.findAndCountAll({
+        models.Attachment.findAndCountAll({
             where: where,
             limit: limit,
             offset: offset,
             attributes: ['id', 'order', 'url']
-        }).then(images => {
+        }).then(attachments => {
             var ret = {
                 page: page,
                 perPage: limit,
-                images: images
+                attachments: attachments 
             }
             resolve(ret);
         }).catch(err => {
@@ -32,55 +33,50 @@ var index = function(page, limit, offset, where){
 }
 
 
-exports.getImages = function(page, limit, offset, where){
+exports.getAttachments = function(page, limit, offset, where){
     return new Promise(function(resolve, reject){
-        index(page, limit, offset, where).then(function(images){
-            resolve(images);
+        index(page, limit, offset, where).then(function(attachments){
+            resolve(attachments);
         }).catch(function(err){
             reject(err);
         });
     });
 }
 
-var uploadFile = function(path,fileName,table,tableIndex,imageIndex){
+var uploadFile = function(path,fileName,table,tableIndex,attachmentIndex, name){
     return new Promise(function(resolve, reject){
         var filePath = "./"+path;
-        fs.readFile(filePath, (err, originalImage) => {
-            if (err){
-                reject(err);
-            }
-            var key = 
-                table + "/" +
-                tableIndex + "/" +
-                'image' + "/" +
-                imageIndex + "/" +
-                'resized400x600.jpg';
-            console.log("key: "+key);
-            var sharpOptions = {
-                fit: 'contain',
-                background: {r: 255, g: 255, b: 255},
-                position: sharp.position.bottom
-            };
-            sharp(originalImage)
-            .resize(640, 480, sharpOptions)
-            .toBuffer((err, resizedImage, info) => { 
-                const params = {
-                    Bucket: process.env.S3_BUCKET, 
-                    Key: key, 
-                    Body:resizedImage 
+        FileType.fromFile(filePath).then(function(fileType){
+            fs.readFile(filePath, (err, originalAttachment) => {
+                if (err){
+                    reject(err);
+                }
+
+                fileName = name.replace(/\s/g, '');
+                var key = 
+                    table + "/" +
+                    tableIndex + "/" +
+                    'attachment' + "/" +
+                    attachmentIndex + "/" +
+                    fileName+tableIndex+"."+fileType.ext;
+
+                var params = {
+                    Bucket: process.env.S3_BUCKET,
+                    Key: key,
+                    Body: originalAttachment
                 };
-
-
                 s3.upload(params, function(s3Err, s3Data) {
+                    // Remove file
                     fs.unlink(filePath, (err) => {
                         if (err) {
                             console.log(err)
                         }
                     });
-
                     if (s3Err) {
                         reject(s3Err);
                     } else {
+                        s3Data.name = name;
+                        s3Data.fileType = fileType.ext;
                         resolve(s3Data);
                     }
                 });
@@ -91,13 +87,13 @@ var uploadFile = function(path,fileName,table,tableIndex,imageIndex){
 
 var find = function(id, t){
     return new Promise(function(resolve, reject){
-        models.Image.findOne({
+        models.Attachment.findOne({
             where: {
                 id: id
             },
             transaction: t
-        }).then(function(image){
-            resolve(image);
+        }).then(function(attachment){
+            resolve(attachment);
         }).catch(function(err){
             reject(err);
         });
@@ -106,13 +102,13 @@ var find = function(id, t){
 
 var findWithPrevious = function(id, t){
     return new Promise(function(resolve, reject){
-        models.Image.findOne({
+        models.Attachment.findOne({
             where: {
                 PreviousVersionId: id
             },
             transaction: t
-        }).then(function(image){
-            resolve(image);
+        }).then(function(attachment){
+            resolve(attachment);
         }).catch(function(err){
             reject(err);
         });
@@ -121,83 +117,89 @@ var findWithPrevious = function(id, t){
 
 var create = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Image.create(body, {transaction: t}).then(function(image){
-            resolve(image);
+        models.Attachment.create(body, {transaction: t}).then(function(attachment){
+            resolve(attachment);
         }).catch(function(err){
             reject(err);
         });
     }); 
 }
-var updateImage = function(id, body, t){
+var updateAttachment = function(id, body, t){
     return new Promise(function(resolve, reject){
-        models.Image.update(
+        models.Attachment.update(
             body,
             {
                 returning: true,
                 where: {id: id},
                 transaction: t
             }
-        ).then(function([rowsUpdate, [image]]){
-            resolve(image);
+        ).then(function([rowsUpdate, [attachment]]){
+            resolve(attachment);
         }).catch(function(err){
             reject(err);
         });
     });
 }
 
-var deleteImage = function(id, t){
+var deleteAttachment = function(id, t){
     return new Promise(function(resolve, reject){
-        models.Image.destroy({
+        models.Attachment.destroy({
             where: {id: id},
             individualHooks: true,
             transaction: t
         }).then(function(result){
-            // delete S3 bucket
             resolve(result);
         }).catch(function(err){
+            console.log(err);
             reject(err);
         });
     });
 }
 
-var createImage = function(body, t){
+var createAttachment = function(body, t){
     return new Promise(function(resolve, reject){
-        models.Image.create(
+        models.Attachment.create(
             body,
             {transaction: t}
-        ).then(image => {
+        ).then(attachment => {
             uploadFile(
                 body.path,
                 body.originalname,
                 body.table,
                 body.tableId,
-                image.id)
+                attachment.id,
+                body.name)
             .then(function(result){
-                image.url = result.Location;
-                image.save({transaction: t}).then(image => {
-                    resolve(image);
+                attachment.url = result.Location;
+                attachment.fileType = result.fileType;
+                attachment.name = result.name;
+                attachment.save({transaction: t}).then(attachment => {
+                    resolve(attachment);
                 }).catch(err => {
+                    console.log(err);
                     reject(err);
                 });
             }).catch(function(err){
+                console.log(err);
                 reject(err);
             });
 
         }).catch(err => {
+            console.log(err);
             reject(err);
         });
     });
 }
 
-exports.copyImage = function(id, ListingVersionId,t){
+exports.copyAttachment = function(id, ListingVersionId,t){
     return new Promise(function(resolve, reject){
-        models.Image.findOne({
+        models.Attachment.findOne({
            where: {
                id: id
            },
            transaction: t
-        }).then(function(image){
-            var body = image.get({plain: true});
+        }).then(function(attachment){
+            var body = attachment.get({plain: true});
             delete body["id"];
             body.ListingVersionId = ListingVersionId;
             body.PreviousVersionId = id;
@@ -206,8 +208,8 @@ exports.copyImage = function(id, ListingVersionId,t){
                     delete body[propName];
                 }
             }
-            create(body, t).then(function(image){
-                resolve(image);
+            create(body, t).then(function(attachment){
+                resolve(attachment);
             }).catch(function(err){
                 reject(err);
             });
@@ -221,8 +223,8 @@ exports.copyImage = function(id, ListingVersionId,t){
 exports.createAPI = function(body)
 {
     return new Promise(function(resolve, reject){
-        listingAPIService.createAssociationAPI(body, "image").then(function(createdImage){
-            resolve(createdImage);
+        listingAPIService.createAssociationAPI(body, "attachment").then(function(createdAttachment){
+            resolve(createdAttachment);
         }).catch(function(err){
             reject(err);
         });
@@ -231,8 +233,8 @@ exports.createAPI = function(body)
 
 exports.updateAPI = function(id, body){
     return new Promise(function(resolve, reject){
-        listingAPIService.updateAssociationAPI(id, body, "image").then(function(updatedImage){
-            resolve(updatedImage);
+        listingAPIService.updateAssociationAPI(id, body, "attachment").then(function(updatedAttachment){
+            resolve(updatedAttachment);
         }).catch(function(err){
             reject(err);
         });
@@ -241,16 +243,16 @@ exports.updateAPI = function(id, body){
 
 exports.deleteAPI = function(id){
     return new Promise(function(resolve, reject){
-        listingAPIService.deleteAssociationAPI(id, "image").then(function(deletedImage){
-            resolve(deletedImage);
+        listingAPIService.deleteAssociationAPI(id, "attachment").then(function(deletedAttachment){
+            resolve(deletedAttachment);
         }).catch(function(err){
             reject(err);
         });
     });
 }
 
-exports.createImage = createImage;
-exports.updateImage = updateImage;
+exports.createAttachment = createAttachment;
+exports.updateAttachment = updateAttachment;
 exports.find = find;
 exports.findWithPrevious = findWithPrevious;
-exports.deleteImage = deleteImage;
+exports.deleteAttachment = deleteAttachment;

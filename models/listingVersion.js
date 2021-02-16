@@ -86,6 +86,7 @@ module.exports = (sequelize, DataTypes) => {
     ListingVersion.hasMany(models.Unit, {as: 'units'});
     ListingVersion.hasMany(models.Tenant, {as: 'tenants'});
     ListingVersion.hasMany(models.Portfolio, {as: 'portfolios'});
+    ListingVersion.hasMany(models.Attachment, {as: 'attachments'});
   };
   return ListingVersion;
 };

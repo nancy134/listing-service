@@ -6,6 +6,7 @@ const spaceService = require("./space");
 const portfolioService = require("./portfolio");
 const tenantService = require("./tenant");
 const imageService = require("./image");
+const attachmentService = require("./attachment");
 const jwt = require("./jwt");
 const utilities = require("./utilities");
 
@@ -471,6 +472,9 @@ exports.createAssociationAPI = function(body, associatedTable){
         if (associatedTable === "image"){
             var createAssociatedRecord = imageService.createImage;
         }
+        if (associatedTable === "attachment"){
+            var createAssociatedRecord = attachmentService.createAttachment;
+        }
 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
@@ -546,7 +550,13 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             var findAssociatedRecord = imageService.find;
             var updateAssociatedRecord = imageService.updateImage;
             var findWithPreviousAssociatedRecord = imageService.findWithPrevious;
-        } 
+        }
+        if (associatedTable === "attachment"){
+            var findAssociatedRecord = attachmentService.find;
+            var updateAssociatedRecord = attachmentService.updateAttachment;
+            var findWithPreviousAssociatedRecord = attachmentService.findWithPrevious;
+        }
+
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             findAssociatedRecord(id,t).then(function(associatedRecord){
@@ -634,6 +644,11 @@ exports.deleteAssociationAPI = function(id, associatedTable){
             var deleteAssociatedRecord = imageService.deleteImage;
             var findWithPreviousAssociatedRecord = imageService.findWithPrevious;
         }
+        if (associatedTable === "attachment"){
+            var findAssociatedRecord = attachmentService.find;
+            var deleteAssociatedRecord = attachmentService.deleteAttachment;
+            var findWithPreviousAssociatedRecord = attachmentService.findWithPrevious;
+        };
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             findAssociatedRecord(id,t).then(function(associatedRecord){

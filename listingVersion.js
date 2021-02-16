@@ -377,9 +377,14 @@ find = function(id, t){
                 ]
             },
             {
+                model: models.Attachment,
+                as: 'attachments',
+                attributes: ['id', 'name', 'order', 'url', 'fileType']
+            },
+            {
                 model: models.Unit,
                 as: 'units',
-                attribute: ['id', 'description', 'numUnits', 'space', 'income']
+                attributes: ['id', 'description', 'numUnits', 'space', 'income']
             },
             {
                 model: models.Tenant,
@@ -424,6 +429,7 @@ find = function(id, t){
             };
             resolve(ret);
         }).catch(function(err){
+            console.log(err);
             reject(err);
         });
     });

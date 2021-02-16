@@ -2,9 +2,11 @@
 const s3Service = require("../s3");
 
 module.exports = (sequelize, DataTypes) => {
-    const Image = sequelize.define('Image', {
+    const Attachment = sequelize.define('Attachment', {
         url: DataTypes.STRING,
         order: DataTypes.INTEGER,
+        name: DataTypes.STRING,
+        fileType: DataTypes.STRING,
         createdAt: DataTypes.DATE,
         updatedAt: DataTypes.DATE
     }, {
@@ -12,13 +14,12 @@ module.exports = (sequelize, DataTypes) => {
             afterDestroy: function(instance, options){
                 var url = instance.get('url');
                 s3Service.deleteFromS3(url);
-            }
-        } 
+            },
+        }
     });
-    Image.associate = function(models) {
-        Image.belongsTo(models.ListingVersion);
-        Image.belongsTo(models.Space);
-        Image.belongsTo(models.Image, {foreignKey: 'PreviousVersionId'});
+    Attachment.associate = function(models) {
+        Attachment.belongsTo(models.ListingVersion);
+        Attachment.belongsTo(models.Attachment, {foreignKey: 'PreviousVersionId'});
     };
-    return Image;
+    return Attachment;
 };
