@@ -5,16 +5,16 @@ module.exports = {
     const transaction = await queryInterface.sequelize.transaction();
     try {
       await queryInterface.removeConstraint(
-        'StatusEvents',
-        'StatusEvents_ListingId_fkey',
+        'ListItems',
+        'ListItems_ListId_fkey',
         { transaction }
       );
-      await queryInterface.addConstraint('StatusEvents', {
+      await queryInterface.addConstraint('ListItems', {
         type: 'foreign key',
-        fields: ['ListingId'],
-        name: 'StatusEvents_ListingId_fkey',
+        fields: ['ListId'],
+        name: 'StatusEvents_ListId_fkey',
         references: {
-          table: 'Listings',
+          table: 'Lists',
           field: 'id',
         },
         onDelete: 'CASCADE',
@@ -31,8 +31,8 @@ module.exports = {
     const transaction = await queryInterface.sequelize.transaction();
     try {
       await queryInterface.removeConstraint(
-        'StatusEvents',
-        'StatusEvents_ListingId_fkey',
+        'ListItems',
+        'LIstItems_ListId_fkey',
         { transaction }
       );
       return transaction.commit();

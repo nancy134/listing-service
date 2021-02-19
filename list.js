@@ -41,3 +41,41 @@ exports.indexMe = function(authParams, paginationParams){
     });
 }
 
+exports.updateMe = function(authParams, id, body, t){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            models.List.update(
+                body,
+                {
+                    returning: true,
+                    where: {id: id},
+                    transaction: t
+                }
+            ).then(function([rowsUpdate, [list]]){
+                resolve(list);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.deleteMe = function(authParams, id, t){
+    return new Promise(function(resolve, reject){
+        jwt.verifyToken(authParams).then(function(jwtResult){
+            models.List.destroy({
+                where: {id: id},
+                transaction: t
+            }).then(function(result){
+                resolve(result);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+

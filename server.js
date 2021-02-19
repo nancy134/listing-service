@@ -608,6 +608,24 @@ app.post('/lists/me', (req, res) => {
    });
 });
 
+app.put('/lists/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    listService.updateMe(authParams, req.params.id, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.delete('/lists/:id', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    listService.deleteMe(authParams, req.params.id).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 app.get('/lists/me', (req, res) => {
    var authParams = jwt.getAuthParams(req);
    var paginationParams = utilities.getPaginationParams(req);
