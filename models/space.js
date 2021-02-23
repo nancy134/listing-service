@@ -22,7 +22,10 @@ module.exports = (sequelize, DataTypes) => {
             'Restaurant',
             'Specialty',
             'Land',
-            'Multifamily'
+            'Multifamily',
+            'Investment',
+            'Condo',
+            'Automotive'
         ]
     },
     description: DataTypes.TEXT,
