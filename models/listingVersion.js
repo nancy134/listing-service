@@ -33,7 +33,40 @@ module.exports = (sequelize, DataTypes) => {
     // Building Details
     propertyType: {
         type: DataTypes.ENUM,
-        values: ['Office', 'Coworking', 'Industrial', 'Retail', 'Restaurant', 'Flex', 'Medical', 'Land', 'Mixed Use']
+        values: [
+          'Office',
+          'Coworking',
+          'Industrial',
+          'Retail',
+          'Restaurant',
+          'Flex',
+          'Medical',
+          'Land',
+          'Mixed Use',
+          'Warehouse',
+          'Specialty',
+          'Multifamilty',
+          'Investment',
+          'Condo',
+          'Automotive'
+        ]
+    },
+    propertyTypes: {
+        type: DataTypes.ARRAY(DataTypes.ENUM({
+            values: [
+                'Office',
+                'Retail',
+                'Flex',
+                'Warehouse',
+                'Restaurant',
+                'Specialty',
+                'Land',
+                'Multifamily',
+                'Investment',
+                'Condo',
+                'Automotive'
+            ]
+        }))
     },
     totalBuildingSize: DataTypes.INTEGER,
     lotSize:  DataTypes.DECIMAL(8,2),

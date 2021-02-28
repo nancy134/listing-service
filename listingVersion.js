@@ -419,13 +419,14 @@ find = function(id, t){
                 listing: listing,
                 states: models.ListingVersion.rawAttributes.state.values,
                 listingTypes: models.ListingVersion.rawAttributes.listingType.values,
-                propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
+                //propertyTypes: models.ListingVersion.rawAttributes.propertyType.values,
                 spaceTypes: models.Space.rawAttributes.type.values,
                 spaceUses: models.Space.rawAttributes.use.values,
                 spaceDivisibles: models.Space.rawAttributes.divisible.values,
                 portfolioTypes: models.Portfolio.rawAttributes.type.values,
                 amenities: models.ListingVersion.rawAttributes.amenities.type.options.type.values,
-                priceUnits: models.Space.rawAttributes.priceUnit.values
+                priceUnits: models.Space.rawAttributes.priceUnit.values,
+                propertyTypes: models.ListingVersion.rawAttributes.propertyTypes.type.options.type.values
             };
             resolve(ret);
         }).catch(function(err){
