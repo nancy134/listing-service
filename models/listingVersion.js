@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
           'Mixed Use',
           'Warehouse',
           'Specialty',
-          'Multifamilty',
+          'Multifamily',
           'Investment',
           'Condo',
           'Automotive'

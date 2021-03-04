@@ -19,7 +19,7 @@ module.exports = {
                       'Mixed Use',
                       'Warehouse',
                       'Specialty',
-                      'Multifamilty',
+                      'Multifamily',
                       'Investment',
                       'Condo',
                       'Automotive'
