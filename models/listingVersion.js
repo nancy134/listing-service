@@ -71,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
     totalBuildingSize: DataTypes.INTEGER,
     lotSize:  DataTypes.DECIMAL(8,2),
     taxes: DataTypes.DECIMAL(8,2),
-    parking:  DataTypes.INTEGER,
+    parking:  DataTypes.STRING,
     floors: DataTypes.INTEGER,
     totalNumberOfUnits: DataTypes.INTEGER,
     buildingClass: DataTypes.STRING,
