@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 AWS.config.update({region: 'us-east-1'});
-const billingEventTopicARN = "arn:aws:sns:us-east-1:461318555119:billing-event";
+const billingEventTopicARN = process.env.AWS_SNS_BILLING_EVENT_TOPIC
 
 exports.billingEvent = function(billingData){
     return new Promise(function(resolve, reject){
