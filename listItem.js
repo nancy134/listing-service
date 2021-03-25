@@ -61,6 +61,8 @@ exports.indexMe = function(ListId, authParams, paginationParams){
                             'owner', 
                             'publishStatus', 
                             'shortDescription',
+                            'longDescription',
+                            'propertyTypes',
                             'location',
                             'ListingId', 
                             'createdAt',
@@ -71,6 +73,11 @@ exports.indexMe = function(ListId, authParams, paginationParams){
                                 model: models.Space,
                                 as: 'spaces',
                                 attributes: ['price', 'priceUnit', 'size', 'use']
+                            },
+                            {
+                                model: models.Image,
+                                as: 'images',
+                                attributes: ['id', 'url', 'order']
                             }
                         ]
                     }]  
