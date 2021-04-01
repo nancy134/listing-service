@@ -49,7 +49,7 @@ exports.buildListingWhereClauses = function(req, listingMode, username){
         var geom = Sequelize.fn('ST_GEOMFROMTEXT', boundingBox);
         contains = Sequelize.fn(
             'ST_CONTAINS',
-            Sequelize.fn('ST_POLYFROMTEXT', `POLYGON((${a},${b},${c},${d},${e}))`),
+            Sequelize.fn('ST_POLYFROMTEXT', `POLYGON((${a},${b},${c},${d},${e}))`, 4326),
             Sequelize.col('location')
         );
     }
