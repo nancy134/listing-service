@@ -53,25 +53,35 @@ exports.buildListingWhereClauses = function(req, listingMode, username){
             Sequelize.col('location')
         );
     }
+    // Property user
+    var propertyUse = null;
+    if (req.query.spaceUse){
+        propertyUse = {propertyTypes: { [Op.overlap]: req.query.spaceUse }};
+    }
     // Owner & publishStatus
     if (listingMode === "myListings"){
         where = {
-            owner: username,
-            [Op.or]: [
-                {[Op.and]: [
-                    {publishStatus: 'Draft'},
-                    contains
-                ]}, 
-                {[Op.and]: [ 
-                   {publishStatus: 'On Market'},
-                   {'$listing.latestDraftId$': null},
-                   contains
-                ]} 
-            ],
+            [Op.and]: [
+                {owner: username},
+                propertyUse,
+                {[Op.or]: [
+                    {[Op.and]: [
+                        {publishStatus: 'Draft'},
+                        contains
+                    ]}, 
+                    {[Op.and]: [ 
+                        {publishStatus: 'On Market'},
+                        {'$listing.latestDraftId$': null},
+                        contains
+                    ]} 
+                ]}
+            ]
         };
     } else {
-        where = {
+        where = 
+        {
             [Op.and]: [
+                propertyUse,
                 {publishStatus: 'On Market'},
                 contains
             ]
@@ -82,10 +92,11 @@ exports.buildListingWhereClauses = function(req, listingMode, username){
     var spaceAndClause = {};
 
     // Use
+    /*
     if (req.query.spaceUse){
         spaceAndClause.use = { [Op.or]: req.query.spaceUse} 
     }
-
+    */
     // Size
     if (req.query.minSize && req.query.maxSize){
         spaceAndClause.size = {[Op.gte]: req.query.minSize, [Op.lte]: req.query.maxSize};
@@ -430,7 +441,6 @@ find = function(id, t){
             };
             resolve(ret);
         }).catch(function(err){
-            console.log(err);
             reject(err);
         });
     });
@@ -447,7 +457,7 @@ create = function(body, t){
     });
 }
 
-exports.update = function(id, body, t){
+update = function(id, body, t){
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
             body,
@@ -457,6 +467,30 @@ exports.update = function(id, body, t){
         }).catch(function(err){
             reject(err);
         });
+    });
+}
+
+updatePropertyUses = function(id, spaceUse, t){
+    return new Promise(function(resolve, reject){
+        var attributes = ["propertyTypes"];
+        findAttributes(id, attributes, t).then(function(listing){
+            var propertyTypes = listing.propertyTypes;
+            if (propertyTypes.indexOf(spaceUse) === -1){
+               propertyTypes.push(spaceUse);
+               var body = {
+                   propertyTypes: propertyTypes
+               };
+               update(id,body,t).then(function(updatedListing){
+                   resolve(updatedListing);
+               }).catch(function(err){
+                   reject(err);
+               });
+            } else {
+                resolve(listing);
+            }
+        }).catch(function(err){
+            reject(err);
+        }); 
     });
 }
 
@@ -571,4 +605,6 @@ exports.findAttributes = findAttributes;
 exports.findRelated = findRelated;
 exports.findAddress = findAddress;
 exports.create = create;
+exports.update = update;
 exports.deleteAllByListingId = deleteAllByListingId;
+exports.updatePropertyUses = updatePropertyUses;

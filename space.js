@@ -154,7 +154,11 @@ exports.deleteSpace = function(id, t){
 exports.createAPI = function(body){
     return new Promise(function(resolve, reject){
         listingAPIService.createAssociationAPI(body, "space").then(function(createdSpace){
-            resolve(createdSpace);
+            listingVersionService.updatePropertyUses(createdSpace.ListingVersionId, createdSpace.use).then(function(listing){
+                resolve(createdSpace);
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });
@@ -163,7 +167,11 @@ exports.createAPI = function(body){
 exports.updateAPI = function(id, body){
     return new Promise(function(resolve,reject){
         listingAPIService.updateAssociationAPI(id, body, "space").then(function(updatedSpace){
-            resolve(updatedSpace);
+            listingVersionService.updatePropertyUses(updatedSpace.ListingVersionId, updatedSpace.use).then(function(listing){
+                resolve(updatedSpace);
+            }).catch(function(err){
+                reject(err);
+            });
         }).catch(function(err){
             reject(err);
         });
