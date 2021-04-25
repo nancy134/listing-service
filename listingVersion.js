@@ -458,6 +458,21 @@ create = function(body, t){
 }
 
 update = function(id, body, t){
+    // Need to set INTEGER and DECIMAL to null
+    if (body.listingPrice === "") body.listingPrice = null;
+    if (body.totalBuildingSize === "") body.totalBuildingSize = null;
+    if (body.lotSize === "") body.lotSize = null;
+    if (body.taxes === "") body.taxes = null;
+    if (body.floors === "") body.floors = null;
+    if (body.totalNumberOfUnits === "") body.totalNumberOfUnits = null;
+    if (body.ceilingHeight === "") body.ceilingHeight = null;
+    if (body.driveInDoors === "") body.driveInDoors = null;
+    if (body.loadingDocks === "") body.loadingDocks = null;
+    if (body.yearBuilt === "") body.yearBuilt = null;
+    if (body.totalAvailableSpace === "") body.totalAvailableSpace = null;
+    if (body.nets === "") body.nets = null;
+
+
     return new Promise(function(resolve, reject){
         models.ListingVersion.update(
             body,

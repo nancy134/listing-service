@@ -79,7 +79,7 @@ module.exports = (sequelize, DataTypes) => {
     driveInDoors: DataTypes.INTEGER,
     loadingDocks: DataTypes.INTEGER,
     yearBuilt: DataTypes.INTEGER,
-    zone: DataTypes.INTEGER,
+    zone: DataTypes.STRING,
     totalAvailableSpace: DataTypes.INTEGER,
     nets: DataTypes.DECIMAL(9,2),
 
@@ -87,7 +87,6 @@ module.exports = (sequelize, DataTypes) => {
     grossIncome: DataTypes.DECIMAL(13,4),
     netIncome: DataTypes.DECIMAL(13,4),
     capRate: DataTypes.DECIMAL(13,4),
-    taxes: DataTypes.DECIMAL(13,4),
     pricePerFoot: DataTypes.DECIMAL(13,4),
     maintenance: DataTypes.DECIMAL(13,4),
     utilities: DataTypes.DECIMAL(13,4),
