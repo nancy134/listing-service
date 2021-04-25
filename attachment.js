@@ -47,6 +47,8 @@ var uploadFile = function(path,fileName,table,tableIndex,attachmentIndex, name){
     return new Promise(function(resolve, reject){
         var filePath = "./"+path;
         FileType.fromFile(filePath).then(function(fileType){
+            var ext = null;
+            if (fileType) ext = fileType.ext;
             fs.readFile(filePath, (err, originalAttachment) => {
                 if (err){
                     reject(err);
@@ -58,7 +60,8 @@ var uploadFile = function(path,fileName,table,tableIndex,attachmentIndex, name){
                     tableIndex + "/" +
                     'attachment' + "/" +
                     attachmentIndex + "/" +
-                    fileName+tableIndex+"."+fileType.ext;
+                    fileName+tableIndex;
+                if (ext) key += "."+ext;
 
                 var params = {
                     Bucket: process.env.S3_BUCKET,
@@ -76,7 +79,7 @@ var uploadFile = function(path,fileName,table,tableIndex,attachmentIndex, name){
                         reject(s3Err);
                     } else {
                         s3Data.name = name;
-                        s3Data.fileType = fileType.ext;
+                        s3Data.fileType = ext;
                         resolve(s3Data);
                     }
                 });
@@ -150,7 +153,6 @@ var deleteAttachment = function(id, t){
         }).then(function(result){
             resolve(result);
         }).catch(function(err){
-            console.log(err);
             reject(err);
         });
     });
@@ -176,16 +178,13 @@ var createAttachment = function(body, t){
                 attachment.save({transaction: t}).then(attachment => {
                     resolve(attachment);
                 }).catch(err => {
-                    console.log(err);
                     reject(err);
                 });
             }).catch(function(err){
-                console.log(err);
                 reject(err);
             });
 
         }).catch(err => {
-            console.log(err);
             reject(err);
         });
     });

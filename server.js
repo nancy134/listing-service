@@ -704,12 +704,10 @@ app.post('/uploadAttachment', upload.single('attachment'), function(req, res, ne
       order: req.body.order,
       name: req.body.name
   };
-  console.log("body:");
-  console.log(body);
   attachmentService.createAPI(body).then(function(attachment){
       res.json(attachment);
   }).catch(function(err){
-      res.json(err);
+      res.status(400).json(err);
   });
 });
 
