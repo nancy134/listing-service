@@ -91,6 +91,20 @@ exports.findByEmail = function(email){
     });
 }
 
+exports.findByCognitoId = function(cognitoId){
+    return new Promise(function(resolve, reject){
+        models.User.findOne({
+            where: {
+                cognitoId: cognitoId
+            }
+        }).then(function(user){
+            resolve(user);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.systemUpdate = function(id, body){
     return new Promise(function(resolve, reject){
         models.User.update(

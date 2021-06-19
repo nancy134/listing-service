@@ -9,6 +9,7 @@ const imageService = require("./image");
 const attachmentService = require("./attachment");
 const jwt = require("./jwt");
 const utilities = require("./utilities");
+const listingUserService = require("./listingUser");
 
 exports.indexListingAPI = function(req){
     var paginationParams = utilities.getPaginationParams(req);
@@ -96,9 +97,14 @@ exports.createListingAPI = function(authParams, body){
                             latestDraftId: listingVersion.id
                         };
                         listingService.update(listingVersion.ListingId,listingBody, t).then(function(updatedListing){
-                            t.commit();
-                            listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
-                                resolve(finalListingVersion);
+                            listingUserService.createMe(authParams, listingVersion.id, t).then(function(listingUser){
+                                t.commit();
+                                listingVersionService.find(listingVersion.id).then(function(finalListingVersion){
+                                    resolve(finalListingVersion);
+                                }).catch(function(err){
+                                    t.rollback();
+                                    reject(err);
+                                });
                             }).catch(function(err){
                                 t.rollback();
                                 reject(err);
