@@ -31,7 +31,8 @@
     "sequelize-replace-enum-postgres": "^1.6.0",
     "sharp": "^0.27.0",
     "sinon": "^9.2.3",
-    "sinon-chai": "^3.5.0"
+    "sinon-chai": "^3.5.0",
+    "sqs-consumer": "^5.5.0"
   },
   "devDependencies": {
     "sequelize-test-helpers": "^1.3.2"

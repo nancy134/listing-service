@@ -119,6 +119,11 @@ module.exports = (sequelize, DataTypes) => {
     ListingVersion.hasMany(models.Tenant, {as: 'tenants'});
     ListingVersion.hasMany(models.Portfolio, {as: 'portfolios'});
     ListingVersion.hasMany(models.Attachment, {as: 'attachments'});
+    ListingVersion.belongsToMany(models.User, {
+        through: models.ListingUser,
+        as: 'users',
+        foreignKey: 'ListingVersionId'
+    });
   };
   return ListingVersion;
 };

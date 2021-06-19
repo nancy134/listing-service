@@ -30,3 +30,11 @@ exports.getPaginationParams = function(req){
     return params;
 }
 
+exports.notAuthorized = function(){
+    ret = {
+        statusCode: 400,
+        message: "You are not authorized to perform this operation"
+    };
+    return ret;
+}
+

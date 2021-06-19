@@ -182,7 +182,13 @@ exports.index = function(paginationParams, whereClauses){
                 as: 'listing',
                 attributes: ['latestDraftId', 'latestApprovedId'],
                 required: true
-            }
+            },
+            //{
+            //    model: models.User,
+            //    as: 'users',
+            //    where: {id: 2},
+            //    attributes: ['id', 'email']
+            //}
             ]
         }).then(listings => {
             var ret = {
@@ -351,6 +357,12 @@ find = function(id, t){
             },
             transaction: t,
             include: [
+            {
+                model: models.User,
+                as: 'users',
+                through: models.ListingUser,
+                attributes: ['id', 'email']
+            },
             {
                 model: models.Image,
                 as: 'images',

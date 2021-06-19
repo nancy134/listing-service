@@ -23,9 +23,10 @@ const listItemService = require("./listItem");
 const billingCalculationService = require("./billingCalculation");
 const jwt = require("./jwt");
 const utilities = require("./utilities");
-
+const sqsService = require('./sqs');
 const { Op } = require("sequelize");
-
+const userService = require('./user');
+const listingUserService = require('./listingUser');
 
 // Constants
 const PORT = 8080;
@@ -725,6 +726,30 @@ app.put('/attachments/:id', (req, res) => {
     }).catch(function(err){
         var ret = formatError(err);
         res.status(400).json(ret);
+    });
+});
+
+/////////////////////////
+// Listing Users
+/////////////////////////
+
+app.post('/listings/users', (req, res) => {
+    var authParms = jwt.getAuthParams(req);
+    listingUserService.create(authParams, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    }); 
+});
+
+app.get('/users', (req,res) => {
+    var pageParams = utilities.getPageParams(req);
+    var where = null;
+    var authParams = jwt.getAuthParams(req);
+    userService.index(authParams, pageParams, where).then(function(users){
+        res.json(users);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
     });
 });
 
