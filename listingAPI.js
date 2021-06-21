@@ -10,6 +10,7 @@ const attachmentService = require("./attachment");
 const jwt = require("./jwt");
 const utilities = require("./utilities");
 const listingUserService = require("./listingUser");
+const userService = require("./user");
 
 exports.indexListingAPI = function(req){
     var paginationParams = utilities.getPaginationParams(req);
@@ -29,10 +30,17 @@ exports.indexListingMeAPI = function(req){
         var authParams = jwt.getAuthParams(req);
         jwt.verifyToken(authParams).then(function(jwtResult){
             var paginationParams = utilities.getPaginationParams(req);
-            var username = jwtResult["cognito:username"];
-            var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings", username);
-            listingVersionService.index(paginationParams, whereClauses).then(function(listingVersion){
-                resolve(listingVersion);
+            var cognitoId  = jwtResult["cognito:username"];
+            console.log("cognitoId: "+cognitoId);
+            var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings");
+            userService.findByCognitoId(cognitoId).then(function(user){            
+                console.log("user:");
+                console.log(user);
+                listingVersionService.index(paginationParams, whereClauses, user.id).then(function(listingVersion){
+                    resolve(listingVersion);
+                }).catch(function(err){
+                    reject(err);
+                });
             }).catch(function(err){
                 reject(err);
             });
@@ -59,10 +67,14 @@ exports.indexMarkersListingMeAPI = function(req){
         var authParams = jwt.getAuthParams(req);
         jwt.verifyToken(authParams).then(function(jwtResult){
             var paginationParams = utilities.getPaginationParams(req);
-            var username = jwtResult["cognito:username"];
-            var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings", username);
-            listingVersionService.indexMarkers(paginationParams, whereClauses).then(function(markings){
-                resolve(markings);
+            var cognitoId = jwtResult["cognito:username"];
+            var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings");
+            userService.findByCognitoId(cognitoId).then(function(user){
+                listingVersionService.indexMarkers(paginationParams, whereClauses, user.id).then(function(markings){
+                    resolve(markings);
+                }).catch(function(err){
+                    reject(err);
+                });
             }).catch(function(err){
                 reject(err);
             });

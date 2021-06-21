@@ -24,7 +24,7 @@ function desymbolize(o) {
   }
 }
 
-exports.buildListingWhereClauses = function(req, listingMode, username){
+exports.buildListingWhereClauses = function(req, listingMode){
     // Listing Type
     var listingTypes = null;
     if (req.query.ListingType){
@@ -62,7 +62,6 @@ exports.buildListingWhereClauses = function(req, listingMode, username){
     if (listingMode === "myListings"){
         where = {
             [Op.and]: [
-                {owner: username},
                 propertyUse,
                 {[Op.or]: [
                     {[Op.and]: [
@@ -127,12 +126,17 @@ exports.buildListingWhereClauses = function(req, listingMode, username){
     }
     return ret;
 }
-exports.index = function(paginationParams, whereClauses){
+exports.index = function(paginationParams, whereClauses, userId){
     var page = paginationParams.page;
     var limit = paginationParams.limit;
     var offset = paginationParams.offset;
     var where = whereClauses.where;
     var spaceWhere = whereClauses.spaceWhere;
+    var userWhere = null;
+    if (userId){
+        userWhere = {id: userId}; 
+    }
+ 
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
             where: where,
@@ -183,12 +187,13 @@ exports.index = function(paginationParams, whereClauses){
                 attributes: ['latestDraftId', 'latestApprovedId'],
                 required: true
             },
-            //{
-            //    model: models.User,
-            //    as: 'users',
-            //    where: {id: 2},
-            //    attributes: ['id', 'email']
-            //}
+            {
+                model: models.User,
+                as: 'users',
+                where: userWhere,
+                attributes: ['id', 'email']
+            }
+
             ]
         }).then(listings => {
             var ret = {
@@ -221,12 +226,17 @@ exports.indexOnMarket = function(page, limit, offset){
     });
 }
 
-exports.indexMarkers = function(paginationParams, whereClauses){
+exports.indexMarkers = function(paginationParams, whereClauses, userId){
     var page = paginationParams.page;
     var limit = paginationParams.limit;
     var offset = paginationParams.offset;
     var where = whereClauses.where;
     var spaceWhere = whereClauses.spaceWhere;
+    var userWhere = null;
+    if (userId){
+        userWhere = {id: userId};
+    }
+
     return new Promise(function(resolve, reject){
         models.ListingVersion.findAndCountAll({
             where: where,
@@ -258,7 +268,14 @@ exports.indexMarkers = function(paginationParams, whereClauses){
                 as: 'listing',
                 attributes: [],
                 required: true
+            },
+            {
+                model: models.User,
+                as: 'users',
+                where: userWhere,
+                attributes: ['id', 'email']
             }
+
             ]
         }).then(markers => {
             var ret = {

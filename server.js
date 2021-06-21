@@ -72,6 +72,8 @@ app.get('/listings', (req, res) => {
 
 app.get('/listings/me', (req, res) => {
     listingAPIService.indexListingMeAPI(req).then(function(result){
+        console.log("result:");
+        console.log(result);
         res.json(result);
     }).catch(function(err){
         console.log(err);
@@ -91,6 +93,7 @@ app.get('/listingMarkers/me', (req, res) => {
     listingAPIService.indexMarkersListingMeAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
+        console.log(err);
         errorResponse(res, err);
     });
 });
