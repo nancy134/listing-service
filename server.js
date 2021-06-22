@@ -65,18 +65,14 @@ app.get('/listings', (req, res) => {
     listingAPIService.indexListingAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log(err);
         errorResponse(res, err);
     });
 });
 
 app.get('/listings/me', (req, res) => {
     listingAPIService.indexListingMeAPI(req).then(function(result){
-        console.log("result:");
-        console.log(result);
         res.json(result);
     }).catch(function(err){
-        console.log(err);
         errorResponse(res, err);
     });
 });
@@ -93,7 +89,6 @@ app.get('/listingMarkers/me', (req, res) => {
     listingAPIService.indexMarkersListingMeAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log(err);
         errorResponse(res, err);
     });
 });
@@ -743,6 +738,15 @@ app.post('/listings/users', (req, res) => {
     }).catch(function(err){
         res.status(400).json(formatError(err));
     }); 
+});
+
+app.delete('/listings/:ListingVersionId/users/:UserId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    listingUserService.deleteListingUser(authParams, req.params.ListingVersionId, req.params.UserId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
 });
 
 app.get('/users', (req,res) => {

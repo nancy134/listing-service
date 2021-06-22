@@ -40,3 +40,19 @@ exports.createMe = function(authParams, listingVersionId, t){
     });
 }
 
+exports.deleteListingUser = function(authParms, listingVersionId, userId){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.destroy({
+            where: {
+                ListingVersionId: listingVersionId,
+                UserId: userId
+            }
+        }).then(function(result){
+           resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+

@@ -31,11 +31,8 @@ exports.indexListingMeAPI = function(req){
         jwt.verifyToken(authParams).then(function(jwtResult){
             var paginationParams = utilities.getPaginationParams(req);
             var cognitoId  = jwtResult["cognito:username"];
-            console.log("cognitoId: "+cognitoId);
             var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings");
             userService.findByCognitoId(cognitoId).then(function(user){            
-                console.log("user:");
-                console.log(user);
                 listingVersionService.index(paginationParams, whereClauses, user.id).then(function(listingVersion){
                     resolve(listingVersion);
                 }).catch(function(err){
