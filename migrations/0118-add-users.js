@@ -19,6 +19,9 @@ module.exports = {
                 type: Sequelize.ENUM,
                 values: ['Agent', 'Broker', 'Administrator','Principal', 'Client']
             },
+            AssociationId: {
+                type: Sequelize.INTEGER
+            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE

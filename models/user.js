@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
         role: {
             type: DataTypes.ENUM,
             values: ["Agent", "Broker", "Administrator", "Principal", "Client"]
-        }
+        },
+        AssociationId: DataTypes.INTEGER
     },{});
 
     User.associate = function(models){
