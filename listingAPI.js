@@ -32,12 +32,40 @@ exports.indexListingMeAPI = function(req){
             var paginationParams = utilities.getPaginationParams(req);
             var cognitoId  = jwtResult["cognito:username"];
             var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings");
-            userService.findByCognitoId(cognitoId).then(function(user){            
-                listingVersionService.index(paginationParams, whereClauses, user.id).then(function(listingVersion){
-                    resolve(listingVersion);
-                }).catch(function(err){
-                    reject(err);
-                });
+            userService.findByCognitoId(cognitoId).then(function(user){
+                var users = [];
+                if (user.role === "Administrator"){
+                    if (user.AssociationId){
+                        userService.findAllByAssociationId(user.AssociationId).then(function(associates){
+                            if (associates){
+                                for (var i=0; i<associates.length; i++){
+                                    users.push(associates[i].id); 
+                                }
+                            }
+                            listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
+                                resolve(listingVersion);
+                            }).catch(function(err){
+                                reject(err);
+                            });
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    } else {
+                        users.push(user.id)
+                        listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
+                            resolve(listingVersion);
+                        }).catch(function(err){
+                            reject(err);
+                        });
+                    } 
+                } else {
+                    users.push(user.id);
+                    listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
+                        resolve(listingVersion);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                }
             }).catch(function(err){
                 reject(err);
             });

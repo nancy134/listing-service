@@ -33,16 +33,41 @@ exports.handleSQSMessage = function(message){
 exports.handleUpdateUserMessage = function(message){
     var json = JSON.parse(message.Body);
     var json2 = JSON.parse(json.Message);
-    var userBody = {
-        role: json2.role,
-        AssociationId: json2.AssocationId
-    };
-    userService.findByCognitoId(json2.cognitoId).then(function(user){
-        userService.systemUpdate(user.id, userBody).then(function(user2){
+
+    var userBody = {};
+    if (json2.role) userBody.role = json2.role;
+    if (json2.AssociationId) userBody.AssociationId = json2.AssociationId;
+    if (json2.cognitoId) userBody.cognitoId = json2.cognitoId;
+    if (json2.email) userBody.email = json2.email;
+
+    if (json2.cognitoId){
+        userService.findByCognitoId(json2.cognitoId).then(function(user){
+            if (json2.email){
+                userService.findByEmail(json2.email).then(function(user2){
+                    userService.systemUpdate(user2.id, userBody).then(function(user3){
+                    }).catch(function(err){
+                     });
+                }).catch(function(err){
+                });
+            } else {
+               // Error not found
+            }
         }).catch(function(err){
         });
-    }).catch(function(err){
-    });
+    } else if (json2.email){
+        userService.findByEmail(json2.email).then(function(user4){
+            if (user4){
+                userService.systemUpdate(user4.id, userBody).then(function(user5){
+                }).catch(function(err){
+                });
+            } else {
+                userService.systemCreate(userBody).then(function(user6){
+                }).catch(function(err){
+                });
+           }
+        }).catch(function(err){
+        });
+    }
 }
 
 exports.sqsApp = Consumer.create({

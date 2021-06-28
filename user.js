@@ -8,8 +8,7 @@ const utilities = require('./utilities');
 exports.systemCreate = function(body){
     return new Promise(function(resolve, reject){
         models.User.create(body).then(function(result){
-            var user = result[0].get({plain: true});
-            resolve(user);
+            resolve(result);
         }).catch(function(err){
             reject(err);
         }); 
@@ -101,6 +100,20 @@ exports.findByCognitoId = function(cognitoId){
             resolve(user);
         }).catch(function(err){
             reject(err);
+        });
+    });
+}
+
+exports.findAllByAssociationId = function(associationId){
+    return new Promise(function(resolve, reject){
+        models.User.findAll({
+           where: {
+               AssociationId: associationId
+           }
+        }).then(function(users){
+           resolve(users);
+        }).catch(function(err){
+           reject(err);
         });
     });
 }
