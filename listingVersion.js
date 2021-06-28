@@ -386,7 +386,7 @@ find = function(id, t){
                 model: models.User,
                 as: 'users',
                 through: models.ListingUser,
-                attributes: ['id', 'email']
+                attributes: ['id', 'email','cognitoId', 'role']
             },
             {
                 model: models.Image,
