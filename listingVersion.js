@@ -4,6 +4,7 @@ const unitService = require("./unit");
 const tenantService = require("./tenant");
 const portfolioService = require("./portfolio");
 const imageService = require("./image");
+const listingUserService = require("./listingUser");
 const { Op } = require("sequelize");
 const _ = require("lodash");
 const Sequelize = require('sequelize');
@@ -592,8 +593,10 @@ exports.copy = function(id, t){
             delete body.tenants;
             var portfolios = body.portfolios;
             delete body.portfolios;
+            var brokers = body.users;
+            delete body.users;
             var images = body.images;
-
+    
             for (var propName in body) { 
                 if (body[propName] === null || body[propName] === undefined) {
                     delete body[propName];
@@ -634,6 +637,15 @@ exports.copy = function(id, t){
                         images[index].id,
                         newListingVersion.id,
                         t);
+                    promises.push(copyPromise);
+                }
+                for (var index in brokers){
+                    var copyPromise = listingUserService.copyBroker(
+                        brokers[index].id,
+                        brokers[index].ListingUser.ListingVersionId,
+                        newListingVersion.id,
+                        t
+                    );
                     promises.push(copyPromise);
                 }
 

@@ -518,6 +518,9 @@ exports.createAssociationAPI = function(body, associatedTable){
         if (associatedTable === "attachment"){
             var createAssociatedRecord = attachmentService.createAttachment;
         }
+        if (associatedTable === "broker"){
+            var createAssociatedRecord = listingUserService.createBroker;
+        }
 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
@@ -598,6 +601,11 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             var findAssociatedRecord = attachmentService.find;
             var updateAssociatedRecord = attachmentService.updateAttachment;
             var findWithPreviousAssociatedRecord = attachmentService.findWithPrevious;
+        }
+        if (associatedTable === "broker"){
+            var findAssociatedRecord = listingUserService.find;
+            var updateAssociatedRecord = listingUserService.update;
+            var findWithPreviousAssociatedRecord = listingUserService.findWithPrevious;
         }
 
         var sequelize = models.sequelize;
@@ -692,6 +700,12 @@ exports.deleteAssociationAPI = function(id, associatedTable){
             var deleteAssociatedRecord = attachmentService.deleteAttachment;
             var findWithPreviousAssociatedRecord = attachmentService.findWithPrevious;
         };
+        if (associatedTable === "broker"){
+            var findAssociatedRecord = listingUserService.find;
+            var deleteAssociatedRecord = listingUserService.deleteBroker;
+            var findWithPreviousAssociatedRecord = listingUserService.findWithPrevious;
+        }
+
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
             findAssociatedRecord(id,t).then(function(associatedRecord){

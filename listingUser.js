@@ -55,4 +55,142 @@ exports.deleteListingUser = function(authParms, listingVersionId, userId){
     });
 }
 
+createSystem = function(body, t){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.create(body, {transaction: t}).then(function(broker){
+            resolve(broker);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
 
+exports.createBroker = function(body, t){
+    return new Promise(function(resolve, reject){
+        createSystem(body, t).then(function(broker){
+            resolve(broker);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var find = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.findOne({
+            where: {
+                id: id
+            },
+            transaction: t
+        }).then(function(broker){
+            resolve(broker);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var findWithPrevious = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.findOne({
+            where: {
+                PreviousVersionid: id
+            },
+            transaction: t
+        }).then(function(broker){
+            resolve(broker);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var update = function(id, body, t){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.update(
+            body,
+            {
+                returning: true,
+                where: {id: id},
+                transaction: t
+            }
+        ).then(function([rowsUpdate, [broker]]){
+            resolve(broker);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+var deleteBroker = function(id, t){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.destroy({
+            where: {id: id},
+            transaction: t
+        }).then(function(result){
+            resolve(result);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.createAPI = function(body)
+{
+    return new Promise(function(resolve, reject){
+        listingAPIService.createAssociationAPI(body, "broker").then(function(createdBroker){
+            resolve(createdImage);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.updateAPI = function(id, body){
+    return new Promise(function(resolve, reject){
+        listingAPIService.updateAssociationAPI(id, body, "broker").then(function(updatedBroker){
+            resolve(updatedImage);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.deleteAPI = function(id){
+    return new Promise(function(resolve, reject){
+        listingAPIService.deleteAssociationAPI(id, "broker").then(function(deletedBroker){
+            resolve(deletedImage);
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.copyBroker = function(id, ListingVersionId, newListingVersionId, t){
+    return new Promise(function(resolve, reject){
+        models.ListingUser.findOne({
+            where: {
+                UserId: id,
+                ListingVersionId
+            },
+            transaction: t
+        }).then(function(broker){
+            var body = {};
+            body.ListingVersionId = newListingVersionId;
+            body.UserId = id;
+            body.PreviousVersionId = broker.id;
+            createSystem(body, t).then(function(broker){
+                resolve(broker);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.find = find;
+exports.update = update;
+exports.findWithPrevious = findWithPrevious;
+exports.deleteBroker = deleteBroker;
