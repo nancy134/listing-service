@@ -477,13 +477,24 @@ exports.unPublishListingAPI = function(id){
     });
 }
 
-exports.getListingVersionsAdmin = function(page, limit, offset, where){
+exports.getListingVersionsAdmin = function(req){
     return new Promise(function(resolve, reject){
-       listingVersionService.indexAdmin(page, limit, offset, where).then(function(listingVersions){
-           resolve(listingVersions);
-       }).catch(function(err){
-           reject(err);
-       });
+       var authParams = jwt.getAuthParams(req);
+       jwt.verifyToken(authParams).then(function(jwtResult){ 
+           if (jwt.isAdmin(jwtResult)){
+               var paginationParams = utilities.getPaginationParams(req);
+               var whereClauses = listingVersionService.buildAdminListingWhereClauses(req);
+               listingVersionService.indexAdmin(paginationParams, whereClauses).then(function(listingVersions){
+                   resolve(listingVersions);
+               }).catch(function(err){
+                   reject(err);
+               });
+           } else {
+               reject(utilities.notAuthorized());
+           }
+        }).catch(function(err){
+            reject(err);
+        });
     });
 }
 

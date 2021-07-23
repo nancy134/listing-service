@@ -127,6 +127,19 @@ exports.buildListingWhereClauses = function(req, listingMode){
     }
     return ret;
 }
+
+exports.buildAdminListingWhereClauses = function(req){
+    var where = {
+        publishStatus: 'On Market'
+    };
+    ret = {
+        where: where,
+        spaceWhere: null
+    };
+    return (ret);
+
+}
+
 exports.index = function(paginationParams, whereClauses, users){
     var page = paginationParams.page;
     var limit = paginationParams.limit;
@@ -299,14 +312,25 @@ exports.indexMarkers = function(paginationParams, whereClauses, userId){
     });
 }
 
-exports.indexAdmin = function(page, limit, offset, where){
+exports.indexAdmin = function(paginationParams, whereClauses){
+    var page = paginationParams.page;
+    var limit = paginationParams.limit;
+    var offset = paginationParams.offset;
+    var where = whereClauses.where; 
     return new Promise(function(resolve, reject){
-        models.ListingVersion.findAll({
+        models.ListingVersion.findAndCountAll({
             where: where,
-            attributes: ['id','publishStatus','owner', 'createdAt'],
+            distinct: true,
+            limit: limit,
+            offset: offset,
             order: [['id', 'ASC']]
         }).then(listings => {
-            resolve(listings); 
+            var ret = {
+                page: page,
+                perPage: limit,
+                listings: listings
+            };
+            resolve(ret); 
         }).catch(err => { 
             reject(err);
         });

@@ -109,18 +109,10 @@ app.get('/admin/listings', (req, res) => {
     });
 });
 app.get('/admin/listingVersions', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = null;
-    if (req.query.ListingId){
-        where = {ListingId: req.query.ListingId};
-    }
-    var getListingVersionsPromise = listingAPIService.getListingVersionsAdmin(page, limit, offset, where);
-    getListingVersionsPromise.then(function(result){
+    listingAPIService.getListingVersionsAdmin(req).then(function(result){
         res.json(result);
     }).catch(function(err){
-        res.status(400).send(err);
+        errorResponse(res, err);
     });
 });
 
