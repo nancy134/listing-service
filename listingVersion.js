@@ -323,7 +323,33 @@ exports.indexAdmin = function(paginationParams, whereClauses){
             distinct: true,
             limit: limit,
             offset: offset,
-            order: [['id', 'ASC']]
+            order: [['id', 'ASC']],
+            include: [
+            {
+                model: models.Space,
+                as: 'spaces'
+            },
+            {
+                model: models.Unit,
+                as: 'units'
+            },
+            {
+                model: models.Tenant,
+                as: 'tenants'
+            },
+            {
+                model: models.Image,
+                as: 'images'
+            },
+            { 
+                model: models.User,
+                as: 'users'
+            },
+            {
+                model: models.Attachment,
+                as: 'attachments'
+            }
+            ]
         }).then(listings => {
             var ret = {
                 page: page,
