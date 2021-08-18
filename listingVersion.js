@@ -495,7 +495,8 @@ find = function(id, t){
             {
                 model: models.Tenant,
                 as: 'tenants',
-                attributes: ['id', 'tenant', 'space', 'baseRent', 'leaseEnds']
+                attributes: ['id', 'tenant', 'space', 'baseRent', 'leaseEnds'],
+                order: ['createdAt', 'ASC']
             },
             {
                 model: models.Portfolio,
