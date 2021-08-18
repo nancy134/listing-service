@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
             'Multifamily',
             'Investment',
             'Condo',
-            'Automotive'
+            'Automotive',
+            'Medical'
         ]
     },
     description: DataTypes.TEXT,
