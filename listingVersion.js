@@ -271,6 +271,10 @@ exports.indexMarkers = function(paginationParams, whereClauses, userId){
                 'address',
                 'city',
                 'state',
+                'zip',
+                'shortDescription',
+                'listingPrice',
+                'propertyTypes',
                 'publishStatus',
                 'updatedAt'
             ],
@@ -296,8 +300,11 @@ exports.indexMarkers = function(paginationParams, whereClauses, userId){
                 as: 'users',
                 where: userWhere,
                 attributes: ['id', 'email']
+            },
+            {
+                model: models.Image,
+                as: 'images'
             }
-
             ]
         }).then(markers => {
             var ret = {
