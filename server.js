@@ -212,19 +212,6 @@ app.get('/listing/:listing_id/units', (req, res) => {
     });
 });
 
-app.get('/listing/:listing_id/tenants', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = {ListingVersionId: req.params.listing_id};
-    var getTenantsPromise = tenantService.getTenants(page, limit, offset, where);
-    getTenantsPromise.then(function(result){
-        res.json(result);
-    }).catch(function(err){
-        console.log("err: "+err);
-    });
-});
-
 app.get('/listing/:listing_id/portfolios', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -266,19 +253,6 @@ app.get('/units', (req, res) => {
     });
 });
 
-app.get('/tenants', (req, res) => {
-    var page = req.query.page;
-    var limit = req.query.perPage;
-    var offset = (parseInt(req.query.page)-1)*parseInt(req.query.perPage);
-    var where = null;;
-    var getTenantsPromise = tenantService.getTenants(page, limit, offset, where);
-    getTenantsPromise.then(function(result){
-        res.json(result);
-    }).catch(function(err){
-        console.log("err: "+err);
-    });
-});
-
 app.get('/images', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -305,14 +279,6 @@ app.get('/addresses', (req, res) => {
     });
 });
 
-app.get('/tenants/:id', (req, res) => {
-    var getTenantPromise = tenantService.find(req.params.id);
-    getTenantPromise.then(function(tenant){
-        res.json(tenant);
-    }).catch(function(err){
-        res.status(400).json(err);
-    });
-});
 app.get('/portfolios', (req, res) => {
     var page = req.query.page;
     var limit = req.query.perPage;
@@ -388,16 +354,6 @@ app.put('/spaces/:id', (req, res) => {
 app.put('/units/:id', (req, res) => {
     var updateUnitPromise = unitService.updateAPI(req.params.id, req.body);
     updateUnitPromise.then(function(result){
-        res.json(result);
-    }).catch(function(err){
-        var ret = formatError(err);
-        res.status(400).json(ret);
-    });
-});
-
-app.put('/tenants/:id', (req, res) => {
-    var updateTenantPromise = tenantService.updateAPI(req.params.id, req.body);
-    updateTenantPromise.then(function(result){
         res.json(result);
     }).catch(function(err){
         var ret = formatError(err);
@@ -534,16 +490,6 @@ app.post('/units', (req, res) => {
     });
 });
 
-app.post('/tenants', (req, res) => {
-    var createTenantPromise = tenantService.createAPI(req.body);
-    createTenantPromise.then(function(result){
-        res.json(result);
-    }).catch(function(err){
-        var ret = formatError(err);
-        res.status(400).json(ret);
-    });
-});
-
 app.post('/portfolios', (req, res) => {
     var createPortfolioPromise = portfolioService.createAPI(req.body);
     createPortfolioPromise.then(function(result){
@@ -564,7 +510,85 @@ app.delete('/spaces/:id', (req, res) => {
         res.status(400).json(ret);
     });
 });
+////////////////////////
+//
+// Tenant Service
+//
+////////////////////////
 
+app.get('/listings/:listingVersionId/tenants', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    var pageParams = utilities.getPageParams(req);
+    var where = {ListingVersionId: req.params.listingVersionId};
+    tenantService.getTenants(authParams, pageParams, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.get('/listings/:listingVersionId/tenants/:tenantId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    tenantService.find(authParams, req.params.listingVersionId, req.params.tenantId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.get('/tenants', (req, res) => {
+    var where = null;;
+    var authParams = jwt.getAuthParams(req);
+    var pageParams = utilities.getPageParams(req);
+    tenantService.getTenants(authParams, pageParams, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.get('/listings/:listingVersionId/tenants/:tenantId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    tenantService.find(authParams, req.params.listingVersionId, req.params.tenantId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.put('/listings/:listingVersionId/tenants/:tenantId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    tenantService.updateAPI(authParams, req.params.listingVersionId, req.params.tenantId, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.post('/listings/:listingVersionId/tenants', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    tenantService.createAPI(authParams, req.params.listingVersionId, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.delete('/listings/:listingVersionId/tenants/:tenantId', (req, res) => {
+   var authParams = jwt.getAuthParams(req);
+   tenantService.deleteAPI(authParams, req.params.tenantId).then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       res.status(400).json(formatError(err));
+   });
+   
+});
+
+////////////////////////
+//
+// Status Events
+//
+////////////////////////
 app.post('/statusEvents', (req, res) => {
     statusEventService.create(req.body).then(function(result){
         res.json(result);
@@ -634,7 +658,6 @@ app.post('/lists/:ListId/listItems/me', (req, res) => {
     listItemService.createMe(authParams, listId, req.body).then(function(result){
         res.json(result);
     }).catch(function(err){
-        console.log(err);
         errorResponse(res, err);
     });
 });

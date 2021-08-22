@@ -698,7 +698,7 @@ exports.deleteAssociationAPI = function(id, associatedTable){
         }
         if (associatedTable === "tenant"){
             var findAssociatedRecord = tenantService.find;
-            var deleteAssociatedRecord = tenantService.destroy;
+            var deleteAssociatedRecord = tenantService.deleteTenant;
             var findWithPreviousAssociatedRecord = tenantService.findWithPrevious;
         }
         if (associatedTable === "image"){
