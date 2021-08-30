@@ -29,7 +29,8 @@ exports.indexListingAPI = function(req){
 exports.indexUserListingAPI = function(req){
     return new Promise(function(resolve, reject){
         var cognitoId = req.params.cognitoId;
-        var whereClauses = listingVersionService.buildlistingWhereClauses(req, "embedListings");
+        var paginationParams = utilities.getPaginationParams(req);
+        var whereClauses = listingVersionService.buildListingWhereClauses(req, "embedListings");
         userService.getAllAssociates(cognitoId).then(function(users){
             listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
                 resolve(listingVersion);
