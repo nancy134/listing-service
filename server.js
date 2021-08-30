@@ -77,8 +77,24 @@ app.get('/listings/me', (req, res) => {
     });
 });
 
+app.get('/users/:cognitoId/listings', (req, res) => {
+    listingAPIService.indexUserListingAPI(req).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
 app.get('/listingMarkers', (req, res) => {
     listingAPIService.indexMarkersListingAPI(req).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        errorResponse(res, err);
+    });
+});
+
+app.get('/users/:cognitoId/listingMarkers', (req, res) => {
+    listingAPIService.indexUserMarkersListingAPI(req).then(function(result){
         res.json(result);
     }).catch(function(err){
         errorResponse(res, err);

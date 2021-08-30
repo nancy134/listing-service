@@ -25,6 +25,23 @@ exports.indexListingAPI = function(req){
     });
 }
 
+
+exports.indexUserListingAPI = function(req){
+    return new Promise(function(resolve, reject){
+        var cognitoId = req.params.cognitoId;
+        var whereClauses = listingVersionService.buildlistingWhereClauses(req, "embedListings");
+        userService.getAllAssociates(cognitoId).then(function(users){
+            listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
+                resolve(listingVersion);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.indexListingMeAPI = function(req){
     return new Promise(function(resolve, reject){
         var authParams = jwt.getAuthParams(req);
@@ -32,40 +49,12 @@ exports.indexListingMeAPI = function(req){
             var paginationParams = utilities.getPaginationParams(req);
             var cognitoId  = jwtResult["cognito:username"];
             var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings");
-            userService.findByCognitoId(cognitoId).then(function(user){
-                var users = [];
-                if (user.role === "Administrator"){
-                    if (user.AssociationId){
-                        userService.findAllByAssociationId(user.AssociationId).then(function(associates){
-                            if (associates){
-                                for (var i=0; i<associates.length; i++){
-                                    users.push(associates[i].id); 
-                                }
-                            }
-                            listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
-                                resolve(listingVersion);
-                            }).catch(function(err){
-                                reject(err);
-                            });
-                        }).catch(function(err){
-                            reject(err);
-                        });
-                    } else {
-                        users.push(user.id)
-                        listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
-                            resolve(listingVersion);
-                        }).catch(function(err){
-                            reject(err);
-                        });
-                    } 
-                } else {
-                    users.push(user.id);
-                    listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
-                        resolve(listingVersion);
-                    }).catch(function(err){
-                        reject(err);
-                    });
-                }
+            userService.getAllAssociates(cognitoId).then(function(users){
+                listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
+                    resolve(listingVersion);
+                }).catch(function(err){
+                    reject(err);
+                });
             }).catch(function(err){
                 reject(err);
             });
@@ -87,6 +76,23 @@ exports.indexMarkersListingAPI = function(req){
     });
 }
 
+exports.indexUserMarkersListingAPI = function(req){
+    return new Promise(function(resolve, reject){
+        var paginationParams = utilities.getPaginationParams(req);
+        var cognitoId = req.params.cognitoId;
+        var whereClauses = listingVersionService.buildListingWhereClauses(req, "embedListings");
+        userService.getAllAssociates(cognitoId).then(function(users){
+            listingVersionService.indexMarkers(paginationParams, whereClauses, users).then(function(listingVersion){
+                resolve(listingVersion);
+            }).catch(function(err){
+                reject(err);
+            });
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.indexMarkersListingMeAPI = function(req){
     return new Promise(function(resolve, reject){
         var authParams = jwt.getAuthParams(req);
@@ -94,8 +100,8 @@ exports.indexMarkersListingMeAPI = function(req){
             var paginationParams = utilities.getPaginationParams(req);
             var cognitoId = jwtResult["cognito:username"];
             var whereClauses = listingVersionService.buildListingWhereClauses(req, "myListings");
-            userService.findByCognitoId(cognitoId).then(function(user){
-                listingVersionService.indexMarkers(paginationParams, whereClauses, user.id).then(function(markings){
+            userService.getAllAssociates(cognitoId).then(function(users){
+                listingVersionService.indexMarkers(paginationParams, whereClauses, users).then(function(markings){
                     resolve(markings);
                 }).catch(function(err){
                     reject(err);

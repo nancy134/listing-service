@@ -248,15 +248,23 @@ exports.indexOnMarket = function(page, limit, offset){
     });
 }
 
-exports.indexMarkers = function(paginationParams, whereClauses, userId){
+exports.indexMarkers = function(paginationParams, whereClauses, users){
     var page = paginationParams.page;
     var limit = paginationParams.limit;
     var offset = paginationParams.offset;
     var where = whereClauses.where;
     var spaceWhere = whereClauses.spaceWhere;
     var userWhere = null;
-    if (userId){
-        userWhere = {id: userId};
+
+    // userId should be a list of users for adminstrator case
+    if (users){
+        var usersFind = [];
+        for (var i=0; i<users.length; i++){
+            usersFind.push({id: users[i]});
+        }
+        userWhere = {
+            [Op.or]: usersFind 
+        };
     }
 
     return new Promise(function(resolve, reject){

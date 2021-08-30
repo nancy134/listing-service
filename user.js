@@ -118,6 +118,36 @@ exports.findAllByAssociationId = function(associationId){
     });
 }
 
+exports.getAllAssociates = function(cognitoId){
+    return new Promise(function(resolve, reject){
+        exports.findByCognitoId(cognitoId).then(function(user){
+            var users = [];
+            if (user.role === "Administrator"){
+                if (user.AssociationId){
+                    exports.findAllByAssociationId(user.AssociationId).then(function(associates){
+                        if (associates){
+                            for (var i=0; i<associates.length; i++){
+                                users.push(associates[i].id); 
+                            }
+                        }
+                        resolve(users);
+                    }).catch(function(err){
+                        reject(err);
+                    });
+                } else {
+                    users.push(user.id);
+                    resolve(users);
+                }
+            } else {
+                users.push(user.id);
+                resolve(users);
+            } 
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.systemUpdate = function(id, body){
     return new Promise(function(resolve, reject){
         models.User.update(
