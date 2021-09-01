@@ -353,6 +353,10 @@ exports.indexAdmin = function(paginationParams, whereClauses){
                 as: 'tenants'
             },
             {
+                model: models.Condo,
+                as: 'condos'
+            },
+            {
                 model: models.Image,
                 as: 'images'
             },
@@ -505,6 +509,10 @@ find = function(id, t){
                 as: 'tenants',
                 attributes: ['id', 'tenant', 'space', 'baseRent', 'leaseEnds'],
                 order: ['createdAt', 'ASC']
+            },
+            {
+                model: models.Condo,
+                as: 'condos'
             },
             {
                 model: models.Portfolio,

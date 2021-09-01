@@ -27,6 +27,7 @@ const sqsService = require('./sqs');
 const { Op } = require("sequelize");
 const userService = require('./user');
 const listingUserService = require('./listingUser');
+const condoService = require('./condo');
 
 // Constants
 const PORT = 8080;
@@ -599,7 +600,78 @@ app.delete('/listings/:listingVersionId/tenants/:tenantId', (req, res) => {
    });
    
 });
+////////////////////////
+// 
+// condo-service
+////////////////////////
 
+app.get('/listings/:listingVersionId/condos', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    var pageParams = utilities.getPageParams(req);
+    var where = {ListingVersionId: req.params.listingVersionId};
+    condoService.getCondos(authParams, pageParams, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.get('/listings/:listingVersionId/condos/:condoId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    condoService.find(authParams, req.params.listingVersionId, req.params.condoId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.get('/condos', (req, res) => {
+    var where = null;;
+    var authParams = jwt.getAuthParams(req);
+    var pageParams = utilities.getPageParams(req);
+    condoService.getCondos(authParams, pageParams, where).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.get('/listings/:listingVersionId/condos/:condoId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    condoService.find(authParams, req.params.listingVersionId, req.params.condoId).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.put('/listings/:listingVersionId/condos/:condoId', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    condoService.updateAPI(authParams, req.params.listingVersionId, req.params.condoId, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.post('/listings/:listingVersionId/condos', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    condoService.createAPI(authParams, req.params.listingVersionId, req.body).then(function(result){
+        res.json(result);
+    }).catch(function(err){
+        res.status(400).json(formatError(err));
+    });
+});
+
+app.delete('/listings/:listingVersionId/condos/:condoId', (req, res) => {
+   var authParams = jwt.getAuthParams(req);
+   condoService.deleteAPI(authParams, req.params.condoId).then(function(result){
+       res.json(result);
+   }).catch(function(err){
+       res.status(400).json(formatError(err));
+   });
+   
+});
 ////////////////////////
 //
 // Status Events

@@ -11,6 +11,7 @@ const jwt = require("./jwt");
 const utilities = require("./utilities");
 const listingUserService = require("./listingUser");
 const userService = require("./user");
+const condoService = require("./condo");
 
 exports.indexListingAPI = function(req){
     var paginationParams = utilities.getPaginationParams(req);
@@ -539,6 +540,9 @@ exports.createAssociationAPI = function(body, associatedTable){
         if (associatedTable === "broker"){
             var createAssociatedRecord = listingUserService.createBroker;
         }
+        if (associatedTable === "condo"){
+            var createAssociatedRecord = condoService.createCondo;
+        }
 
         var sequelize = models.sequelize;
         sequelize.transaction().then(function(t){
@@ -624,6 +628,11 @@ exports.updateAssociationAPI = function(id, body, associatedTable){
             var findAssociatedRecord = listingUserService.find;
             var updateAssociatedRecord = listingUserService.update;
             var findWithPreviousAssociatedRecord = listingUserService.findWithPrevious;
+        }
+        if (associatedTable === "condo"){
+            var findAssociatedRecord = condoService.find;
+            var updateAssociatedRecord = condoService.update;
+            var findWithPreviousAssociatedRecord = condoService.findWithPrevious;
         }
 
         var sequelize = models.sequelize;
@@ -722,6 +731,11 @@ exports.deleteAssociationAPI = function(id, associatedTable){
             var findAssociatedRecord = listingUserService.find;
             var deleteAssociatedRecord = listingUserService.deleteBroker;
             var findWithPreviousAssociatedRecord = listingUserService.findWithPrevious;
+        }
+        if (associatedTable === "condo"){
+            var findAssociatedRecord = condoService.find;
+            var deleteAssociatedRecord = condoService.deleteCondo;
+            var findWithPreviousAssociatedRecord = condoService.findWithPrevious;
         }
 
         var sequelize = models.sequelize;
