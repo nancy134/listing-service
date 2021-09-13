@@ -104,6 +104,31 @@ exports.findByCognitoId = function(cognitoId){
     });
 }
 
+exports.findAllByCognitoId = function(cognitoId){
+    return new Promise(function(resolve, reject){
+        exports.findByCognitoId(cognitoId).then(function(user){
+            var allUsers = [];
+            if (user.AssociationId){
+                exports.findAllByAssociationId(user.AssociationId).then(function(associates){
+                    if (associates){
+                        for (var i=0; i<associates.length; i++){
+                            allUsers.push(associates[i].id);
+                        }
+                    }
+                    resolve(allUsers);
+                }).catch(function(err){
+                    reject(err);
+                });
+            } else {
+                allUsers.push(user.id);
+                resolve(allUsers);
+            }
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
 exports.findAllByAssociationId = function(associationId){
     return new Promise(function(resolve, reject){
         models.User.findAll({

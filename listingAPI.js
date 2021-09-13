@@ -32,7 +32,7 @@ exports.indexUserListingAPI = function(req){
         var cognitoId = req.params.cognitoId;
         var paginationParams = utilities.getPaginationParams(req);
         var whereClauses = listingVersionService.buildListingWhereClauses(req, "embedListings");
-        userService.getAllAssociates(cognitoId).then(function(users){
+        userService.findAllByCognitoId(cognitoId).then(function(users){
             listingVersionService.index(paginationParams, whereClauses, users).then(function(listingVersion){
                 resolve(listingVersion);
             }).catch(function(err){
@@ -83,7 +83,7 @@ exports.indexUserMarkersListingAPI = function(req){
         var paginationParams = utilities.getPaginationParams(req);
         var cognitoId = req.params.cognitoId;
         var whereClauses = listingVersionService.buildListingWhereClauses(req, "embedListings");
-        userService.getAllAssociates(cognitoId).then(function(users){
+        userService.findAllByCognitoId(cognitoId).then(function(users){
             listingVersionService.indexMarkers(paginationParams, whereClauses, users).then(function(listingVersion){
                 resolve(listingVersion);
             }).catch(function(err){
