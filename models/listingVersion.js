@@ -104,6 +104,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM,
         values: ['Draft', 'Under Moderation', 'Approved', 'On Market', 'Off Market', 'Archived']
     },
+
+    // Constant Contact
+    constantContactId: DataTypes.STRING,
+
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
 
