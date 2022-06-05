@@ -52,6 +52,7 @@ var updateSpace = function(id, body, t){
     if (body.ceilingHeight === "") body.ceilingHeight = null;
     if (body.nets === "") body.nets = null;
     if (body.availableDate === "") body.availableDate = null;
+    if (body.type === "") body.type = null;
 
     return new Promise(function(resolve, reject){
         models.Space.update(
