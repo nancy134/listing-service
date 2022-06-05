@@ -26,7 +26,10 @@ module.exports = (sequelize, DataTypes) => {
             'Investment',
             'Condo',
             'Automotive',
-            'Medical'
+            'Medical',
+            'Coworking',
+            'Industrial',
+            'Mixed Use'
         ]
     },
     description: DataTypes.TEXT,
