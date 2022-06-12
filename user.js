@@ -143,7 +143,7 @@ exports.findAllByAssociationId = function(associationId){
     });
 }
 
-exports.getAllAssociates = function(cognitoId){
+exports.getAllAssociates = function(cognitoId, mode){
     return new Promise(function(resolve, reject){
         exports.findByCognitoId(cognitoId).then(function(user){
             var users = [];
@@ -152,7 +152,10 @@ exports.getAllAssociates = function(cognitoId){
                     exports.findAllByAssociationId(user.AssociationId).then(function(associates){
                         if (associates){
                             for (var i=0; i<associates.length; i++){
-                                users.push(associates[i].id); 
+                                if (mode === "record")
+                                    users.push(associates);
+                                else
+                                    users.push(associates[i].id); 
                             }
                         }
                         resolve(users);
@@ -160,11 +163,17 @@ exports.getAllAssociates = function(cognitoId){
                         reject(err);
                     });
                 } else {
-                    users.push(user.id);
+                    if (mode === "record")
+                        users.push(user);
+                    else
+                        users.push(user.id);
                     resolve(users);
                 }
             } else {
-                users.push(user.id);
+                if (mode === "record")
+                    users.push(user);
+                else
+                    users.push(user.id);
                 resolve(users);
             } 
         }).catch(function(err){

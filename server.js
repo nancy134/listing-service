@@ -863,4 +863,14 @@ app.get('/users', (req,res) => {
     });
 });
 
+app.get('/listings/users/associates/me', (req, res) => {
+    var authParams = jwt.getAuthParams(req);
+    listingAPIService.getListingsUsersAssociatesMe(authParams).then(function(associates){
+        res.json(associates);
+    }).catch(function(err){
+        console.log(err);
+        res.status(400).json(formatError(err));
+    });
+});
+
 app.listen(PORT, HOST);
