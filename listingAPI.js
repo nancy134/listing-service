@@ -799,7 +799,7 @@ exports.getListingsUsersAssociatesMe = function(authParams){
     return new Promise(function(resolve, reject){
         jwt.verifyToken(authParams).then(function(jwtResult){
             var cognitoId  = jwtResult["cognito:username"];
-            userService.getAllAssociates(cognitoId, "record").then(function(associates){
+            userService.getAllAssociates2(cognitoId, "record").then(function(associates){
                 resolve(associates);
             }).catch(function(err){
                 reject(err);

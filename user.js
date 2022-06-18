@@ -155,7 +155,7 @@ exports.getAllAssociates = function(cognitoId, mode){
                                 if (mode === "record")
                                     users.push(associates);
                                 else
-                                    users.push(associates[i].id); 
+                                    users.push(associates[i].id);
                             }
                         }
                         resolve(users);
@@ -175,7 +175,38 @@ exports.getAllAssociates = function(cognitoId, mode){
                 else
                     users.push(user.id);
                 resolve(users);
-            } 
+            }
+        }).catch(function(err){
+            reject(err);
+        });
+    });
+}
+
+exports.getAllAssociates2 = function(cognitoId, mode){
+    return new Promise(function(resolve, reject){
+        exports.findByCognitoId(cognitoId).then(function(user){
+            var users = [];
+            if (user.AssociationId){
+                exports.findAllByAssociationId(user.AssociationId).then(function(associates){
+                    if (associates){
+                        for (var i=0; i<associates.length; i++){
+                            if (mode === "record")
+                                users.push(associates[i]);
+                            else
+                                users.push(associates[i].id); 
+                        }
+                    }
+                    resolve(users);
+                }).catch(function(err){
+                    reject(err);
+                });
+            } else {
+                if (mode === "record")
+                    users.push(user);
+                else
+                    users.push(user.id);
+                resolve(users);
+            }
         }).catch(function(err){
             reject(err);
         });
